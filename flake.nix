@@ -1,0 +1,84 @@
+{
+  description = "CalDAV Tasks - Cross-platform task management app";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        overlays = [ (import rust-overlay) ];
+        pkgs = import nixpkgs {
+          inherit system overlays;
+        };
+
+        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+          extensions = [ "rust-src" "rust-analyzer" ];
+        };
+
+        # macOS-specific dependencies - use apple-sdk for frameworks
+        darwinDeps = with pkgs; lib.optionals stdenv.isDarwin [
+          libiconv
+          apple-sdk_14
+        ];
+
+        # Linux-specific dependencies
+        linuxDeps = with pkgs; lib.optionals stdenv.isLinux [
+          webkitgtk
+          gtk3
+          libsoup
+          glib
+          gdk-pixbuf
+          pango
+          cairo
+          atk
+          libappindicator-gtk3
+        ];
+
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            # Rust
+            rustToolchain
+            cargo-tauri
+
+            # Node.js
+            nodejs_20
+            pnpm
+
+            # Build tools
+            pkg-config
+            openssl
+
+            # Tauri dependencies
+            libiconv
+          ] ++ darwinDeps ++ linuxDeps;
+
+          shellHook = ''
+            echo "🦀 CalDAV Tasks Development Environment"
+            echo ""
+            echo "Commands:"
+            echo "  pnpm install    - Install dependencies"
+            echo "  pnpm tauri dev  - Start development server"
+            echo "  pnpm tauri build - Build for production"
+            echo ""
+          '';
+
+          # Required for Tauri on macOS
+          RUST_BACKTRACE = 1;
+
+          # For pkg-config to find libraries
+          PKG_CONFIG_PATH = pkgs.lib.makeSearchPath "lib/pkgconfig" (with pkgs; [
+            openssl.dev
+          ] ++ linuxDeps);
+        };
+      }
+    );
+}

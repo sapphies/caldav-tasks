@@ -1,0 +1,103 @@
+export type Priority = 'high' | 'medium' | 'low' | 'none';
+
+export type SortMode =
+  | 'manual' // uses x-apple-sort-order
+  | 'due-date'
+  | 'start-date'
+  | 'priority'
+  | 'title'
+  | 'modified'
+  | 'created'
+  | 'smart'; // smart sort using x-apple-sort-order
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface Task {
+  id: string;
+  uid: string; // CalDAV UID
+  etag?: string; // CalDAV ETag for sync
+  href?: string; // CalDAV href
+  
+  // core fields
+  title: string;
+  description: string;
+  completed: boolean;
+  completedAt?: Date;
+  
+  // categorization
+  categoryId?: string;
+  priority: Priority;
+  
+  // dates
+  startDate?: Date;
+  dueDate?: Date;
+  createdAt: Date;
+  modifiedAt: Date;
+  
+  // subtasks / checklist (deprecated - use parentUid instead)
+  subtasks: Subtask[];
+  
+  // parent-child relationship (RELATED-TO in CalDAV)
+  parentUid?: string; // UID of parent task
+  isCollapsed?: boolean; // Whether subtasks are collapsed in UI
+  
+  // sorting
+  sortOrder: number; // x-apple-sort-order
+  
+  // sync
+  accountId: string;
+  calendarId: string;
+  synced: boolean;
+  localOnly?: boolean;
+}
+
+export interface Category {
+  id: string;
+  title: string;
+  color: string;
+  accountId: string;
+}
+
+export interface Calendar {
+  id: string;
+  displayName: string;
+  url: string;
+  ctag?: string;
+  syncToken?: string;
+  color?: string;
+  icon?: string; // Icon name from lucide-react
+  accountId: string;
+}
+
+export type ServerType = 'rustical' | 'radicale' | 'baikal' | 'generic';
+
+export interface Account {
+  id: string;
+  name: string;
+  serverUrl: string;
+  username: string;
+  password: string; // stored locally, for now
+  serverType?: ServerType; // defaults to 'rustical' for backward compatibility
+  calendars: Calendar[];
+  lastSync?: Date;
+  isActive: boolean;
+}
+
+export interface SortConfig {
+  mode: SortMode;
+  direction: SortDirection;
+}
+
+export interface AppSettings {
+  theme: 'light' | 'dark' | 'system';
+  defaultSortMode: SortMode;
+  defaultSortDirection: SortDirection;
+  showCompletedTasks: boolean;
+  confirmBeforeDelete: boolean;
+}

@@ -1,0 +1,38 @@
+# Nix
+result/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+target/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tauri
+src-tauri/target/
+
+# CalDAV test servers
+.radicale/
+.baikal/
+
+# local stuff
+*.mobileconfig

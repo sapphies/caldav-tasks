@@ -1,0 +1,158 @@
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { useTaskStore } from '@/store/taskStore';
+import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
+
+interface CategoryModalProps {
+  categoryId: string | null;
+  onClose: () => void;
+}
+
+const colorPresets = [
+  '#ef4444', // red
+  '#f97316', // orange
+  '#f59e0b', // amber
+  '#eab308', // yellow
+  '#84cc16', // lime
+  '#22c55e', // green
+  '#14b8a6', // teal
+  '#06b6d4', // cyan
+  '#3b82f6', // blue
+  '#6366f1', // indigo
+  '#8b5cf6', // violet
+  '#a855f7', // purple
+  '#d946ef', // fuchsia
+  '#ec4899', // pink
+  '#6b7280', // gray
+];
+
+export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
+  const { categories, addCategory, updateCategory } = useTaskStore();
+  
+  const existingCategory = categoryId 
+    ? categories.find((c) => c.id === categoryId) 
+    : null;
+
+  const [title, setTitle] = useState(existingCategory?.title || '');
+  const [color, setColor] = useState(existingCategory?.color || '#3b82f6');
+
+  // handle ESC key to close modal
+  useModalEscapeKey(onClose);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (existingCategory) {
+      updateCategory(existingCategory.id, { title, color });
+    } else {
+      addCategory({ title, color });
+    }
+
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
+      <div 
+        className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-sm animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-surface-200 dark:border-surface-700">
+          <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-200">
+            {existingCategory ? 'Edit Category' : 'New Category'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Category name"
+              required
+              autoFocus
+              className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+              Color
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {colorPresets.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setColor(preset)}
+                  className={`
+                    w-8 h-8 rounded-full transition-all
+                    ${color === preset ? 'ring-2 ring-offset-2 dark:ring-offset-surface-800 ring-primary-500 scale-110' : 'hover:scale-110'}
+                  `}
+                  style={{ backgroundColor: preset }}
+                />
+              ))}
+            </div>
+            
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-8 h-8 rounded cursor-pointer"
+              />
+              <input
+                type="text"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                placeholder="#3b82f6"
+                className="flex-1 px-3 py-1.5 text-sm font-mono text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+              Preview
+            </label>
+            <span
+              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+              style={{ 
+                backgroundColor: `${color}20`,
+                color: color,
+              }}
+            >
+              {title || 'Category name'}
+            </span>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-surface-600 dark:text-surface-400 hover:text-surface-800 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+            >
+              {existingCategory ? 'Save' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

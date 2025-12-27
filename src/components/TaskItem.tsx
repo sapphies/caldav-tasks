@@ -1,0 +1,281 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { format, isToday, isTomorrow, isPast, isThisWeek } from 'date-fns';
+import { Calendar, CheckCircle2, ChevronRight, ChevronDown, Trash2, Edit2, Share2 } from 'lucide-react';
+import { useState } from 'react';
+import { useTaskStore } from '@/store/taskStore';
+import { useSettingsStore } from '@/store/settingsStore';
+import { Task, Priority } from '@/types';
+import { ExportModal } from './modals/ExportModal';
+import { getContrastTextColor } from '@/lib/colorUtils';
+import { useContextMenu } from '@/hooks/useContextMenu';
+import { pluralize } from '@/lib/formatUtils';
+
+interface TaskItemProps {
+  task: Task;
+  depth: number;
+  ancestorIds: string[];
+  isDragEnabled: boolean;
+  isOverlay?: boolean;
+}
+
+const priorityColors: Record<Priority, string> = {
+  high: 'border-red-400 bg-red-50 dark:bg-red-900/30',
+  medium: 'border-amber-400 bg-amber-50 dark:bg-amber-900/30',
+  low: 'border-blue-400 bg-blue-50 dark:bg-blue-900/30',
+  none: 'border-transparent',
+};
+
+function formatDueDate(date: Date): { text: string; className: string } {
+  const d = new Date(date);
+  
+  if (isPast(d) && !isToday(d)) {
+    return { text: format(d, 'MMM d'), className: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30' };
+  }
+  if (isToday(d)) {
+    return { text: 'Today', className: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30' };
+  }
+  if (isTomorrow(d)) {
+    return { text: 'Tomorrow', className: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' };
+  }
+  if (isThisWeek(d)) {
+    return { text: format(d, 'EEEE'), className: 'text-surface-600 dark:text-surface-400 bg-surface-100 dark:bg-surface-700' };
+  }
+  return { text: format(d, 'MMM d'), className: 'text-surface-600 dark:text-surface-400 bg-surface-100 dark:bg-surface-700' };
+}
+
+export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }: TaskItemProps) {
+  const { 
+    toggleTaskComplete, 
+    setSelectedTask, 
+    selectedTaskId, 
+    categories, 
+    deleteTask,
+    countChildren,
+    toggleTaskCollapsed,
+    exportTaskAndChildren,
+  } = useTaskStore();
+  const { accentColor } = useSettingsStore();
+  const { contextMenu, handleContextMenu, handleCloseContextMenu, setContextMenu } = useContextMenu();
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  // get contrast color for checkbox checkmark
+  const checkmarkColor = getContrastTextColor(accentColor);
+
+  const childCount = countChildren(task.uid);
+  const completedSubtasks = task.subtasks.filter((s) => s.completed).length;
+  const totalSubtasks = task.subtasks.length;
+
+  // pass ancestorIds as data so it can be accessed in handleDragEnd
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    disabled: !isDragEnabled,
+    data: { ancestorIds },
+  });
+
+  // only use translate, not scale, to avoid layout shifts
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transition,
+  };
+
+  const isSelected = selectedTaskId === task.id;
+  const category = categories.find((c) => c.id === task.categoryId);
+
+  const handleClick = (e: React.MouseEvent) => {
+    // don't select if clicking the checkbox or collapse button
+    if ((e.target as HTMLElement).closest('.task-checkbox-wrapper') ||
+        (e.target as HTMLElement).closest('.collapse-button')) {
+      return;
+    }
+    setSelectedTask(task.id);
+  };
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleTaskComplete(task.id);
+  };
+
+  const handleDelete = () => {
+    deleteTask(task.id);
+    setContextMenu(null);
+  };
+
+  const handleExport = () => {
+    const result = exportTaskAndChildren(task.id);
+    if (result) {
+      setShowExportModal(true);
+    }
+    setContextMenu(null);
+  };
+
+  // todo: implement duplicate functionality at some point
+
+  // calculate left margin based on depth
+  const marginLeft = depth * 24; // 24px per level
+  const paddingLeft = 12 + (depth * 4);
+
+  return (
+    <>
+      <div
+        ref={setNodeRef}
+        style={{ ...style, marginLeft: `${marginLeft}px`, paddingLeft: `${paddingLeft}px` }}
+        {...attributes}
+        {...(isDragEnabled ? listeners : {})}
+        onClick={handleClick}
+        onContextMenu={handleContextMenu}
+        data-context-menu
+        className={`
+          group relative flex items-start gap-3 pr-3 py-3 bg-white dark:bg-surface-800 rounded-lg border transition-all
+          ${isDragging ? 'opacity-50' : ''}
+          ${isOverlay ? 'shadow-xl' : 'shadow-sm hover:shadow-md'}
+          ${isSelected ? 'ring-2 ring-primary-100 dark:ring-primary-900/50' : task.priority === 'none' ? 'border-surface-200 dark:border-surface-700' : ''}
+          ${task.completed ? 'opacity-60' : ''}
+          ${isDragEnabled ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
+          ${priorityColors[task.priority]}
+        `}
+      >
+        <div className="task-checkbox-wrapper flex-shrink-0" onClick={handleCheckboxClick}>
+          <button
+            className={`
+              w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+              ${task.completed 
+                ? 'bg-primary-500 border-primary-500' 
+                : 'border-surface-300 dark:border-surface-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30'
+              }
+            `}
+          >
+            {task.completed && <CheckCircle2 className="w-4 h-4" style={{ color: checkmarkColor }} />}
+          </button>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className={`text-sm font-medium leading-5 ${task.completed ? 'line-through text-surface-400' : 'text-surface-800 dark:text-surface-200'}`}>
+            {task.title || <span className="text-surface-400 italic">Untitled task</span>}
+          </div>
+
+          {task.description && (
+            <div className={`text-xs mt-1 line-clamp-1 ${task.completed ? 'text-surface-400 dark:text-surface-500' : 'text-surface-500 dark:text-surface-400'}`}>
+              {task.description}
+            </div>
+          )}
+
+          {(category || task.dueDate || totalSubtasks > 0 || childCount > 0) && (
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {category && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                  style={{ 
+                    backgroundColor: `${category.color}20`,
+                    color: category.color,
+                  }}
+                >
+                  {category.title}
+                </span>
+              )}
+
+              {task.dueDate && (
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${formatDueDate(task.dueDate).className}`}>
+                  <Calendar className="w-3 h-3" />
+                  {formatDueDate(task.dueDate).text}
+                </span>
+              )}
+
+              {totalSubtasks > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs text-surface-500 dark:text-surface-400">
+                  <CheckCircle2 className="w-3 h-3" />
+                  {completedSubtasks}/{totalSubtasks}
+                </span>
+              )}
+
+              {childCount > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTaskCollapsed(task.id);
+                  }}
+                  className="collapse-button inline-flex items-center gap-0.5 px-2 py-0.5 rounded hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors text-xs text-surface-500 dark:text-surface-400"
+                >
+                  {task.isCollapsed ? (
+                    <>
+                      <ChevronRight className="w-3 h-3" />
+                      <span>{childCount} {pluralize(childCount, 'subtask')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-3 h-3" />
+                      <span>{childCount} {pluralize(childCount, 'subtask')}</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        <ChevronRight className="w-5 h-5 text-surface-300 dark:text-surface-600 group-hover:text-surface-500 dark:group-hover:text-surface-400 transition-colors flex-shrink-0" />
+      </div>
+
+      {contextMenu && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={handleCloseContextMenu}
+            onContextMenu={(e) => { e.preventDefault(); handleCloseContextMenu(); }}
+          />
+          <div
+            data-context-menu-content
+            className="fixed bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-1 z-50 min-w-[160px] animate-scale-in"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+          >
+            <button
+              onClick={() => { setSelectedTask(task.id); setContextMenu(null); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit
+            </button>
+            {/* todo: implement duplicate func. low priority rn */}
+            <button
+              onClick={() => { toggleTaskComplete(task.id); setContextMenu(null); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              {task.completed ? 'Mark Incomplete' : 'Mark Complete'}
+            </button>
+            <div className="border-t border-surface-200 dark:border-surface-700 my-1" />
+            <button
+              onClick={handleExport}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+            >
+              <Share2 className="w-4 h-4" />
+              Export
+            </button>
+            <button
+              onClick={handleDelete}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+
+      {showExportModal && (
+        <ExportModal
+          tasks={[task, ...(exportTaskAndChildren(task.id)?.descendants || [])]}
+          fileName={task.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'task'}
+          type="tasks"
+          onClose={() => setShowExportModal(false)}
+        />
+      )}
+    </>
+  );
+}
