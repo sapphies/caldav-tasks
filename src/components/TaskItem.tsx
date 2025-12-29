@@ -200,7 +200,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                     e.stopPropagation();
                     toggleTaskCollapsed(task.id);
                   }}
-                  className="collapse-button inline-flex items-center gap-0.5 px-2 py-0.5 rounded hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors text-xs text-surface-500 dark:text-surface-400"
+                  className="collapse-button inline-flex items-center gap-0.5 px-2 py-0.5 rounded border border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors text-xs text-surface-500 dark:text-surface-400"
                 >
                   {task.isCollapsed ? (
                     <>
