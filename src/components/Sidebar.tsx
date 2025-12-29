@@ -180,7 +180,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                   <div 
                     onClick={() => toggleAccount(account.id)}
                     onContextMenu={(e) => handleContextMenu(e, 'account', account.id)}
-                    className="relative w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors group cursor-pointer"
+                    className="relative w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors group cursor-pointer"
                   >
                     {expandedAccounts.has(account.id) ? (
                       <ChevronDown className="w-4 h-4 text-surface-400 flex-shrink-0" />
