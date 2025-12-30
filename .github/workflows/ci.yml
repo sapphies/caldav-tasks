@@ -49,6 +49,10 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || '' }}
 
+      - name: Install Linux ARM64 target
+        if: matrix.args == '--target aarch64-unknown-linux-gnu'
+        run: rustup target add aarch64-unknown-linux-gnu
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
