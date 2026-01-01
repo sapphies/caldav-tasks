@@ -1,6 +1,7 @@
 import ICAL from 'ical.js';
 import { Task, Priority, Subtask } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { useTaskStore } from '@/store/taskStore';
 
 // apple epoch: January 1, 2001 00:00:00 GMT in milliseconds since Unix epoch
 // used for X-APPLE-SORT-ORDER which stores seconds since Apple epoch
@@ -71,10 +72,22 @@ export function taskToVTodo(task: Task): string {
   // x-apple-sort-order for manual sorting (compatible with Apple Reminders, Nextcloud Tasks)
   vtodo.updatePropertyWithValue('x-apple-sort-order', task.sortOrder.toString());
 
-  // category - stored as the category name (not ID) for CalDAV compatibility
-  if (task.categoryId) {
-    // the categoryId field actually stores the category name for sync purposes
-    vtodo.updatePropertyWithValue('categories', task.categoryId);
+  // tags - stored as CATEGORIES for CalDAV compatibility
+  // Convert tag IDs to tag names
+  if (task.tags && task.tags.length > 0) {
+    const tags = useTaskStore.getState().tags;
+    const tagNames = task.tags
+      .map(tagId => tags.find(t => t.id === tagId)?.name)
+      .filter((name): name is string => Boolean(name));
+    
+    if (tagNames.length > 0) {
+      // Use Property with setValues to properly encode multiple categories
+      // This creates CATEGORIES:tag1,tag2 where each is a separate value
+      // rather than a single value "tag1,tag2"
+      const categoriesProp = new ICAL.Property('categories', vtodo);
+      categoriesProp.setValues(tagNames);
+      vtodo.addProperty(categoriesProp);
+    }
   }
 
   // parent-child relationship using RELATED-TO (CalDAV standard)
@@ -121,7 +134,17 @@ export function vtodoToTask(
     const description = vtodo.getFirstPropertyValue('description') as string;
     const status = vtodo.getFirstPropertyValue('status') as string;
     const priority = vtodo.getFirstPropertyValue('priority') as number;
-    const categories = vtodo.getFirstPropertyValue('categories') as string;
+    
+    // CATEGORIES can have multiple values - get all of them
+    // Some clients use comma-separated values, others use multiple values
+    let categories: string | undefined;
+    const categoriesProp = vtodo.getFirstProperty('categories');
+    if (categoriesProp) {
+      const values = categoriesProp.getValues() as string[];
+      categories = values.join(',');
+      console.log('[iCal] Parsed CATEGORIES:', categories, 'from values:', values);
+    }
+    
     const sortOrder = vtodo.getFirstPropertyValue('x-apple-sort-order');
     const subtasksJson = vtodo.getFirstPropertyValue('x-caldav-tasks-subtasks') as string;
     const isCollapsed = vtodo.getFirstPropertyValue('x-apple-collapsed') === '1';
@@ -324,7 +347,15 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
       const description = vtodo.getFirstPropertyValue('description') as string;
       const status = vtodo.getFirstPropertyValue('status') as string;
       const priority = vtodo.getFirstPropertyValue('priority') as number;
-      const categories = vtodo.getFirstPropertyValue('categories') as string;
+      
+      // CATEGORIES can have multiple values - get all of them
+      let categories: string | undefined;
+      const categoriesProp = vtodo.getFirstProperty('categories');
+      if (categoriesProp) {
+        const values = categoriesProp.getValues() as string[];
+        categories = values.join(',');
+      }
+      
       const sortOrder = vtodo.getFirstPropertyValue('x-apple-sort-order');
       const subtasksJson = vtodo.getFirstPropertyValue('x-caldav-tasks-subtasks') as string;
       const isCollapsed = vtodo.getFirstPropertyValue('x-apple-collapsed') === '1';
@@ -458,9 +489,14 @@ function buildVtodo(task: Task): ICAL.Component {
   // x-apple-sort-order for manual sorting
   vtodo.updatePropertyWithValue('x-apple-sort-order', task.sortOrder.toString());
 
-  // category
+  // category - properly encode multiple categories as separate values
   if (task.categoryId) {
-    vtodo.updatePropertyWithValue('categories', task.categoryId);
+    const categoryNames = task.categoryId.split(',').map(s => s.trim()).filter(Boolean);
+    if (categoryNames.length > 0) {
+      const categoriesProp = new ICAL.Property('categories', vtodo);
+      categoriesProp.setValues(categoryNames);
+      vtodo.addProperty(categoriesProp);
+    }
   }
 
   // parent-child relationship

@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { caldavService } from '@/lib/caldav';
 import { Task, Calendar } from '@/types';
 import { useOffline } from './useOffline';
-import { generateCategoryColor } from '@/lib/colorUtils';
+import { generateTagColor } from '@/lib/colorUtils';
 
 export function useSync() {
   const {
@@ -16,7 +16,7 @@ export function useSync() {
     addTask,
     updateTask,
     deleteTask,
-    addCategory,
+    addTag,
     updateAccount,
     clearPendingDeletion,
   } = useTaskStore();
@@ -130,23 +130,25 @@ export function useSync() {
   }, [updateAccount, deleteTask]);
 
   /**
-   * ensure a category exists by name
+   * ensure a tag exists by name, returns the tag ID
    */
-  const ensureCategoryExists = useCallback((categoryName: string, accountId: string) => {
-    const currentCategories = useTaskStore.getState().categories;
-    const existing = currentCategories.find(
-      c => c.title.toLowerCase() === categoryName.toLowerCase() && c.accountId === accountId
+  const ensureTagExists = useCallback((tagName: string): string => {
+    const currentTags = useTaskStore.getState().tags;
+    const existing = currentTags.find(
+      t => t.name.toLowerCase() === tagName.toLowerCase()
     );
     
-    if (!existing) {
-      console.log(`[Sync] Creating category: ${categoryName}`);
-      addCategory({
-        title: categoryName,
-        accountId,
-        color: generateCategoryColor(categoryName),
-      });
+    if (existing) {
+      return existing.id;
     }
-  }, [addCategory]);
+    
+    console.log(`[Sync] Creating tag: ${tagName}`);
+    const newTag = addTag({
+      name: tagName,
+      color: generateTagColor(tagName),
+    });
+    return newTag.id;
+  }, [addTag]);
 
   /**
    * sync a specific calendar - push local changes, then fetch from server
@@ -237,27 +239,61 @@ export function useSync() {
       if (!localUids.has(remoteTask.uid)) {
         // new task from server
         console.log(`[Sync] Adding new task from server: ${remoteTask.title}`);
-        addTask(remoteTask);
         
-        // extract category from the task and create if needed
+        // extract category/tag from the task and create if needed
+        // categoryId from CalDAV is the CATEGORIES property value (tag name)
+        let tagIds: string[] = [];
         if (remoteTask.categoryId) {
-          ensureCategoryExists(remoteTask.categoryId, account.id);
+          // CATEGORIES can be comma-separated
+          const categoryNames = remoteTask.categoryId.split(',').map((s: string) => s.trim()).filter(Boolean);
+          console.log(`[Sync] Task "${remoteTask.title}" has CATEGORIES:`, categoryNames);
+          tagIds = categoryNames.map((name: string) => ensureTagExists(name));
+          console.log(`[Sync] Created/found tag IDs:`, tagIds);
         }
+        
+        // add the task with tags
+        addTask({
+          ...remoteTask,
+          tags: tagIds,
+        });
       } else {
         // task exists locally - check if server version is newer
         const localTask = updatedLocalTasks.find(t => t.uid === remoteTask.uid);
-        if (localTask && remoteTask.etag !== localTask.etag) {
-          // only update from server if local task is synced (no local changes)
-          // if local task has unsynced changes, prefer local (will push on next sync)
-          if (localTask.synced) {
-            console.log(`[Sync] Updating task from server: ${remoteTask.title} (sortOrder: ${remoteTask.sortOrder})`);
+        if (localTask) {
+          // Check if tags need to be synced from server
+          let remoteTagIds: string[] = [];
+          if (remoteTask.categoryId) {
+            const categoryNames = remoteTask.categoryId.split(',').map((s: string) => s.trim()).filter(Boolean);
+            remoteTagIds = categoryNames.map((name: string) => ensureTagExists(name));
+          }
+          
+          // Check if local task is missing tags that exist on server
+          const localTagIds = localTask.tags || [];
+          const tagsMatch = remoteTagIds.length === localTagIds.length && 
+            remoteTagIds.every(id => localTagIds.includes(id));
+          
+          if (remoteTask.etag !== localTask.etag) {
+            // only update from server if local task is synced (no local changes)
+            // if local task has unsynced changes, prefer local (will push on next sync)
+            if (localTask.synced) {
+              console.log(`[Sync] Updating task from server: ${remoteTask.title} (sortOrder: ${remoteTask.sortOrder})`);
+              
+              updateTask(localTask.id, {
+                ...remoteTask,
+                id: localTask.id, // Keep local ID
+                tags: remoteTagIds,
+                synced: true,
+              });
+            } else {
+              console.log(`[Sync] Skipping server update for ${remoteTask.title} - local changes pending`);
+            }
+          } else if (!tagsMatch && localTask.synced) {
+            // etag matches but tags don't - sync tags without marking as unsynced
+            console.log(`[Sync] Syncing tags for task: ${remoteTask.title}`);
             updateTask(localTask.id, {
-              ...remoteTask,
-              id: localTask.id, // Keep local ID
-              synced: true,
+              tags: remoteTagIds,
+              synced: true, // Keep synced status
             });
-          } else {
-            console.log(`[Sync] Skipping server update for ${remoteTask.title} - local changes pending`);
           }
         }
       }
@@ -270,7 +306,7 @@ export function useSync() {
         deleteTask(localTask.id);
       }
     }
-  }, [addTask, updateTask, deleteTask, ensureCategoryExists, clearPendingDeletion]);
+  }, [addTask, updateTask, deleteTask, ensureTagExists, clearPendingDeletion]);
 
   /**
    * Sync all calendars for all accounts

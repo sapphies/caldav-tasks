@@ -31,7 +31,8 @@ export interface Task {
   completedAt?: Date;
   
   // categorization
-  categoryId?: string;
+  tags?: string[]; // Array of tag IDs (maps to iCal CATEGORIES)
+  categoryId?: string; // Raw CATEGORIES string from CalDAV (used during sync, mapped to tags)
   priority: Priority;
   
   // dates
@@ -57,11 +58,11 @@ export interface Task {
   localOnly?: boolean;
 }
 
-export interface Category {
+export interface Tag {
   id: string;
-  title: string;
+  name: string;
   color: string;
-  accountId: string;
+  icon?: string; // Icon name from lucide-react
 }
 
 export interface Calendar {

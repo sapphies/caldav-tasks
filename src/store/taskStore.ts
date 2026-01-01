@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Task,
-  Category,
+  Tag,
   Account,
   Calendar,
   SortConfig,
@@ -24,11 +24,12 @@ interface PendingDeletion {
 interface TaskStore {
   // state
   tasks: Task[];
-  categories: Category[];
+  tags: Tag[];
   accounts: Account[];
   pendingDeletions: PendingDeletion[];
   activeAccountId: string | null;
   activeCalendarId: string | null;
+  activeTagId: string | null; // for filtering by tag
   selectedTaskId: string | null;
   searchQuery: string;
   sortConfig: SortConfig;
@@ -48,11 +49,14 @@ interface TaskStore {
   toggleSubtaskComplete: (taskId: string, subtaskId: string) => void;
   clearPendingDeletion: (uid: string) => void;
   toggleTaskCollapsed: (id: string) => void;
+  addTagToTask: (taskId: string, tagId: string) => void;
+  removeTagFromTask: (taskId: string, tagId: string) => void;
 
-  // category actions
-  addCategory: (category: Partial<Category>) => Category;
-  updateCategory: (id: string, updates: Partial<Category>) => void;
-  deleteCategory: (id: string) => void;
+  // tag actions
+  addTag: (tag: Partial<Tag>) => Tag;
+  updateTag: (id: string, updates: Partial<Tag>) => void;
+  deleteTag: (id: string) => void;
+  setActiveTag: (id: string | null) => void;
 
   // account actions
   addAccount: (account: Partial<Account>) => Account;
@@ -80,6 +84,9 @@ interface TaskStore {
   getChildTasks: (parentUid: string) => Task[];
   getTaskByUid: (uid: string) => Task | undefined;
   countChildren: (parentUid: string) => number;
+  getAllDescendants: (parentUid: string) => Task[];
+  getTagById: (id: string) => Tag | undefined;
+  getTasksByTag: (tagId: string) => Task[];
 }
 
 const priorityOrder: Record<Priority, number> = {
@@ -94,11 +101,12 @@ export const useTaskStore = create<TaskStore>()(
     (set, get) => ({
       // initial state
       tasks: [],
-      categories: [],
+      tags: [],
       accounts: [],
       pendingDeletions: [],
       activeAccountId: null,
       activeCalendarId: null,
+      activeTagId: null,
       selectedTaskId: null,
       searchQuery: '',
       sortConfig: { mode: 'manual', direction: 'asc' },
@@ -109,6 +117,13 @@ export const useTaskStore = create<TaskStore>()(
       addTask: (taskData) => {
         const now = new Date();
         const tasks = get().tasks;
+        const activeTagId = get().activeTagId;
+
+        // If viewing a tag, include that tag in the new task
+        let tags = taskData.tags || [];
+        if (activeTagId && !tags.includes(activeTagId)) {
+          tags = [activeTagId, ...tags];
+        }
         
         // calculate sort order using Apple epoch format
         // find the maximum sort order among existing tasks and add 1
@@ -131,6 +146,8 @@ export const useTaskStore = create<TaskStore>()(
           createdAt: now,
           modifiedAt: now,
           ...taskData,
+          // Apply tags after spread to ensure activeTagId is included
+          tags,
         };
 
         set((state) => ({ tasks: [...state.tasks, task] }));
@@ -463,34 +480,70 @@ export const useTaskStore = create<TaskStore>()(
         }));
       },
 
-      // category actions
-      addCategory: (categoryData) => {
-        const category: Category = {
+      addTagToTask: (taskId, tagId) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  tags: [...(task.tags || []).filter(t => t !== tagId), tagId],
+                  modifiedAt: new Date(),
+                  synced: false,
+                }
+              : task
+          ),
+        }));
+      },
+
+      removeTagFromTask: (taskId, tagId) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  tags: (task.tags || []).filter(t => t !== tagId),
+                  modifiedAt: new Date(),
+                  synced: false,
+                }
+              : task
+          ),
+        }));
+      },
+
+      // tag actions
+      addTag: (tagData) => {
+        const tag: Tag = {
           id: uuidv4(),
-          title: categoryData.title || 'New Category',
-          color: categoryData.color || '#3b82f6',
-          accountId: categoryData.accountId || get().activeAccountId || '',
+          name: tagData.name || 'New Tag',
+          color: tagData.color || '#3b82f6',
+          icon: tagData.icon,
         };
 
-        set((state) => ({ categories: [...state.categories, category] }));
-        return category;
+        set((state) => ({ tags: [...state.tags, tag] }));
+        return tag;
       },
 
-      updateCategory: (id, updates) => {
+      updateTag: (id, updates) => {
         set((state) => ({
-          categories: state.categories.map((cat) =>
-            cat.id === id ? { ...cat, ...updates } : cat
+          tags: state.tags.map((tag) =>
+            tag.id === id ? { ...tag, ...updates } : tag
           ),
         }));
       },
 
-      deleteCategory: (id) => {
+      deleteTag: (id) => {
         set((state) => ({
-          categories: state.categories.filter((cat) => cat.id !== id),
-          tasks: state.tasks.map((task) =>
-            task.categoryId === id ? { ...task, categoryId: undefined } : task
-          ),
+          tags: state.tags.filter((tag) => tag.id !== id),
+          tasks: state.tasks.map((task) => ({
+            ...task,
+            tags: (task.tags || []).filter(t => t !== id),
+          })),
+          activeTagId: state.activeTagId === id ? null : state.activeTagId,
         }));
+      },
+
+      setActiveTag: (id) => {
+        set({ activeTagId: id, activeCalendarId: null, selectedTaskId: null, isEditorOpen: false });
       },
 
       // account actions
@@ -531,17 +584,16 @@ export const useTaskStore = create<TaskStore>()(
                 ? newAccounts[0]?.id || null
                 : state.activeAccountId,
             tasks: state.tasks.filter((task) => task.accountId !== id),
-            categories: state.categories.filter((cat) => cat.accountId !== id),
           };
         });
       },
 
       setActiveAccount: (id) => {
-        set({ activeAccountId: id, activeCalendarId: null });
+        set({ activeAccountId: id, activeCalendarId: null, });
       },
 
       setActiveCalendar: (id) => {
-        set({ activeCalendarId: id });
+        set({ activeCalendarId: id, activeTagId: null });
       },
 
       addCalendar: (accountId, calendarData) => {
@@ -589,7 +641,7 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       setAllTasksView: () => {
-        set({ activeCalendarId: null });
+        set({ activeCalendarId: null, activeTagId: null });
       },
 
       // export actions
@@ -618,12 +670,19 @@ export const useTaskStore = create<TaskStore>()(
 
       // computed helpers
       getFilteredTasks: () => {
-        const { tasks, searchQuery, showCompletedTasks, activeCalendarId } = get();
+        const { tasks, searchQuery, showCompletedTasks, activeCalendarId, activeTagId } = get();
 
         return tasks.filter((task) => {
-          // filter by calendar (null means "All Tasks" view - show all)
-          if (activeCalendarId !== null && task.calendarId !== activeCalendarId) {
-            return false;
+          // filter by tag
+          if (activeTagId !== null) {
+            if (!(task.tags || []).includes(activeTagId)) {
+              return false;
+            }
+          } else {
+            // filter by calendar (null means "All Tasks" view - show all)
+            if (activeCalendarId !== null && task.calendarId !== activeCalendarId) {
+              return false;
+            }
           }
 
           // filter by completion status
@@ -718,16 +777,39 @@ export const useTaskStore = create<TaskStore>()(
         const { tasks } = get();
         return tasks.filter((task) => task.parentUid === parentUid).length;
       },
+
+      getAllDescendants: (parentUid) => {
+        const { tasks } = get();
+        const getDescendants = (uid: string): Task[] => {
+          const children = tasks.filter(t => t.parentUid === uid);
+          return [
+            ...children,
+            ...children.flatMap(child => getDescendants(child.uid)),
+          ];
+        };
+        return getDescendants(parentUid);
+      },
+
+      getTagById: (id) => {
+        const { tags } = get();
+        return tags.find((tag) => tag.id === id);
+      },
+
+      getTasksByTag: (tagId) => {
+        const { tasks } = get();
+        return tasks.filter((task) => (task.tags || []).includes(tagId));
+      },
     }),
     {
       name: 'caldav-tasks-storage',
       partialize: (state) => ({
         tasks: state.tasks,
-        categories: state.categories,
+        tags: state.tags,
         accounts: state.accounts,
         pendingDeletions: state.pendingDeletions,
         activeAccountId: state.activeAccountId,
         activeCalendarId: state.activeCalendarId,
+        activeTagId: state.activeTagId,
         sortConfig: state.sortConfig,
         showCompletedTasks: state.showCompletedTasks,
       }),

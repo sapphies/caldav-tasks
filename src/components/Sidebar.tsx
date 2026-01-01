@@ -18,7 +18,7 @@ import { useTaskStore } from '@/store/taskStore';
 import { useGlobalContextMenuClose } from '@/hooks/useGlobalContextMenu';
 import { Account, Calendar as CalendarType } from '@/types';
 import { AccountModal } from './modals/AccountModal';
-import { CategoryModal } from './modals/CategoryModal';
+import { TagModal } from './modals/TagModal';
 import { CalendarModal } from './modals/CalendarModal';
 import { CreateCalendarModal } from './modals/CreateCalendarModal';
 import { ExportModal } from './modals/ExportModal';
@@ -35,14 +35,16 @@ interface SidebarProps {
 export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
   const {
     accounts,
-    categories,
+    tags,
     // activeAccountId, (todo: figure out what to do with activeaccountid later)
     activeCalendarId,
+    activeTagId,
     setActiveAccount,
     setActiveCalendar,
+    setActiveTag,
     setAllTasksView,
     deleteAccount,
-    deleteCategory,
+    deleteTag,
     updateAccount,
     tasks,
     getCalendarTasks,
@@ -52,17 +54,17 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
     new Set(accounts.map((a) => a.id))
   );
   const [showAccountModal, setShowAccountModal] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showCreateCalendarModal, setShowCreateCalendarModal] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportCalendarId, setExportCalendarId] = useState<string | null>(null);
   const [exportAccountId, setExportAccountId] = useState<string | null>(null);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editingCalendar, setEditingCalendar] = useState<{ calendar: CalendarType; accountId: string } | null>(null);
   const [contextMenu, setContextMenu] = useState<{
-    type: 'account' | 'category' | 'calendar';
+    type: 'account' | 'calendar' | 'tag';
     id: string;
     accountId?: string;
     x: number;
@@ -81,7 +83,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
 
   const handleContextMenu = (
     e: React.MouseEvent,
-    type: 'account' | 'category' | 'calendar',
+    type: 'account' | 'calendar' | 'tag',
     id: string,
     accountId?: string
   ) => {
@@ -106,8 +108,8 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
     return tasks.filter((t) => !t.completed).length;
   };
 
-  const getCategoryTaskCount = (categoryId: string) => {
-    return tasks.filter((t) => t.categoryId === categoryId && !t.completed).length;
+  const getTagTaskCount = (tagId: string) => {
+    return tasks.filter((t) => (t.tags || []).includes(tagId) && !t.completed).length;
   };
 
   return (
@@ -130,7 +132,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
               setActiveAccount(null);
             }}
             className={`w-full flex items-center gap-2 px-4 py-2 mb-2 text-sm transition-colors ${
-              activeCalendarId === null
+              activeCalendarId === null && activeTagId === null
                 ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
                 : 'text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700'
             }`}
@@ -275,13 +277,13 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
           <div className="mb-4">
             <div className="flex items-center justify-between px-4 py-2">
               <span className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
-                Categories
+                Tags
               </span>
-              <Tooltip content="Add category" position="top">
+              <Tooltip content="Add tag" position="top">
                 <button
                   onClick={() => {
-                    setEditingCategory(null);
-                    setShowCategoryModal(true);
+                    setEditingTagId(null);
+                    setShowTagModal(true);
                   }}
                   className="p-1 rounded hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
                 >
@@ -290,28 +292,32 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
               </Tooltip>
             </div>
 
-            {categories.length === 0 ? (
+            {tags.length === 0 ? (
               <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
-                No categories yet.
+                No tags yet.
               </div>
             ) : (
-              categories.map((category) => (
-                <button
-                  key={category.id}
-                  data-context-menu
-                  onContextMenu={(e) => handleContextMenu(e, 'category', category.id)}
-                  className="w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-600 dark:text-surface-400"
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <span className="flex-1 text-left truncate">{category.title}</span>
-                  <span className="text-xs text-surface-400">
-                    {getCategoryTaskCount(category.id)}
-                  </span>
-                </button>
-              ))
+              tags.map((tag) => {
+                const TagIcon = getIconByName(tag.icon || 'tag');
+                return (
+                  <button
+                    key={tag.id}
+                    data-context-menu
+                    onClick={() => setActiveTag(tag.id)}
+                    onContextMenu={(e) => handleContextMenu(e, 'tag', tag.id)}
+                    className="w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-600 dark:text-surface-400"
+                  >
+                    <TagIcon
+                      className="w-3.5 h-3.5"
+                      style={{ color: tag.color }}
+                    />
+                    <span className="flex-1 text-left truncate">{tag.name}</span>
+                    <span className="text-xs text-surface-400">
+                      {getTagTaskCount(tag.id)}
+                    </span>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -401,9 +407,9 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                   setEditingAccount(account);
                   setShowAccountModal(true);
                 }
-              } else if (contextMenu.type === 'category') {
-                setEditingCategory(contextMenu.id);
-                setShowCategoryModal(true);
+              } else if (contextMenu.type === 'tag') {
+                setEditingTagId(contextMenu.id);
+                setShowTagModal(true);
               } else if (contextMenu.type === 'calendar' && contextMenu.accountId) {
                 const account = accounts.find((a) => a.id === contextMenu.accountId);
                 const calendar = account?.calendars.find((c) => c.id === contextMenu.id);
@@ -425,8 +431,8 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
             onClick={async () => {
               if (contextMenu.type === 'account') {
                 deleteAccount(contextMenu.id);
-              } else if (contextMenu.type === 'category') {
-                deleteCategory(contextMenu.id);
+              } else if (contextMenu.type === 'tag') {
+                deleteTag(contextMenu.id);
               } else if (contextMenu.type === 'calendar' && contextMenu.accountId) {
                 // delete calendar from server
                 try {
@@ -461,12 +467,12 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
         />
       )}
 
-      {showCategoryModal && (
-        <CategoryModal
-          categoryId={editingCategory}
+      {showTagModal && (
+        <TagModal
+          tagId={editingTagId}
           onClose={() => {
-            setShowCategoryModal(false);
-            setEditingCategory(null);
+            setShowTagModal(false);
+            setEditingTagId(null);
           }}
         />
       )}

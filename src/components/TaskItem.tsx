@@ -9,6 +9,7 @@ import { ExportModal } from './modals/ExportModal';
 import { getContrastTextColor } from '@/lib/colorUtils';
 import { useContextMenu } from '@/hooks/useContextMenu';
 import { pluralize } from '@/lib/formatUtils';
+import { getIconByName } from './IconPicker';
 
 interface TaskItemProps {
   task: Task;
@@ -48,11 +49,12 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
     toggleTaskComplete, 
     setSelectedTask, 
     selectedTaskId, 
-    categories, 
     deleteTask,
     countChildren,
     toggleTaskCollapsed,
     exportTaskAndChildren,
+    setActiveTag,
+    getTagById,
   } = useTaskStore();
   const { accentColor } = useSettingsStore();
   const { contextMenu, handleContextMenu, handleCloseContextMenu, setContextMenu } = useContextMenu();
@@ -86,7 +88,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
   };
 
   const isSelected = selectedTaskId === task.id;
-  const category = categories.find((c) => c.id === task.categoryId);
+  const taskTags = (task.tags || []).map(tagId => getTagById(tagId)).filter(Boolean);
 
   const handleClick = (e: React.MouseEvent) => {
     // don't select if clicking the checkbox or collapse button
@@ -166,19 +168,29 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             </div>
           )}
 
-          {(category || task.dueDate || totalSubtasks > 0 || childCount > 0) && (
+          {(taskTags.length > 0 || task.dueDate || totalSubtasks > 0 || childCount > 0) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              {category && (
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                  style={{ 
-                    backgroundColor: `${category.color}20`,
-                    color: category.color,
-                  }}
-                >
-                  {category.title}
-                </span>
-              )}
+              {taskTags.map((tag) => {
+                if (!tag) return null;
+                const TagIcon = getIconByName(tag.icon || 'tag');
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTag(tag.id);
+                    }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
+                    style={{ 
+                      backgroundColor: `${tag.color}20`,
+                      color: tag.color,
+                    }}
+                  >
+                    <TagIcon className="w-3 h-3" />
+                    {tag.name}
+                  </button>
+                );
+              })}
 
               {task.dueDate && (
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${formatDueDate(task.dueDate).className}`}>

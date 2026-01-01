@@ -4,9 +4,11 @@ declare module 'ical.js' {
   export class Property {
     constructor(name: string | any[], parent?: Component);
     setValue(value: any): void;
+    setValues(values: any[]): void;
     setParameter(name: string, value: any): void;
     getParameter(name: string): any;
     getFirstValue(): any;
+    getValues(): any[];
     name: string;
   }
 
@@ -16,6 +18,7 @@ declare module 'ical.js' {
     addSubcomponent(component: Component): void;
     updatePropertyWithValue(name: string, value: any): void;
     getFirstPropertyValue(name: string): any;
+    getFirstProperty(name: string): Property | null;
     addProperty(property: Property): void;
     getAllProperties(name?: string): Property[];
     toString(): string;

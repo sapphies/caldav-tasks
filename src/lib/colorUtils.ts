@@ -26,9 +26,9 @@ export const getContrastTextColor = (hexColor: string): string => {
 };
 
 /**
- * generate a consistent color for a category based on its name
+ * generate a consistent color for a tag based on its name
  */
-export const generateCategoryColor = (name: string) => {
+export const generateTagColor = (name: string) => {
   const colors = [
     '#ef4444', // red
     '#f97316', // orange

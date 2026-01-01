@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTaskStore } from '@/store/taskStore';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
+import { IconPicker, getIconByName } from '../IconPicker';
 
-interface CategoryModalProps {
-  categoryId: string | null;
+interface TagModalProps {
+  tagId: string | null;
   onClose: () => void;
 }
 
@@ -26,15 +27,16 @@ const colorPresets = [
   '#6b7280', // gray
 ];
 
-export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
-  const { categories, addCategory, updateCategory } = useTaskStore();
+export function TagModal({ tagId, onClose }: TagModalProps) {
+  const { tags, addTag, updateTag } = useTaskStore();
   
-  const existingCategory = categoryId 
-    ? categories.find((c) => c.id === categoryId) 
+  const existingTag = tagId 
+    ? tags.find((t) => t.id === tagId) 
     : null;
 
-  const [title, setTitle] = useState(existingCategory?.title || '');
-  const [color, setColor] = useState(existingCategory?.color || '#3b82f6');
+  const [name, setName] = useState(existingTag?.name || '');
+  const [color, setColor] = useState(existingTag?.color || '#3b82f6');
+  const [icon, setIcon] = useState(existingTag?.icon || 'star');
 
   // handle ESC key to close modal
   useModalEscapeKey(onClose);
@@ -42,14 +44,16 @@ export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (existingCategory) {
-      updateCategory(existingCategory.id, { title, color });
+    if (existingTag) {
+      updateTag(existingTag.id, { name, color, icon });
     } else {
-      addCategory({ title, color });
+      addTag({ name, color, icon });
     }
 
     onClose();
   };
+
+  const IconComponent = getIconByName(icon);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
@@ -59,7 +63,7 @@ export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
       >
         <div className="flex items-center justify-between p-4 border-b border-surface-200 dark:border-surface-700">
           <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-200">
-            {existingCategory ? 'Edit Category' : 'New Category'}
+            {existingTag ? 'Edit Tag' : 'New Tag'}
           </h2>
           <button
             onClick={onClose}
@@ -76,12 +80,23 @@ export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
             </label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Category name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Tag name"
               required
               autoFocus
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+              Icon
+            </label>
+            <IconPicker
+              value={icon}
+              onChange={setIcon}
+              color={color}
             />
           </div>
 
@@ -126,13 +141,14 @@ export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
               Preview
             </label>
             <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
               style={{ 
                 backgroundColor: `${color}20`,
                 color: color,
               }}
             >
-              {title || 'Category name'}
+              <IconComponent className="w-3.5 h-3.5" />
+              {name || 'Tag name'}
             </span>
           </div>
 
@@ -148,7 +164,7 @@ export function CategoryModal({ categoryId, onClose }: CategoryModalProps) {
               type="submit"
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
             >
-              {existingCategory ? 'Save' : 'Create'}
+              {existingTag ? 'Save' : 'Create'}
             </button>
           </div>
         </form>

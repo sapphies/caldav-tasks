@@ -6,15 +6,16 @@ import {
   Calendar,
   Clock,
   Flag,
-  FolderOpen,
   Plus,
   CheckCircle2,
+  Tag,
 } from 'lucide-react';
 import { useTaskStore } from '@/store/taskStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Task, Priority } from '@/types';
 import { DateTimePicker } from './DateTimePicker';
 import { getContrastTextColor } from '@/lib/colorUtils';
+import { getIconByName } from './IconPicker';
 
 interface TaskEditorProps {
   task: Task;
@@ -32,13 +33,16 @@ export function TaskEditor({ task }: TaskEditorProps) {
     updateTask,
     deleteTask,
     setEditorOpen,
-    categories,
+    tags,
     updateSubtask,
     deleteSubtask,
     toggleSubtaskComplete,
     addTask,
     getChildTasks,
     countChildren,
+    addTagToTask,
+    removeTagFromTask,
+    getTagById,
   } = useTaskStore();
   const { accentColor } = useSettingsStore();
 
@@ -46,9 +50,12 @@ export function TaskEditor({ task }: TaskEditorProps) {
   const checkmarkColor = getContrastTextColor(accentColor);
 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [showTagPicker, setShowTagPicker] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const childTasks = getChildTasks(task.uid);
   const childCount = countChildren(task.uid);
+  const taskTags = (task.tags || []).map(tagId => getTagById(tagId)).filter(Boolean);
+  const availableTags = tags.filter(t => !(task.tags || []).includes(t.id));
 
   // focus title on open if empty
   useEffect(() => {
@@ -67,10 +74,6 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
   const handlePriorityChange = (priority: Priority) => {
     updateTask(task.id, { priority });
-  };
-
-  const handleCategoryChange = (categoryId: string | undefined) => {
-    updateTask(task.id, { categoryId });
   };
 
   const handleStartDateChange = (date: Date | undefined) => {
@@ -208,21 +211,86 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
-            <FolderOpen className="w-4 h-4" />
-            Category
+            <Tag className="w-4 h-4" />
+            Tag
           </label>
-          <select
-            value={task.categoryId || ''}
-            onChange={(e) => handleCategoryChange(e.target.value || undefined)}
-            className="w-full px-3 py-2 text-sm text-surface-700 dark:text-surface-300 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
-          >
-            <option value="">No category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.title}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-wrap gap-2">
+            {taskTags.map((tag) => {
+              if (!tag) return null;
+              const TagIcon = getIconByName(tag.icon || 'tag');
+              return (
+                <span
+                  key={tag.id}
+                  className="inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-full text-xs font-medium group"
+                  style={{ 
+                    backgroundColor: `${tag.color}20`,
+                    color: tag.color,
+                  }}
+                >
+                  <TagIcon className="w-3 h-3" />
+                  {tag.name}
+                  <button
+                    onClick={() => removeTagFromTask(task.id, tag.id)}
+                    className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              );
+            })}
+            
+            <div className="relative">
+              <button
+                onClick={() => setShowTagPicker(!showTagPicker)}
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs text-surface-500 dark:text-surface-400 border border-dashed border-surface-300 dark:border-surface-600 rounded-full hover:border-surface-400 dark:hover:border-surface-500 transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                Add tag
+              </button>
+                
+                {showTagPicker && availableTags.length > 0 && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowTagPicker(false)}
+                    />
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-1 min-w-[150px]">
+                      {availableTags.map((tag) => {
+                        const TagIcon = getIconByName(tag.icon || 'tag');
+                        return (
+                          <button
+                            key={tag.id}
+                            onClick={() => {
+                              addTagToTask(task.id, tag.id);
+                              setShowTagPicker(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
+                            style={{ color: tag.color }}
+                          >
+                            <TagIcon className="w-4 h-4" />
+                            {tag.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                
+              {showTagPicker && availableTags.length === 0 && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowTagPicker(false)}
+                  />
+                  <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-2 px-3 min-w-[150px]">
+                    <p className="text-xs text-surface-500 dark:text-surface-400">
+                      {tags.length === 0 ? 'No tags created yet' : 'All tags assigned'}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         <div>
