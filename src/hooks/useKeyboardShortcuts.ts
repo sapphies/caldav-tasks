@@ -1,20 +1,11 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useTaskStore } from '@/store/taskStore';
+import { useSettingsStore, KeyboardShortcut } from '@/store/settingsStore';
 import { getAltKeyLabel, getMetaKeyLabel, getModifierJoiner, getShiftKeyLabel } from '../utils/keyboard';
 import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
-import { KeyboardShortcut } from '@/store/settingsStore';
+import { useModalState } from '@/context/modalStateContext';
 import { getIsKeyboardDragging } from '@/lib/dragState';
-
-interface ShortcutAction {
-  key: string;
-  ctrl?: boolean;
-  meta?: boolean;
-  shift?: boolean;
-  alt?: boolean;
-  action: () => void;
-  description: string;
-}
 
 interface UseKeyboardShortcutsOptions {
   onOpenSettings?: () => void;
@@ -33,9 +24,11 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     getFilteredTasks,
     getSortedTasks,
   } = useTaskStore();
+  const { keyboardShortcuts } = useSettingsStore();
   const { confirmAndDelete } = useConfirmTaskDelete();
   const { isOpen: isConfirmDialogOpen } = useConfirmDialog();
-  
+  const { isAnyModalOpen } = useModalState();
+
   const handleNewTask = useCallback(() => {
     const task = addTask({ title: '' });
     setSelectedTask(task.id);
@@ -100,6 +93,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   }, [selectedTaskId, getFilteredTasks, getSortedTasks, setSelectedTask]);
 
   const handleOpenSettings = useCallback(() => {
+    // If settings is already open, this will close it (toggle behavior)
     onOpenSettings?.();
   }, [onOpenSettings]);
 
@@ -107,97 +101,18 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     onSync?.();
   }, [onSync]);
 
-  const shortcuts: ShortcutAction[] = [
-    {
-      key: 'n',
-      meta: true,
-      action: handleNewTask,
-      description: 'Create new task',
-    },
-    {
-      key: 'n',
-      ctrl: true,
-      action: handleNewTask,
-      description: 'Create new task',
-    },
-    {
-      key: 'f',
-      meta: true,
-      action: handleSearch,
-      description: 'Focus search',
-    },
-    {
-      key: 'f',
-      ctrl: true,
-      action: handleSearch,
-      description: 'Focus search',
-    },
-    {
-      key: ',',
-      meta: true,
-      action: handleOpenSettings,
-      description: 'Open settings',
-    },
-    {
-      key: ',',
-      ctrl: true,
-      action: handleOpenSettings,
-      description: 'Open settings',
-    },
-    {
-      key: 'r',
-      meta: true,
-      action: handleSync,
-      description: 'Sync with server',
-    },
-    {
-      key: 'r',
-      ctrl: true,
-      action: handleSync,
-      description: 'Sync with server',
-    },
-    {
-      key: 'Backspace',
-      meta: true,
-      action: handleDelete,
-      description: 'Delete selected task',
-    },
-    {
-      key: 'Delete',
-      action: handleDelete,
-      description: 'Delete selected task',
-    },
-    {
-      key: 'Enter',
-      action: handleToggleComplete,
-      description: 'Toggle task completion',
-    },
-    {
-      key: 'Escape',
-      action: handleEscape,
-      description: 'Close editor / Clear search',
-    },
-    {
-      key: 'ArrowUp',
-      action: handleNavigateUp,
-      description: 'Navigate to previous task',
-    },
-    {
-      key: 'ArrowDown',
-      action: handleNavigateDown,
-      description: 'Navigate to next task',
-    },
-    {
-      key: 'k',
-      action: handleNavigateUp,
-      description: 'Navigate to previous task (vim)',
-    },
-    {
-      key: 'j',
-      action: handleNavigateDown,
-      description: 'Navigate to next task (vim)',
-    },
-  ];
+  // Map shortcut IDs to their handler functions
+  const actionHandlers: Record<string, () => void> = useMemo(() => ({
+    'new-task': handleNewTask,
+    'search': handleSearch,
+    'settings': handleOpenSettings,
+    'sync': handleSync,
+    'delete': handleDelete,
+    'toggle-complete': handleToggleComplete,
+    'close': handleEscape,
+    'nav-up': handleNavigateUp,
+    'nav-down': handleNavigateDown,
+  }), [handleNewTask, handleSearch, handleOpenSettings, handleSync, handleDelete, handleToggleComplete, handleEscape, handleNavigateUp, handleNavigateDown]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -223,13 +138,31 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         target.isContentEditable;
 
       // allow some shortcuts even in inputs
+      // Escape: close editor/clear search
+      // Cmd+Backspace: delete task (shouldn't conflict with text editing)
       const allowInInput = ['Escape'];
+      const allowWithMetaInInput = ['Backspace']; // Cmd+Backspace for delete
       
-      if (isInput && !allowInInput.includes(e.key)) {
+      const isAllowedInInput = allowInInput.includes(e.key) || 
+        (allowWithMetaInInput.includes(e.key) && (e.metaKey || e.ctrlKey));
+      
+      if (isInput && !isAllowedInInput) {
         return;
       }
+      
+      // Shortcuts that should NOT work when a modal is open
+      // (except for 'settings' which toggles, and 'close' which closes modals)
+      const blockedInModal = ['new-task', 'search', 'sync', 'delete', 'toggle-complete', 'nav-up', 'nav-down', 'nav-up-vim', 'nav-down-vim'];
 
-      for (const shortcut of shortcuts) {
+      for (const shortcut of keyboardShortcuts) {
+        const handler = actionHandlers[shortcut.id];
+        if (!handler) continue;
+        
+        // Block certain shortcuts when a modal is open
+        if (isAnyModalOpen && blockedInModal.includes(shortcut.id)) {
+          continue;
+        }
+
         const metaMatch = shortcut.meta ? (e.metaKey || e.ctrlKey) : true;
         const ctrlMatch = shortcut.ctrl ? e.ctrlKey : true;
         const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
@@ -249,7 +182,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
             (!shortcut.meta && !shortcut.ctrl)
           ) {
             e.preventDefault();
-            shortcut.action();
+            handler();
             return;
           }
         }
@@ -258,9 +191,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [shortcuts]);
+  }, [keyboardShortcuts, actionHandlers, isConfirmDialogOpen, isAnyModalOpen]);
 
-  return { shortcuts };
+  return { shortcuts: keyboardShortcuts };
 }
 
 export function getShortcutDisplay(shortcut: KeyboardShortcut): string {
