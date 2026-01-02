@@ -181,3 +181,11 @@ input[type="checkbox"]:checked::after {
 .overscroll-contain {
   overscroll-behavior: contain;
 }
+
+/* force cursor reset when modal is open */
+/* webkit specific issue. needed, otherwise it looks unpolished. 😒 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  html[data-modal-open="true"] {
+    cursor: default !important;
+  }
+}
