@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useGlobalContextMenuClose } from './useGlobalContextMenu';
+import { clampToViewport } from '../utils/position';
 
 /**
  * Hook for managing context menu state and handlers
@@ -12,7 +13,8 @@ export function useContextMenu() {
     e.preventDefault();
     e.stopPropagation();
     document.dispatchEvent(new CustomEvent('closeAllContextMenus'));
-    setContextMenu({ x: e.clientX, y: e.clientY });
+    const { x, y } = clampToViewport(e.clientX, e.clientY);
+    setContextMenu({ x, y });
   };
 
   const handleCloseContextMenu = useCallback(() => {
