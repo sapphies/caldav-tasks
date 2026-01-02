@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -64,6 +64,15 @@ export function TaskList() {
     () => flattenTasks(sortedTasks, getChildTasks, getSortedTasks),
     [sortedTasks, getChildTasks, getSortedTasks]
   );
+
+  // Clear active task if it no longer exists (e.g., was deleted during drag)
+  useEffect(() => {
+    if (activeTask && !flattenedTasks.find(t => t.id === activeTask.id)) {
+      setActiveTask(null);
+      setTargetIndent(0);
+      setTargetParentName(null);
+    }
+  }, [activeTask, flattenedTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
