@@ -16,6 +16,7 @@ import { DateTimePicker } from './DateTimePicker';
 import { getContrastTextColor } from '../utils/color';
 import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
 import { getIconByName } from './IconPicker';
+import { SubtaskTreeItem } from './SubtaskTreeItem';
 
 interface TaskEditorProps {
   task: Task;
@@ -52,6 +53,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showTagPicker, setShowTagPicker] = useState(false);
+  const [expandedSubtasks, setExpandedSubtasks] = useState<Set<string>>(new Set());
   const titleRef = useRef<HTMLInputElement>(null);
   const childTasks = getChildTasks(task.uid);
   const childCount = countChildren(task.uid);
@@ -354,39 +356,20 @@ export function TaskEditor({ task }: TaskEditorProps) {
             </label>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             {childTasks.map((childTask) => (
-              <div
+              <SubtaskTreeItem
                 key={childTask.id}
-                className="flex items-center gap-2 group pl-2 border-l-2 border-primary-200 dark:border-primary-800"
-              >
-                <button
-                  onClick={() => updateTask(childTask.id, { completed: !childTask.completed })}
-                  className={`
-                    w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0
-                    ${childTask.completed
-                      ? 'bg-primary-500 border-primary-500'
-                      : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
-                    }
-                  `}
-                >
-                  {childTask.completed && <CheckCircle2 className="w-3 h-3" style={{ color: checkmarkColor }} />}
-                </button>
-                <span
-                  className={`
-                    flex-1 text-sm
-                    ${childTask.completed ? 'line-through text-surface-400' : 'text-surface-700 dark:text-surface-300'}
-                  `}
-                >
-                  {childTask.title}
-                </span>
-                <button
-                  onClick={() => confirmAndDelete(childTask.id)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+                task={childTask}
+                depth={0}
+                checkmarkColor={checkmarkColor}
+                expandedSubtasks={expandedSubtasks}
+                setExpandedSubtasks={setExpandedSubtasks}
+                updateTask={updateTask}
+                confirmAndDelete={confirmAndDelete}
+                getChildTasks={getChildTasks}
+                countChildren={countChildren}
+              />
             ))}
 
             {task.subtasks.length > 0 && (
