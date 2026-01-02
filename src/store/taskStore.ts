@@ -393,16 +393,64 @@ export const useTaskStore = create<TaskStore>()(
         const newOrder = [...sortedSiblings];
         newOrder.splice(Math.min(insertIndex, newOrder.length), 0, activeTask);
         
+        // if the task is becoming a child of another task, inherit the parent's calendar
+        let inheritedCalendarId: string | undefined;
+        let inheritedAccountId: string | undefined;
+        
+        if (newParentUid && newParentUid !== activeTask.parentUid) {
+          // find the parent task to get its calendar info
+          const parentTask = tasks.find(t => t.uid === newParentUid);
+          if (parentTask && parentTask.calendarId !== activeTask.calendarId) {
+            inheritedCalendarId = parentTask.calendarId;
+            inheritedAccountId = parentTask.accountId;
+          }
+        }
+        
         // assign sort orders with consistent gaps
-        const updates: Map<string, { sortOrder: number; parentUid: string | undefined }> = new Map();
+        const updates: Map<string, { sortOrder: number; parentUid: string | undefined; calendarId?: string; accountId?: string }> = new Map();
         
         newOrder.forEach((task, index) => {
           const newSortOrder = (index + 1) * 100;
-          updates.set(task.id, {
+          const updateData: { sortOrder: number; parentUid: string | undefined; calendarId?: string; accountId?: string } = {
             sortOrder: newSortOrder,
             parentUid: task.id === activeId ? newParentUid : task.parentUid,
-          });
+          };
+          
+          // if this is the active task being moved to a new parent with a different calendar, inherit it
+          if (task.id === activeId && inheritedCalendarId) {
+            updateData.calendarId = inheritedCalendarId;
+            updateData.accountId = inheritedAccountId;
+          }
+          
+          updates.set(task.id, updateData);
         });
+
+        // also update all descendants of the moved task to inherit the new calendar
+        const getAllDescendantIds = (parentUid: string): string[] => {
+          const children = tasks.filter(t => t.parentUid === parentUid);
+          return children.flatMap(c => [c.id, ...getAllDescendantIds(c.uid)]);
+        };
+        
+        if (inheritedCalendarId) {
+          const descendantIds = getAllDescendantIds(activeTask.uid);
+          descendantIds.forEach(id => {
+            const existing = updates.get(id);
+            if (existing) {
+              existing.calendarId = inheritedCalendarId;
+              existing.accountId = inheritedAccountId;
+            } else {
+              const task = tasks.find(t => t.id === id);
+              if (task) {
+                updates.set(id, {
+                  sortOrder: task.sortOrder,
+                  parentUid: task.parentUid,
+                  calendarId: inheritedCalendarId,
+                  accountId: inheritedAccountId,
+                });
+              }
+            }
+          });
+        }
 
         // apply all updates
         set((state) => ({
@@ -413,6 +461,8 @@ export const useTaskStore = create<TaskStore>()(
                 ...task, 
                 sortOrder: update.sortOrder,
                 parentUid: update.parentUid,
+                ...(update.calendarId && { calendarId: update.calendarId }),
+                ...(update.accountId && { accountId: update.accountId }),
                 synced: false,
                 modifiedAt: new Date(),
               };
@@ -447,18 +497,51 @@ export const useTaskStore = create<TaskStore>()(
           }
         }
         
+        // if setting a parent, inherit the parent's calendar if different
+        let inheritedCalendarId: string | undefined;
+        let inheritedAccountId: string | undefined;
+        
+        if (parentUid) {
+          const parentTask = tasks.find(t => t.uid === parentUid);
+          if (parentTask && parentTask.calendarId !== task.calendarId) {
+            inheritedCalendarId = parentTask.calendarId;
+            inheritedAccountId = parentTask.accountId;
+          }
+        }
+        
+        // get all descendants to also update their calendar
+        const getAllDescendantIds = (pUid: string): string[] => {
+          const children = tasks.filter(t => t.parentUid === pUid);
+          return children.flatMap(c => [c.id, ...getAllDescendantIds(c.uid)]);
+        };
+        
+        const descendantIds = inheritedCalendarId ? getAllDescendantIds(task.uid) : [];
+        
         set((state) => ({
-          tasks: state.tasks.map((t) =>
-            t.id === taskId
-              ? {
-                  ...t,
-                  parentUid,
-                  sortOrder: newSortOrder,
-                  modifiedAt: new Date(),
-                  synced: false,
-                }
-              : t
-          ),
+          tasks: state.tasks.map((t) => {
+            if (t.id === taskId) {
+              return {
+                ...t,
+                parentUid,
+                sortOrder: newSortOrder,
+                ...(inheritedCalendarId && { calendarId: inheritedCalendarId }),
+                ...(inheritedAccountId && { accountId: inheritedAccountId }),
+                modifiedAt: new Date(),
+                synced: false,
+              } as Task;
+            }
+            // also update descendants' calendar
+            if (inheritedCalendarId && inheritedAccountId && descendantIds.includes(t.id)) {
+              return {
+                ...t,
+                calendarId: inheritedCalendarId,
+                accountId: inheritedAccountId,
+                modifiedAt: new Date(),
+                synced: false,
+              } as Task;
+            }
+            return t;
+          }),
         }));
       },
 
@@ -656,11 +739,11 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       setActiveAccount: (id) => {
-        set({ activeAccountId: id, activeCalendarId: null, });
+        set({ activeAccountId: id, activeCalendarId: null });
       },
 
       setActiveCalendar: (id) => {
-        set({ activeCalendarId: id, activeTagId: null });
+        set({ activeCalendarId: id, activeTagId: null, selectedTaskId: null, isEditorOpen: false });
       },
 
       addCalendar: (accountId, calendarData) => {
@@ -708,7 +791,7 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       setAllTasksView: () => {
-        set({ activeCalendarId: null, activeTagId: null });
+        set({ activeCalendarId: null, activeTagId: null, selectedTaskId: null, isEditorOpen: false });
       },
 
       // export actions
