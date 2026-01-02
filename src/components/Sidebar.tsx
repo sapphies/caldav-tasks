@@ -1,19 +1,17 @@
 import { useState, useCallback } from 'react';
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Plus, 
-  Settings, 
-  FolderKanban,
-  User,
-  Trash2,
-  Edit2,
-  RefreshCw,
-  Inbox,
-  MoreVertical,
-  Share2,
-  Upload,
-} from 'lucide-react';
+import ChevronDown from 'lucide-react/icons/chevron-down';
+import ChevronRight from 'lucide-react/icons/chevron-right';
+import Plus from 'lucide-react/icons/plus';
+import Settings from 'lucide-react/icons/settings';
+import FolderKanban from 'lucide-react/icons/folder-kanban';
+import User from 'lucide-react/icons/user';
+import Trash2 from 'lucide-react/icons/trash-2';
+import Edit2 from 'lucide-react/icons/edit-2';
+import RefreshCw from 'lucide-react/icons/refresh-cw';
+import Inbox from 'lucide-react/icons/inbox';
+import MoreVertical from 'lucide-react/icons/more-vertical';
+import Share2 from 'lucide-react/icons/share-2';
+import Upload from 'lucide-react/icons/upload';
 import { useTaskStore } from '@/store/taskStore';
 import { useGlobalContextMenuClose } from '@/hooks/useGlobalContextMenu';
 import { Account, Calendar as CalendarType } from '@/types';
