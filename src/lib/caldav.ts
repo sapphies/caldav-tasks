@@ -111,6 +111,8 @@ class CalDAVService {
         console.log('[CalDAV] Discovered calendar-home-set:', calendarHome);
         break;
       }
+      default:
+        throw new Error(`Unknown server type: ${serverType}`);
     }
     
     // verify the connection by doing a PROPFIND on the principal
@@ -204,6 +206,20 @@ class CalDAVService {
         continue;
       }
       
+      // parse supported-calendar-component-set to determine if this calendar supports VTODO
+      const supportedComponentsRaw = result.props['supported-calendar-component-set'] || '';
+      const supportedComponents: string[] = [];
+      const componentMatches = supportedComponentsRaw.matchAll(/<[^:>]*:?comp[^>]+name="([^"]+)"/gi);
+      for (const match of componentMatches) {
+        supportedComponents.push(match[1]);
+      }
+      
+      // only include calendars that support VTODO (for task management)
+      if (supportedComponents.length > 0 && !supportedComponents.includes('VTODO')) {
+        console.log(`[CalDAV] Skipping calendar that doesn't support VTODO: ${result.props['displayname']} (supports: ${supportedComponents.join(', ')})`);
+        continue;
+      }
+      
       // build absolute URL
       let calendarUrl = result.href;
       if (!calendarUrl.startsWith('http')) {
@@ -218,6 +234,7 @@ class CalDAVService {
         syncToken: result.props['sync-token'] || undefined,
         color: result.props['calendar-color'] || undefined,
         accountId,
+        supportedComponents: supportedComponents.length > 0 ? supportedComponents : undefined,
       });
     }
     
@@ -650,6 +667,7 @@ class CalDAVService {
       url: calendarUrl,
       color,
       accountId,
+      supportedComponents: ['VTODO'],
     };
   }
 

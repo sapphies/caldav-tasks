@@ -74,6 +74,7 @@ export interface Calendar {
   color?: string;
   icon?: string; // Icon name from lucide-react
   accountId: string;
+  supportedComponents?: string[]; // e.g., ['VTODO', 'VEVENT']
 }
 
 export type ServerType = 'rustical' | 'radicale' | 'baikal' | 'generic';
