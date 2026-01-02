@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { Priority } from '@/types';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type AccentColor = string;
@@ -29,6 +30,8 @@ export const defaultShortcuts: KeyboardShortcut[] = [
   { id: 'nav-down-vim', key: 'j', description: 'Navigate to next task (vim)' },
 ];
 
+export type SubtaskDeletionBehavior = 'delete' | 'keep';
+
 interface SettingsStore {
   theme: Theme;
   accentColor: AccentColor;
@@ -37,9 +40,15 @@ interface SettingsStore {
   syncOnStartup: boolean;
   showCompletedByDefault: boolean;
   confirmBeforeDelete: boolean;
+  deleteSubtasksWithParent: SubtaskDeletionBehavior; // What to do with subtasks when deleting parent
   startOfWeek: StartOfWeek;
   notifications: boolean;
   notifyBefore: number; // minutes before due date
+  defaultCalendarId: string | null; // default calendar for new tasks when in "All Tasks" view
+  
+  // Task defaults
+  defaultPriority: Priority;
+  defaultTags: string[]; // Array of tag IDs
 
   // actions
   setTheme: (theme: Theme) => void;
@@ -49,9 +58,13 @@ interface SettingsStore {
   setSyncOnStartup: (enabled: boolean) => void;
   setShowCompletedByDefault: (show: boolean) => void;
   setConfirmBeforeDelete: (confirm: boolean) => void;
+  setDeleteSubtasksWithParent: (behavior: SubtaskDeletionBehavior) => void;
   setStartOfWeek: (day: StartOfWeek) => void;
   setNotifications: (enabled: boolean) => void;
   setNotifyBefore: (minutes: number) => void;
+  setDefaultCalendarId: (calendarId: string | null) => void;
+  setDefaultPriority: (priority: Priority) => void;
+  setDefaultTags: (tagIds: string[]) => void;
   exportSettings: () => string;
   importSettings: (json: string) => boolean;
 }
@@ -66,9 +79,13 @@ export const useSettingsStore = create<SettingsStore>()(
       syncOnStartup: true,
       showCompletedByDefault: true,
       confirmBeforeDelete: true,
+      deleteSubtasksWithParent: 'delete',
       startOfWeek: 'sunday',
       notifications: true,
       notifyBefore: 15,
+      defaultCalendarId: null,
+      defaultPriority: 'none',
+      defaultTags: [],
 
       setTheme: (theme) => set({ theme }),
       setAccentColor: (accentColor) => set({ accentColor }),
@@ -77,9 +94,13 @@ export const useSettingsStore = create<SettingsStore>()(
       setSyncOnStartup: (syncOnStartup) => set({ syncOnStartup }),
       setShowCompletedByDefault: (showCompletedByDefault) => set({ showCompletedByDefault }),
       setConfirmBeforeDelete: (confirmBeforeDelete) => set({ confirmBeforeDelete }),
+      setDeleteSubtasksWithParent: (deleteSubtasksWithParent) => set({ deleteSubtasksWithParent }),
       setStartOfWeek: (startOfWeek) => set({ startOfWeek }),
       setNotifications: (notifications) => set({ notifications }),
       setNotifyBefore: (notifyBefore) => set({ notifyBefore }),
+      setDefaultCalendarId: (defaultCalendarId) => set({ defaultCalendarId }),
+      setDefaultPriority: (defaultPriority) => set({ defaultPriority }),
+      setDefaultTags: (defaultTags) => set({ defaultTags }),
       
       exportSettings: () => {
         const state = get();
@@ -92,9 +113,13 @@ export const useSettingsStore = create<SettingsStore>()(
           syncOnStartup: state.syncOnStartup,
           showCompletedByDefault: state.showCompletedByDefault,
           confirmBeforeDelete: state.confirmBeforeDelete,
+          deleteSubtasksWithParent: state.deleteSubtasksWithParent,
           startOfWeek: state.startOfWeek,
           notifications: state.notifications,
           notifyBefore: state.notifyBefore,
+          defaultCalendarId: state.defaultCalendarId,
+          defaultPriority: state.defaultPriority,
+          defaultTags: state.defaultTags,
         };
         return JSON.stringify(exportData, null, 2);
       },
@@ -114,9 +139,13 @@ export const useSettingsStore = create<SettingsStore>()(
             syncOnStartup: data.syncOnStartup ?? true,
             showCompletedByDefault: data.showCompletedByDefault ?? true,
             confirmBeforeDelete: data.confirmBeforeDelete ?? true,
+            deleteSubtasksWithParent: data.deleteSubtasksWithParent ?? 'delete',
             startOfWeek: data.startOfWeek ?? 'sunday',
             notifications: data.notifications ?? true,
             notifyBefore: data.notifyBefore ?? 15,
+            defaultCalendarId: data.defaultCalendarId ?? null,
+            defaultPriority: data.defaultPriority ?? 'none',
+            defaultTags: data.defaultTags ?? [],
           });
           return true;
         } catch (e) {

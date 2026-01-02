@@ -12,6 +12,7 @@ import {
 } from '@/types';
 import { toAppleEpoch } from '../utils/ical';
 import { FlattenedTask } from '../utils/tree';
+import { useSettingsStore } from './settingsStore';
 
 // represents a task pending deletion from the server
 interface PendingDeletion {
@@ -39,7 +40,7 @@ interface TaskStore {
   // task actions
   addTask: (task: Partial<Task>) => Task;
   updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
+  deleteTask: (id: string, deleteChildren?: boolean) => void;
   toggleTaskComplete: (id: string) => void;
   reorderTasks: (activeId: string, overId: string, flattenedItems: FlattenedTask[], targetIndent?: number) => void;
   setTaskParent: (taskId: string, parentUid: string | undefined) => void;
@@ -117,12 +118,50 @@ export const useTaskStore = create<TaskStore>()(
       addTask: (taskData) => {
         const now = new Date();
         const tasks = get().tasks;
+        const accounts = get().accounts;
+        const activeCalendarId = get().activeCalendarId;
+        const activeAccountId = get().activeAccountId;
         const activeTagId = get().activeTagId;
-
+        
+        // Get default calendar and task defaults from settings
+        const { defaultCalendarId, defaultPriority, defaultTags } = useSettingsStore.getState();
+        
+        // Determine calendar and account to use
+        let calendarId = taskData.calendarId || activeCalendarId;
+        let accountId = taskData.accountId || activeAccountId;
+        
         // If viewing a tag, include that tag in the new task
         let tags = taskData.tags || [];
         if (activeTagId && !tags.includes(activeTagId)) {
           tags = [activeTagId, ...tags];
+        }
+        // Add default tags if no tags provided
+        if (tags.length === 0 && defaultTags.length > 0) {
+          tags = [...defaultTags];
+        }
+        
+        // If no active calendar (All Tasks view), use default or first available
+        if (!calendarId && accounts.length > 0) {
+          if (defaultCalendarId) {
+            // Find the calendar and its account
+            for (const account of accounts) {
+              const calendar = account.calendars.find(c => c.id === defaultCalendarId);
+              if (calendar) {
+                calendarId = calendar.id;
+                accountId = account.id;
+                break;
+              }
+            }
+          }
+          
+          // Fallback to first available calendar if default not found
+          if (!calendarId) {
+            const firstAccount = accounts.find(a => a.calendars.length > 0);
+            if (firstAccount) {
+              calendarId = firstAccount.calendars[0].id;
+              accountId = firstAccount.id;
+            }
+          }
         }
         
         // calculate sort order using Apple epoch format
@@ -137,11 +176,11 @@ export const useTaskStore = create<TaskStore>()(
           title: taskData.title || 'New Task',
           description: taskData.description || '',
           completed: false,
-          priority: taskData.priority || 'none',
+          priority: taskData.priority || defaultPriority,
           subtasks: taskData.subtasks || [],
           sortOrder: maxSortOrder + 1,
-          accountId: taskData.accountId || get().activeAccountId || '',
-          calendarId: taskData.calendarId || get().activeCalendarId || '',
+          accountId: accountId || '',
+          calendarId: calendarId || taskData.calendarId || get().activeCalendarId || '',
           synced: false,
           createdAt: now,
           modifiedAt: now,
@@ -171,23 +210,51 @@ export const useTaskStore = create<TaskStore>()(
         }));
       },
 
-      deleteTask: (id) => {
+      deleteTask: (id, deleteChildren = true) => {
         const task = get().tasks.find(t => t.id === id);
+        if (!task) return;
+        
+        // get all descendants recursively
+        const getAllDescendantIds = (parentUid: string): string[] => {
+          const children = get().tasks.filter(t => t.parentUid === parentUid);
+          const childIds = children.map(c => c.id);
+          const descendantIds = children.flatMap(c => getAllDescendantIds(c.uid));
+          return [...childIds, ...descendantIds];
+        };
+        
+        const descendantIds = getAllDescendantIds(task.uid);
+        const tasksToDelete = deleteChildren ? [id, ...descendantIds] : [id];
+        
         set((state) => {
-          // if task has been synced to server (has href), track it for deletion
-          const newPendingDeletions = task?.href 
-            ? [...state.pendingDeletions, {
-                uid: task.uid,
-                href: task.href,
-                accountId: task.accountId,
-                calendarId: task.calendarId,
-              }]
-            : state.pendingDeletions;
+          // collect all tasks that need to be tracked for server deletion
+          const tasksWithHref = state.tasks.filter(t => 
+            tasksToDelete.includes(t.id) && t.href
+          );
+          
+          const newPendingDeletions = [
+            ...state.pendingDeletions,
+            ...tasksWithHref.map(t => ({
+              uid: t.uid,
+              href: t.href!,
+              accountId: t.accountId,
+              calendarId: t.calendarId,
+            })),
+          ];
+          
+          // if not deleting children, orphan them (move to root level)
+          let updatedTasks = state.tasks;
+          if (!deleteChildren) {
+            updatedTasks = updatedTasks.map(t => 
+              t.parentUid === task.uid 
+                ? { ...t, parentUid: undefined, modifiedAt: new Date(), synced: false }
+                : t
+            );
+          }
           
           return {
-            tasks: state.tasks.filter((t) => t.id !== id),
+            tasks: updatedTasks.filter((t) => !tasksToDelete.includes(t.id)),
             pendingDeletions: newPendingDeletions,
-            selectedTaskId: state.selectedTaskId === id ? null : state.selectedTaskId,
+            selectedTaskId: tasksToDelete.includes(state.selectedTaskId || '') ? null : state.selectedTaskId,
           };
         });
       },
