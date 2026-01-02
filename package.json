@@ -1,7 +1,8 @@
 {
   "name": "caldav-tasks",
   "version": "0.1.4",
-  "description": "a cross-platform CalDAV task management app",
+  "author": "Sapphic Angels",
+  "description": "A cross-platform CalDAV task management app. Currently in very early alpha!",
   "type": "module",
   "license": "zlib/libpng",
   "scripts": {
