@@ -8,10 +8,12 @@ export function useModalEscapeKey(onClose: () => void) {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         onClose();
       }
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    window.addEventListener('keydown', handleEsc, { capture: true });
+    return () => window.removeEventListener('keydown', handleEsc, { capture: true } as EventListenerOptions);
   }, [onClose]);
 }
