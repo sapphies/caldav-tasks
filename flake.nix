@@ -64,10 +64,10 @@
           shellHook = ''
             echo "caldav-tasks dev environment"
             echo ""
-            echo "Commands:"
-            echo "  pnpm install    - Install dependencies"
-            echo "  pnpm tauri dev  - Start development server"
-            echo "  pnpm tauri build - Build for production"
+            echo "commands:"
+            echo "  just install    - install dependencies"
+            echo "  just dev        - start development server"
+            echo "  just build      - build app"
             echo ""
           '';
 
