@@ -1,5 +1,5 @@
 {
-  description = "CalDAV Tasks - Cross-platform task management app";
+  description = "caldav-tasks - Cross-platform task management app";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -62,7 +62,7 @@
           ] ++ darwinDeps ++ linuxDeps;
 
           shellHook = ''
-            echo "🦀 CalDAV Tasks Development Environment"
+            echo "caldav-tasks dev environment"
             echo ""
             echo "Commands:"
             echo "  pnpm install    - Install dependencies"

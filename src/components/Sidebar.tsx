@@ -128,7 +128,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
         <div className="h-[53px] px-4 flex items-center border-b border-surface-200 dark:border-surface-700">
           <h1 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">
             <FolderKanban className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-            caldav task test
+            caldav-tasks
           </h1>
         </div>
 

@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__
-          releaseName: 'CalDAV Tasks v__VERSION__'
+          releaseName: 'caldav-tasks v__VERSION__'
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false

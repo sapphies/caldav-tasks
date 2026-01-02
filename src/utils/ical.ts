@@ -399,7 +399,7 @@ function generateVCalendar(vtodos: string[]): string {
   const lines: string[] = [];
   lines.push('BEGIN:VCALENDAR');
   lines.push('VERSION:2.0');
-  lines.push('PRODID:-//CalDAV Tasks//EN');
+  lines.push('PRODID:-//caldav-tasks//EN');
   
   for (const vtodo of vtodos) {
     lines.push(vtodo);

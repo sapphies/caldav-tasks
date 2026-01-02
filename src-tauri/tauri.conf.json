@@ -1,7 +1,7 @@
 {
-  "productName": "caldav task test",
+  "productName": "caldav-tasks",
   "version": "0.2.0",
-  "identifier": "com.caldav.tasks",
+  "identifier": "moe.sapphic.caldav-tasks",
   "build": {
     "beforeDevCommand": "pnpm run dev",
     "beforeBuildCommand": "pnpm run build",
@@ -14,7 +14,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "caldav task test",
+        "title": "caldav-tasks",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
