@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { getAltKeyLabel, getMetaKeyLabel, getModifierJoiner, getShiftKeyLabel } from '../utils/keyboard';
 import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { KeyboardShortcut } from '@/store/settingsStore';
 
 interface ShortcutAction {
@@ -32,8 +33,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     getSortedTasks,
   } = useTaskStore();
   const { confirmAndDelete } = useConfirmTaskDelete();
+  const { isOpen: isConfirmDialogOpen } = useConfirmDialog();
   
-
   const handleNewTask = useCallback(() => {
     const task = addTask({ title: '' });
     setSelectedTask(task.id);
@@ -199,6 +200,14 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // if confirm dialog is open, let it consume keys (Esc/Enter) without triggering app shortcuts
+      if (isConfirmDialogOpen) {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+          e.preventDefault();
+        }
+        return;
+      }
+      
       // don't trigger shortcuts when typing in inputs
       const target = e.target as HTMLElement;
       const isInput = 
