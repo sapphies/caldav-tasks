@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, ReactNode, CSSProperties } from 'react';
+import { useState, useRef, useEffect, useCallback, ReactNode, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
+import { useModalState } from '@/context/modalStateContext';
 
 interface TooltipProps {
   content: ReactNode;
@@ -21,28 +22,20 @@ export function Tooltip({
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { isAnyModalOpen } = useModalState();
 
-  const showTooltip = () => {
-    if (delay === 0) {
-      setIsVisible(true);
-      updatePosition();
-    } else {
-      timeoutRef.current = setTimeout(() => {
-        setIsVisible(true);
-        updatePosition();
-      }, delay);
+  // Hide tooltip when a modal opens
+  useEffect(() => {
+    if (isAnyModalOpen && isVisible) {
+      setIsVisible(false);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     }
-  };
+  }, [isAnyModalOpen, isVisible]);
 
-  const hideTooltip = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setIsVisible(false);
-  };
-
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
 
     const rect = triggerRef.current.getBoundingClientRect();
@@ -78,6 +71,30 @@ export function Tooltip({
     }
 
     setCoords({ x, y });
+  }, [position]);
+
+  const showTooltip = () => {
+    // Don't show tooltip when a modal is open
+    if (isAnyModalOpen) return;
+    
+    const show = () => {
+      updatePosition();
+      setIsVisible(true);
+    };
+
+    if (delay === 0) {
+      show();
+    } else {
+      timeoutRef.current = setTimeout(show, delay);
+    }
+  };
+
+  const hideTooltip = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setIsVisible(false);
   };
 
   useEffect(() => {
@@ -87,6 +104,21 @@ export function Tooltip({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleReposition = () => updatePosition();
+    handleReposition();
+
+    window.addEventListener('resize', handleReposition, true);
+    window.addEventListener('scroll', handleReposition, true);
+
+    return () => {
+      window.removeEventListener('resize', handleReposition, true);
+      window.removeEventListener('scroll', handleReposition, true);
+    };
+  }, [isVisible, updatePosition]);
 
   const getTransformOrigin = () => {
     switch (position) {

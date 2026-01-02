@@ -9,6 +9,7 @@ import Eye from 'lucide-react/icons/eye';
 import EyeOff from 'lucide-react/icons/eye-off';
 import WifiOff from 'lucide-react/icons/wifi-off';
 import { useTaskStore } from '@/store/taskStore';
+import { useModalState } from '@/context/modalStateContext';
 import { SortMode } from '@/types';
 import { Tooltip } from './Tooltip';
 import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
@@ -43,6 +44,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
     setSelectedTask,
   } = useTaskStore();
 
+  const { isAnyModalOpen } = useModalState();
   const [showSortMenu, setShowSortMenu] = useState(false);
   const metaKey = getMetaKeyLabel();
   const modifierJoiner = getModifierJoiner();
@@ -119,7 +121,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
                     ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30'
                     : isOffline
                       ? 'text-surface-300 dark:text-surface-600 cursor-not-allowed'
-                      : 'text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+                      : `text-surface-500 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
                 }`}
               >
                 <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -136,7 +138,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
               className={`p-2 rounded-lg transition-colors ${
                 showCompletedTasks
                   ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
-                  : 'text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+                  : `text-surface-500 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
               }`}
             >
               {showCompletedTasks ? (
@@ -153,7 +155,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
               className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm transition-colors ${
                 showSortMenu
                   ? 'bg-surface-200 dark:bg-surface-600 text-surface-700 dark:text-surface-200'
-                  : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+                  : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
               }`}
             >
               {sortConfig.direction === 'asc' ? (
@@ -210,7 +212,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
 
           <button
             onClick={handleNewTask}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+            className={`flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium ${!isAnyModalOpen ? 'hover:bg-primary-700' : ''} transition-colors shadow-sm`}
           >
             <Plus className="w-4 h-4" />
             New Task

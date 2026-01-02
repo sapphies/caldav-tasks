@@ -14,6 +14,7 @@ import Share2 from 'lucide-react/icons/share-2';
 import Upload from 'lucide-react/icons/upload';
 import { useTaskStore } from '@/store/taskStore';
 import { useGlobalContextMenuClose } from '@/hooks/useGlobalContextMenu';
+import { useModalState } from '@/context/modalStateContext';
 import { Account, Calendar as CalendarType } from '@/types';
 import { AccountModal } from './modals/AccountModal';
 import { TagModal } from './modals/TagModal';
@@ -24,6 +25,7 @@ import { caldavService } from '@/lib/caldav';
 import { getContrastTextColor } from '../utils/color';
 import { getIconByName } from './IconPicker';
 import { Tooltip } from './Tooltip';
+import { clampToViewport } from '../utils/position';
 import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
 
 interface SidebarProps {
@@ -48,6 +50,8 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
     tasks,
     getCalendarTasks,
   } = useTaskStore();
+
+  const { isAnyModalOpen } = useModalState();
 
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(
     new Set(accounts.map((a) => a.id))
@@ -92,7 +96,8 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
     e.preventDefault();
       // dispatch event to close other context menus first
     document.dispatchEvent(new CustomEvent('closeAllContextMenus'));
-    setContextMenu({ type, id, accountId, x: e.clientX, y: e.clientY });
+    const { x, y } = clampToViewport(e.clientX, e.clientY);
+    setContextMenu({ type, id, accountId, x, y });
   };
 
   const handleCloseContextMenu = useCallback(() => {
@@ -127,7 +132,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
           </h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-2 overscroll-contain">
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           <button
             onClick={() => {
               setAllTasksView();
@@ -136,7 +141,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
             className={`w-full flex items-center gap-2 px-4 py-2 mb-2 text-sm transition-colors ${
               activeCalendarId === null && activeTagId === null
                 ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                : 'text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700'
+                : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
             }`}
           >
             <Inbox className="w-4 h-4" />
@@ -155,7 +160,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                 <Tooltip content="Import tasks" position="top">
                   <button
                     onClick={onOpenImport}
-                    className="p-1 rounded hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+                    className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
                   >
                     <Upload className="w-4 h-4" />
                   </button>
@@ -166,7 +171,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                       setEditingAccount(null);
                       setShowAccountModal(true);
                     }}
-                    className="p-1 rounded hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+                    className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -184,7 +189,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                   <div 
                     onClick={() => toggleAccount(account.id)}
                     onContextMenu={(e) => handleContextMenu(e, 'account', account.id)}
-                    className="relative w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors group cursor-pointer"
+                    className={`relative w-full flex items-center gap-2 px-4 py-1.5 text-sm ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} transition-colors group cursor-pointer`}
                   >
                     {expandedAccounts.has(account.id) ? (
                       <ChevronDown className="w-4 h-4 text-surface-400 flex-shrink-0" />
@@ -205,7 +210,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                           e.stopPropagation();
                           handleContextMenu(e, 'account', account.id);
                         }}
-                        className="p-1.5 rounded bg-transparent hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                        className={`p-1.5 rounded bg-transparent ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-600 dark:hover:text-surface-300' : ''} text-surface-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0`}
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -248,10 +253,10 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                                 setActiveCalendar(calendar.id);
                               }}
                               onContextMenu={(e) => handleContextMenu(e, 'calendar', calendar.id, account.id)}
-                              className={`w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors ${
+                              className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
                                 isActive
                                   ? ''
-                                  : 'text-surface-600 dark:text-surface-400'
+                                  : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
                               }`}
                               style={isActive ? { backgroundColor: calendarColor, color: textColor } : undefined}
                             >
@@ -287,7 +292,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
                     setEditingTagId(null);
                     setShowTagModal(true);
                   }}
-                  className="p-1 rounded hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+                  className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -301,13 +306,18 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
             ) : (
               tags.map((tag) => {
                 const TagIcon = getIconByName(tag.icon || 'tag');
+                const isActive = activeTagId === tag.id;
                 return (
                   <button
                     key={tag.id}
                     data-context-menu
                     onClick={() => setActiveTag(tag.id)}
                     onContextMenu={(e) => handleContextMenu(e, 'tag', tag.id)}
-                    className="w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-600 dark:text-surface-400"
+                    className={`w-full flex items-center gap-2 px-4 py-1.5 text-sm transition-colors ${
+                      isActive
+                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                        : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
+                    }`}
                   >
                     <TagIcon
                       className="w-3.5 h-3.5"
@@ -327,7 +337,7 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
         <div className="border-t border-surface-200 dark:border-surface-700 p-2">
           <button 
             onClick={() => onOpenSettings?.()}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded-md transition-colors"
+            className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} rounded-md transition-colors`}
           >
             <Settings className="w-4 h-4" />
             Settings
