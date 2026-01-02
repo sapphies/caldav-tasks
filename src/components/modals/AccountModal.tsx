@@ -126,52 +126,16 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Server Type
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setServerType('rustical')}
-                className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                  serverType === 'rustical'
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 border-surface-200 dark:border-surface-600 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
-              >
-                RustiCal
-              </button>
-              <button
-                type="button"
-                onClick={() => setServerType('radicale')}
-                className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                  serverType === 'radicale'
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 border-surface-200 dark:border-surface-600 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
-              >
-                Radicale
-              </button>
-              <button
-                type="button"
-                onClick={() => setServerType('baikal')}
-                className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                  serverType === 'baikal'
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 border-surface-200 dark:border-surface-600 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
-              >
-                Baikal
-              </button>
-              <button
-                type="button"
-                onClick={() => setServerType('generic')}
-                className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                  serverType === 'generic'
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 border-surface-200 dark:border-surface-600 hover:border-primary-300 dark:hover:border-primary-700'
-                }`}
-              >
-                Generic
-              </button>
-            </div>
+            <select
+              value={serverType}
+              onChange={(e) => setServerType(e.target.value as ServerType)}
+              className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
+            >
+              <option value="generic">Generic (auto-detect)</option>
+              <option value="rustical">RustiCal</option>
+              <option value="radicale">Radicale</option>
+              <option value="baikal">Baikal</option>
+            </select>
             <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
               {serverType === 'rustical' && 'Uses /caldav/principal/{username}/ path structure'}
               {serverType === 'radicale' && 'Uses /{username}/ path structure'}
