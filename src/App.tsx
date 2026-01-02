@@ -29,7 +29,7 @@ function App() {
   useNotifications();
   
   useKeyboardShortcuts({
-    onOpenSettings: () => setShowSettings(true),
+    onOpenSettings: () => setShowSettings(prev => !prev),
     onSync: syncAll,
   });
   
