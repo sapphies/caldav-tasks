@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -22,6 +22,7 @@ import ListTodo from 'lucide-react/icons/list-todo';
 import Plus from 'lucide-react/icons/plus';
 import { flattenTasks, FlattenedTask } from '../utils/tree';
 import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
+import { setIsKeyboardDragging } from '@/lib/dragState';
 
 // pixels of horizontal drag per indent level
 const INDENT_SHIFT_SIZE = 28;
@@ -154,7 +155,7 @@ export function TaskList() {
     return 0;
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     const task = flattenedTasks.find((t) => t.id === event.active.id);
     if (task) {
       setActiveTask(task);
@@ -163,8 +164,14 @@ export function TaskList() {
       // store starting X from the event
       const pointerEvent = event.activatorEvent as PointerEvent;
       dragStartXRef.current = pointerEvent?.clientX ?? 0;
+      
+      // track if this is a keyboard-initiated drag
+      // KeyboardEvent is used by dnd-kit KeyboardSensor, PointerEvent by PointerSensor
+      if (event.activatorEvent instanceof KeyboardEvent) {
+        setIsKeyboardDragging(true);
+      }
     }
-  };
+  }, [flattenedTasks]);
 
   const handleDragMove = (event: DragMoveEvent) => {
     const { active, over } = event;
@@ -199,7 +206,15 @@ export function TaskList() {
     setTargetParentName(parentName);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragCancel = useCallback(() => {
+    // reset all drag state on cancel
+    setActiveTask(null);
+    setTargetIndent(0);
+    setTargetParentName(null);
+    setIsKeyboardDragging(false);
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     const finalTargetIndent = targetIndent;
     
@@ -207,6 +222,7 @@ export function TaskList() {
     setActiveTask(null);
     setTargetIndent(0);
     setTargetParentName(null);
+    setIsKeyboardDragging(false);
     
     if (!over) return;
     
@@ -241,7 +257,7 @@ export function TaskList() {
       flattenedTasks,
       finalTargetIndent
     );
-  };
+  }, [flattenedTasks, reorderTasks, targetIndent]);
 
   const handleQuickAdd = () => {
     const task = addTask({ title: '' });
@@ -251,7 +267,6 @@ export function TaskList() {
   const metaKey = getMetaKeyLabel();
   const modifierJoiner = getModifierJoiner();
   const newTaskShortcut = `${metaKey}${modifierJoiner}N`;
-
 
   // only enable dragging for manual/smart sort modes
   const isDragEnabled = sortConfig.mode === 'manual' || sortConfig.mode === 'smart';
@@ -292,6 +307,7 @@ export function TaskList() {
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <SortableContext
           items={flattenedTasks.map(t => t.id)}
