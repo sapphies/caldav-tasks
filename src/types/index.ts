@@ -37,7 +37,9 @@ export interface Task {
   
   // dates
   startDate?: Date;
+  startDateAllDay?: boolean; // if true, startDate is all-day (no time component)
   dueDate?: Date;
+  dueDateAllDay?: boolean; // if true, dueDate is all-day (no time component)
   createdAt: Date;
   modifiedAt: Date;
   

@@ -5,19 +5,22 @@ import ChevronRight from 'lucide-react/icons/chevron-right';
 import X from 'lucide-react/icons/x';
 import Clock from 'lucide-react/icons/clock';
 import CalendarIcon from 'lucide-react/icons/calendar';
+import Sun from 'lucide-react/icons/sun';
 
 interface DateTimePickerProps {
   value?: Date;
-  onChange: (date: Date | undefined) => void;
+  onChange: (date: Date | undefined, allDay?: boolean) => void;
   placeholder?: string;
   showTime?: boolean;
+  allDay?: boolean; // external all-day state
+  onAllDayChange?: (allDay: boolean) => void; // callback for all-day toggle
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Select date...', showTime = true }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Select date...', showTime = true, allDay = false, onAllDayChange }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(value ? new Date(value) : new Date());
   const [selectedTime, setSelectedTime] = useState(() => {
-    if (value) {
+    if (value && !allDay) {
       return {
         hours: value.getHours(),
         minutes: value.getMinutes(),
@@ -63,30 +66,55 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
 
   const handleDayClick = (day: Date) => {
     const newDate = new Date(day);
-    newDate.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
-    onChange(newDate);
+    if (allDay) {
+      // For all-day, set to start of day in local timezone
+      newDate.setHours(0, 0, 0, 0);
+    } else {
+      newDate.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+    }
+    onChange(newDate, allDay);
   };
 
-  const handleTimeChange = (type: 'hours' | 'minutes', value: number) => {
-    const newTime = { ...selectedTime, [type]: value };
+  const handleTimeChange = (type: 'hours' | 'minutes', newValue: number) => {
+    const newTime = { ...selectedTime, [type]: newValue };
     setSelectedTime(newTime);
     
     if (value !== undefined) {
-      const currentValue = value ?? new Date();
-      const newDate = new Date(currentValue);
+      const newDate = new Date(value);
       newDate.setHours(newTime.hours, newTime.minutes, 0, 0);
-      onChange(newDate);
+      onChange(newDate, allDay);
+    }
+  };
+
+  const handleAllDayToggle = () => {
+    const newAllDay = !allDay;
+    onAllDayChange?.(newAllDay);
+    
+    if (value) {
+      const newDate = new Date(value);
+      if (newAllDay) {
+        // Set to start of day for all-day
+        newDate.setHours(0, 0, 0, 0);
+      } else {
+        // Restore time when switching off all-day
+        newDate.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+      }
+      onChange(newDate, newAllDay);
     }
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange(undefined);
+    onChange(undefined, false);
+    onAllDayChange?.(false);
     setIsOpen(false);
   };
 
   const formatDisplayValue = () => {
     if (!value) return placeholder;
+    if (allDay) {
+      return format(value, 'MMM d, yyyy') + ' (All day)';
+    }
     if (showTime) {
       return format(value, 'MMM d, yyyy h:mm a');
     }
@@ -176,36 +204,58 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
           </div>
 
           {showTime && (
-            <div className="p-3 border-t border-surface-200 dark:border-surface-700">
+            <div className="p-3 border-t border-surface-200 dark:border-surface-700 space-y-3">
+              {/* All Day Toggle */}
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-surface-400" />
-                <span className="text-sm text-surface-600 dark:text-surface-400">Time</span>
-                <div className="flex-1 flex items-center justify-end gap-1">
-                  <select
-                    value={selectedTime.hours}
-                    onChange={(e) => handleTimeChange('hours', parseInt(e.target.value))}
-                    className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
-                  >
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="text-surface-500">:</span>
-                  <select
-                    value={selectedTime.minutes}
-                    onChange={(e) => handleTimeChange('minutes', parseInt(e.target.value))}
-                    className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
-                  >
-                    {Array.from({ length: 60 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Sun className="w-4 h-4 text-surface-400" />
+                <span className="text-sm text-surface-600 dark:text-surface-400">All day</span>
+                <button
+                  type="button"
+                  onClick={handleAllDayToggle}
+                  className={`ml-auto relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    allDay ? 'bg-primary-600' : 'bg-surface-300 dark:bg-surface-600'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      allDay ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
+              
+              {/* Time Picker - hidden when all day */}
+              {!allDay && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-surface-400" />
+                  <span className="text-sm text-surface-600 dark:text-surface-400">Time</span>
+                  <div className="flex-1 flex items-center justify-end gap-1">
+                    <select
+                      value={selectedTime.hours}
+                      onChange={(e) => handleTimeChange('hours', parseInt(e.target.value))}
+                      className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
+                    >
+                      {Array.from({ length: 24 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="text-surface-500">:</span>
+                    <select
+                      value={selectedTime.minutes}
+                      onChange={(e) => handleTimeChange('minutes', parseInt(e.target.value))}
+                      className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
+                    >
+                      {Array.from({ length: 60 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -214,7 +264,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
               type="button"
               onClick={() => {
                 const now = new Date();
-                onChange(now);
+                if (allDay) {
+                  now.setHours(0, 0, 0, 0);
+                }
+                onChange(now, allDay);
                 setIsOpen(false);
               }}
               className="flex-1 px-3 py-1.5 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors"
@@ -226,8 +279,12 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
               onClick={() => {
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
-                tomorrow.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
-                onChange(tomorrow);
+                if (allDay) {
+                  tomorrow.setHours(0, 0, 0, 0);
+                } else {
+                  tomorrow.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+                }
+                onChange(tomorrow, allDay);
                 setIsOpen(false);
               }}
               className="flex-1 px-3 py-1.5 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors"
@@ -239,8 +296,12 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
               onClick={() => {
                 const nextWeek = new Date();
                 nextWeek.setDate(nextWeek.getDate() + 7);
-                nextWeek.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
-                onChange(nextWeek);
+                if (allDay) {
+                  nextWeek.setHours(0, 0, 0, 0);
+                } else {
+                  nextWeek.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+                }
+                onChange(nextWeek, allDay);
                 setIsOpen(false);
               }}
               className="flex-1 px-3 py-1.5 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors"

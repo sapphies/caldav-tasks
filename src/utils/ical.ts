@@ -56,6 +56,20 @@ function formatICalDate(date: Date): string {
 }
 
 /**
+ * Format a Date as iCalendar date (no time component)
+ * Format: YYYYMMDD (VALUE=DATE)
+ */
+function formatICalDateOnly(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  // Use local date parts for all-day dates
+  return (
+    date.getFullYear().toString() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate())
+  );
+}
+
+/**
  * Parse an iCalendar datetime string to Date
  * Supports: YYYYMMDDTHHMMSSZ, YYYYMMDDTHHMMSS, YYYYMMDD
  */
@@ -209,7 +223,9 @@ interface ParsedVTodo {
   priority?: number;
   categories?: string[];
   dtstart?: Date;
+  dtstartAllDay?: boolean;
   due?: Date;
+  dueAllDay?: boolean;
   completed?: Date;
   created?: Date;
   lastModified?: Date;
@@ -256,9 +272,13 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
         break;
       case 'DTSTART':
         result.dtstart = parseICalDate(prop.value);
+        // Check if it's an all-day date (VALUE=DATE parameter)
+        result.dtstartAllDay = prop.params['VALUE'] === 'DATE';
         break;
       case 'DUE':
         result.due = parseICalDate(prop.value);
+        // Check if it's an all-day date (VALUE=DATE parameter)
+        result.dueAllDay = prop.params['VALUE'] === 'DATE';
         break;
       case 'COMPLETED':
         result.completed = parseICalDate(prop.value);
@@ -348,11 +368,19 @@ function generateVTodo(task: Task): string {
   lines.push(`PRIORITY:${priorityToIcal[task.priority]}`);
   
   if (task.startDate) {
-    lines.push(`DTSTART:${formatICalDate(new Date(task.startDate))}`);
+    if (task.startDateAllDay) {
+      lines.push(`DTSTART;VALUE=DATE:${formatICalDateOnly(new Date(task.startDate))}`);
+    } else {
+      lines.push(`DTSTART:${formatICalDate(new Date(task.startDate))}`);
+    }
   }
   
   if (task.dueDate) {
-    lines.push(`DUE:${formatICalDate(new Date(task.dueDate))}`);
+    if (task.dueDateAllDay) {
+      lines.push(`DUE;VALUE=DATE:${formatICalDateOnly(new Date(task.dueDate))}`);
+    } else {
+      lines.push(`DUE:${formatICalDate(new Date(task.dueDate))}`);
+    }
   }
   
   lines.push(`X-APPLE-SORT-ORDER:${task.sortOrder}`);
@@ -469,7 +497,9 @@ export function vtodoToTask(
       priority: icalToPriority(parsed.priority || 0),
       categoryId: parsed.categories?.join(',') || undefined,
       startDate: parsed.dtstart,
+      startDateAllDay: parsed.dtstartAllDay,
       dueDate: parsed.due,
+      dueDateAllDay: parsed.dueAllDay,
       createdAt: createdDate,
       modifiedAt: parsed.lastModified || new Date(),
       subtasks,
@@ -622,7 +652,9 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
         priority: icalToPriority(parsed.priority || 0),
         categoryId: parsed.categories?.join(',') || undefined,
         startDate: parsed.dtstart,
+        startDateAllDay: parsed.dtstartAllDay,
         dueDate: parsed.due,
+        dueDateAllDay: parsed.dueAllDay,
         createdAt: createdDate,
         modifiedAt: parsed.lastModified || new Date(),
         subtasks,

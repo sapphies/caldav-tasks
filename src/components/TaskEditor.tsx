@@ -102,12 +102,20 @@ export function TaskEditor({ task }: TaskEditorProps) {
     }
   };
 
-  const handleStartDateChange = (date: Date | undefined) => {
-    updateTask(task.id, { startDate: date });
+  const handleStartDateChange = (date: Date | undefined, allDay?: boolean) => {
+    updateTask(task.id, { startDate: date, startDateAllDay: allDay });
   };
 
-  const handleDueDateChange = (date: Date | undefined) => {
-    updateTask(task.id, { dueDate: date });
+  const handleDueDateChange = (date: Date | undefined, allDay?: boolean) => {
+    updateTask(task.id, { dueDate: date, dueDateAllDay: allDay });
+  };
+
+  const handleStartDateAllDayChange = (allDay: boolean) => {
+    updateTask(task.id, { startDateAllDay: allDay });
+  };
+
+  const handleDueDateAllDayChange = (allDay: boolean) => {
+    updateTask(task.id, { dueDateAllDay: allDay });
   };
 
   const handleAddChildTask = () => {
@@ -198,6 +206,8 @@ export function TaskEditor({ task }: TaskEditorProps) {
               value={task.startDate ? new Date(task.startDate) : undefined}
               onChange={handleStartDateChange}
               placeholder="Set start date..."
+              allDay={task.startDateAllDay}
+              onAllDayChange={handleStartDateAllDayChange}
             />
           </div>
           <div>
@@ -209,6 +219,8 @@ export function TaskEditor({ task }: TaskEditorProps) {
               value={task.dueDate ? new Date(task.dueDate) : undefined}
               onChange={handleDueDateChange}
               placeholder="Set due date..."
+              allDay={task.dueDateAllDay}
+              onAllDayChange={handleDueDateAllDayChange}
             />
           </div>
         </div>
