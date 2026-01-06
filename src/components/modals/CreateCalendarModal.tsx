@@ -6,23 +6,12 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { caldavService } from '@/lib/caldav';
 import { IconPicker } from '../IconPicker';
+import { COLOR_PRESETS } from '@/utils/constants';
 
 interface CreateCalendarModalProps {
   accountId: string;
   onClose: () => void;
 }
-
-const colorPresets = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#3b82f6', // blue
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#6b7280', // gray
-];
 
 export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalProps) {
   const addCalendarMutation = useAddCalendar();
@@ -99,7 +88,7 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
               Color
             </label>
             <div className="flex flex-wrap gap-2">
-              {colorPresets.map((preset) => (
+              {COLOR_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   type="button"

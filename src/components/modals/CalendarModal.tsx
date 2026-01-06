@@ -5,24 +5,13 @@ import { useAccounts, useUpdateAccount } from '@/hooks/queries';
 import { Calendar } from '@/types';
 import { caldavService } from '@/lib/caldav';
 import { IconPicker } from '../IconPicker';
+import { COLOR_PRESETS } from '@/utils/constants';
 
 interface CalendarModalProps {
   calendar: Calendar;
   accountId: string;
   onClose: () => void;
 }
-
-const colorPresets = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#3b82f6', // blue
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#6b7280', // gray
-];
 
 export function CalendarModal({ calendar, accountId, onClose }: CalendarModalProps) {
   const { data: accounts = [] } = useAccounts();
@@ -163,7 +152,7 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
               Color
             </label>
             <div className="flex items-center gap-2 flex-wrap">
-              {colorPresets.map((preset) => (
+              {COLOR_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   type="button"

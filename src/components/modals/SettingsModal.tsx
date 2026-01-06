@@ -28,6 +28,7 @@ import { downloadFile } from '../../utils/file';
 import { getMetaKeyLabel, getAltKeyLabel, getShiftKeyLabel } from '../../utils/keyboard';
 import { isMacPlatform } from '../../utils/misc';
 import { KeyboardShortcutModal } from './KeyboardShortcutModal';
+import { ACCENT_COLORS } from '@/utils/constants';
 import type { Account, Priority } from '@/types';
 import packageJson from '../../../package.json';
 
@@ -48,16 +49,6 @@ type SettingsSubtab =
   | 'version';
 
 type SettingsSubtabInfo = { id: SettingsSubtab; label: string; icon: React.ReactNode };
-
-const accentColors = [
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Purple', value: '#8b5cf6' },
-  { name: 'Pink', value: '#ec4899' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Orange', value: '#f97316' },
-  { name: 'Green', value: '#22c55e' },
-  { name: 'Teal', value: '#14b8a6' },
-];
 
 const metaKeyLabel = getMetaKeyLabel();
 
@@ -243,7 +234,7 @@ function AppearanceSettings() {
         <div>
           <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Accent Color</h4>
           <div className="flex gap-2">
-            {accentColors.map((color) => (
+            {ACCENT_COLORS.map((color) => (
               <button
                 key={color.value}
                 onClick={() => setAccentColor(color.value)}

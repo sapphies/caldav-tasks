@@ -3,29 +3,13 @@ import X from 'lucide-react/icons/x';
 import { useTags, useCreateTag, useUpdateTag } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { IconPicker, getIconByName } from '../IconPicker';
+import { COLOR_PRESETS, DEFAULT_COLOR } from '@/utils/constants';
+
 
 interface TagModalProps {
   tagId: string | null;
   onClose: () => void;
 }
-
-const colorPresets = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#f59e0b', // amber
-  '#eab308', // yellow
-  '#84cc16', // lime
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
-  '#3b82f6', // blue
-  '#6366f1', // indigo
-  '#8b5cf6', // violet
-  '#a855f7', // purple
-  '#d946ef', // fuchsia
-  '#ec4899', // pink
-  '#6b7280', // gray
-];
 
 export function TagModal({ tagId, onClose }: TagModalProps) {
   const { data: tags = [] } = useTags();
@@ -37,7 +21,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
     : null;
 
   const [name, setName] = useState(existingTag?.name || '');
-  const [color, setColor] = useState(existingTag?.color || '#3b82f6');
+  const [color, setColor] = useState(existingTag?.color || DEFAULT_COLOR);
   const [icon, setIcon] = useState(existingTag?.icon || 'star');
 
   // handle ESC key to close modal
@@ -107,7 +91,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
               Color
             </label>
             <div className="flex flex-wrap gap-2">
-              {colorPresets.map((preset) => (
+              {COLOR_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   type="button"
