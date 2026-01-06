@@ -224,9 +224,10 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                       e.stopPropagation();
                       setActiveTagMutation.mutate(tag.id);
                     }}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium hover:opacity-80 transition-opacity border"
                     style={{ 
-                      backgroundColor: `${tag.color}20`,
+                      borderColor: tag.color,
+                      backgroundColor: `${tag.color}15`,
                       color: tag.color,
                     }}
                   >
