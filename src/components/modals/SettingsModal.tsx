@@ -411,75 +411,57 @@ function TaskDefaultsSettings() {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Task Defaults</h3>
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        These settings apply to newly created tasks.
-      </p>
-      <div className="space-y-6 rounded-lg border border-surface-200 dark:border-surface-700 p-4 bg-white dark:bg-surface-800">
-        <div>
-          <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Default Priority</h4>
+      <div className="rounded-lg border border-surface-200 dark:border-surface-700 p-4 bg-white dark:bg-surface-800">
+        <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Default Priority</h4>
+        <div className="flex gap-2">
+          {priorities.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => setDefaultPriority(p.value)}
+              className={`
+                flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
+                ${defaultPriority === p.value
+                  ? `${p.borderColor} ${p.bgColor}`
+                  : 'border-surface-200 dark:border-surface-600 hover:border-surface-300 text-surface-600 dark:text-surface-400'
+                }
+              `}
+            >
+              <span className={p.color}>{p.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+        <div className="rounded-lg border border-surface-200 dark:border-surface-700 p-4 bg-white dark:bg-surface-800">
+          <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Default Tags</h4>
           <div className="flex flex-wrap gap-2">
-            {priorities.map((p) => (
+            {tags.length > 0 ? tags.map((tag) => (
               <button
-                key={p.value}
-                onClick={() => setDefaultPriority(p.value)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                  defaultPriority === p.value
-                    ? p.color === 'surface'
-                      ? 'bg-surface-600 text-white'
-                      : p.color === 'blue'
-                        ? 'bg-blue-600 text-white'
-                        : p.color === 'amber'
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-red-600 text-white'
-                    : 'bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-600'
+                key={tag.id}
+                onClick={() => handleTagToggle(tag.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  defaultTags.includes(tag.id)
+                    ? 'ring-2 ring-offset-1 ring-primary-500 dark:ring-offset-surface-800'
+                    : 'opacity-60 hover:opacity-100'
                 }`}
+                style={{
+                  backgroundColor: `${tag.color}20`,
+                  color: tag.color,
+                }}
               >
-                {p.label}
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: tag.color }}
+                />
+                {tag.name}
               </button>
-            ))}
+            )) : (
+              <p className="text-sm text-surface-500 dark:text-surface-400">
+                No tags available. Create tags first to set defaults.
+              </p>
+            )}
           </div>
         </div>
-
-        {tags.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Default Tags</h4>
-            <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">
-              Selected tags will be automatically added to new tasks.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <button
-                  key={tag.id}
-                  onClick={() => handleTagToggle(tag.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    defaultTags.includes(tag.id)
-                      ? 'ring-2 ring-offset-1 ring-primary-500 dark:ring-offset-surface-800'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
-                  style={{
-                    backgroundColor: `${tag.color}20`,
-                    color: tag.color,
-                  }}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: tag.color }}
-                  />
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {tags.length === 0 && (
-          <div className="text-center py-2">
-            <p className="text-sm text-surface-500 dark:text-surface-400">
-              No tags available. Create tags first to set defaults.
-            </p>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
