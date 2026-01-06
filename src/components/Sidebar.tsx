@@ -23,11 +23,12 @@ import {
   useSetAllTasksView,
   useDeleteAccount,
   useDeleteTag,
-  useUpdateAccount,
 } from '@/hooks/queries';
 import * as taskData from '@/lib/taskData';
 import { useGlobalContextMenuClose } from '@/hooks/useGlobalContextMenu';
 import { useModalState } from '@/context/modalStateContext';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { useSettingsStore } from '@/store/settingsStore';
 import { Account, Calendar as CalendarType } from '@/types';
 import { AccountModal } from './modals/AccountModal';
 import { TagModal } from './modals/TagModal';
@@ -58,12 +59,17 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
   const setAllTasksViewMutation = useSetAllTasksView();
   const deleteAccountMutation = useDeleteAccount();
   const deleteTagMutation = useDeleteTag();
-  const updateAccountMutation = useUpdateAccount();
 
   const activeCalendarId = uiState?.activeCalendarId ?? null;
   const activeTagId = uiState?.activeTagId ?? null;
 
   const { isAnyModalOpen } = useModalState();
+  const { confirm } = useConfirmDialog();
+  const { 
+    confirmBeforeDeleteCalendar, 
+    confirmBeforeDeleteAccount, 
+    confirmBeforeDeleteTag 
+  } = useSettingsStore();
 
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(
     new Set(accounts.map((a) => a.id))
@@ -453,25 +459,63 @@ export function Sidebar({ onOpenSettings, onOpenImport }: SidebarProps) {
           <div className="border-t border-surface-200 dark:border-surface-700 my-1" />
           <button
             onClick={async () => {
+              // Close context menu immediately before showing confirmation
+              handleCloseContextMenu();
+              
               if (contextMenu.type === 'account') {
+                const account = accounts.find(a => a.id === contextMenu.id);
+                if (confirmBeforeDeleteAccount) {
+                  const confirmed = await confirm({
+                    title: 'Remove account',
+                    subtitle: account?.name,
+                    message: 'Are you sure? All tasks from this account will be removed from the app. They will remain on the server.',
+                    confirmLabel: 'Remove',
+                    destructive: true,
+                  });
+                  if (!confirmed) {
+                    return;
+                  }
+                }
                 deleteAccountMutation.mutate(contextMenu.id);
               } else if (contextMenu.type === 'tag') {
+                const tag = tags.find(t => t.id === contextMenu.id);
+                if (confirmBeforeDeleteTag) {
+                  const confirmed = await confirm({
+                    title: 'Delete tag',
+                    subtitle: tag?.name,
+                    message: 'Are you sure? Tasks with this tag will not be affected.',
+                    confirmLabel: 'Delete',
+                    destructive: true,
+                  });
+                  if (!confirmed) {
+                    return;
+                  }
+                }
                 deleteTagMutation.mutate(contextMenu.id);
               } else if (contextMenu.type === 'calendar' && contextMenu.accountId) {
+                const account = accounts.find((a) => a.id === contextMenu.accountId);
+                const calendar = account?.calendars.find((c) => c.id === contextMenu.id);
+                if (confirmBeforeDeleteCalendar) {
+                  const confirmed = await confirm({
+                    title: 'Delete calendar',
+                    subtitle: calendar?.displayName,
+                    message: 'Are you sure? This calendar and all its tasks will be deleted from the server.',
+                    confirmLabel: 'Delete',
+                    destructive: true,
+                  });
+                  if (!confirmed) {
+                    return;
+                  }
+                }
                 // delete calendar from server
                 try {
                   await caldavService.deleteCalendar(contextMenu.accountId, contextMenu.id);
-                  // update local state - remove calendar from account
-                  const account = accounts.find((a) => a.id === contextMenu.accountId);
-                  if (account) {
-                    const updatedCalendars = account.calendars.filter((c) => c.id !== contextMenu.id);
-                    updateAccountMutation.mutate({ id: contextMenu.accountId, updates: { calendars: updatedCalendars } });
-                  }
+                  // delete calendar and its tasks from local state
+                  taskData.deleteCalendar(contextMenu.accountId, contextMenu.id);
                 } catch (error) {
                   console.error('Failed to delete calendar:', error);
                 }
               }
-              handleCloseContextMenu();
             }}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
           >

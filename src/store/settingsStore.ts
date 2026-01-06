@@ -38,6 +38,9 @@ interface SettingsStore {
   syncOnStartup: boolean;
   showCompletedByDefault: boolean;
   confirmBeforeDelete: boolean;
+  confirmBeforeDeleteCalendar: boolean;
+  confirmBeforeDeleteAccount: boolean;
+  confirmBeforeDeleteTag: boolean;
   deleteSubtasksWithParent: SubtaskDeletionBehavior; // What to do with subtasks when deleting parent
   startOfWeek: StartOfWeek;
   notifications: boolean;
@@ -57,6 +60,9 @@ interface SettingsStore {
   setSyncOnStartup: (enabled: boolean) => void;
   setShowCompletedByDefault: (show: boolean) => void;
   setConfirmBeforeDelete: (confirm: boolean) => void;
+  setConfirmBeforeDeleteCalendar: (confirm: boolean) => void;
+  setConfirmBeforeDeleteAccount: (confirm: boolean) => void;
+  setConfirmBeforeDeleteTag: (confirm: boolean) => void;
   setDeleteSubtasksWithParent: (behavior: SubtaskDeletionBehavior) => void;
   setStartOfWeek: (day: StartOfWeek) => void;
   setNotifications: (enabled: boolean) => void;
@@ -81,6 +87,9 @@ export const useSettingsStore = create<SettingsStore>()(
       syncOnStartup: true,
       showCompletedByDefault: true,
       confirmBeforeDelete: true,
+      confirmBeforeDeleteCalendar: true,
+      confirmBeforeDeleteAccount: true,
+      confirmBeforeDeleteTag: true,
       deleteSubtasksWithParent: 'delete',
       startOfWeek: 'sunday',
       notifications: true,
@@ -97,6 +106,9 @@ export const useSettingsStore = create<SettingsStore>()(
       setSyncOnStartup: (syncOnStartup) => set({ syncOnStartup }),
       setShowCompletedByDefault: (showCompletedByDefault) => set({ showCompletedByDefault }),
       setConfirmBeforeDelete: (confirmBeforeDelete) => set({ confirmBeforeDelete }),
+      setConfirmBeforeDeleteCalendar: (confirmBeforeDeleteCalendar) => set({ confirmBeforeDeleteCalendar }),
+      setConfirmBeforeDeleteAccount: (confirmBeforeDeleteAccount) => set({ confirmBeforeDeleteAccount }),
+      setConfirmBeforeDeleteTag: (confirmBeforeDeleteTag) => set({ confirmBeforeDeleteTag }),
       setDeleteSubtasksWithParent: (deleteSubtasksWithParent) => set({ deleteSubtasksWithParent }),
       setStartOfWeek: (startOfWeek) => set({ startOfWeek }),
       setNotifications: (notifications) => set({ notifications }),
@@ -124,6 +136,9 @@ export const useSettingsStore = create<SettingsStore>()(
           syncOnStartup: state.syncOnStartup,
           showCompletedByDefault: state.showCompletedByDefault,
           confirmBeforeDelete: state.confirmBeforeDelete,
+          confirmBeforeDeleteCalendar: state.confirmBeforeDeleteCalendar,
+          confirmBeforeDeleteAccount: state.confirmBeforeDeleteAccount,
+          confirmBeforeDeleteTag: state.confirmBeforeDeleteTag,
           deleteSubtasksWithParent: state.deleteSubtasksWithParent,
           startOfWeek: state.startOfWeek,
           notifications: state.notifications,
@@ -151,6 +166,9 @@ export const useSettingsStore = create<SettingsStore>()(
             syncOnStartup: data.syncOnStartup ?? true,
             showCompletedByDefault: data.showCompletedByDefault ?? true,
             confirmBeforeDelete: data.confirmBeforeDelete ?? true,
+            confirmBeforeDeleteCalendar: data.confirmBeforeDeleteCalendar ?? true,
+            confirmBeforeDeleteAccount: data.confirmBeforeDeleteAccount ?? true,
+            confirmBeforeDeleteTag: data.confirmBeforeDeleteTag ?? true,
             deleteSubtasksWithParent: data.deleteSubtasksWithParent ?? 'delete',
             startOfWeek: data.startOfWeek ?? 'sunday',
             notifications: data.notifications ?? true,

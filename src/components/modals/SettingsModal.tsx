@@ -258,6 +258,12 @@ function BehaviorSettings() {
   const { 
     confirmBeforeDelete,
     setConfirmBeforeDelete,
+    confirmBeforeDeleteCalendar,
+    setConfirmBeforeDeleteCalendar,
+    confirmBeforeDeleteAccount,
+    setConfirmBeforeDeleteAccount,
+    confirmBeforeDeleteTag,
+    setConfirmBeforeDeleteTag,
     deleteSubtasksWithParent,
     setDeleteSubtasksWithParent,
     startOfWeek,
@@ -285,6 +291,36 @@ function BehaviorSettings() {
             type="checkbox" 
             checked={confirmBeforeDelete}
             onChange={(e) => setConfirmBeforeDelete(e.target.checked)}
+            className="rounded border-surface-300" 
+          />
+        </label>
+
+        <label className="flex items-center justify-between">
+          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting calendars</span>
+          <input 
+            type="checkbox" 
+            checked={confirmBeforeDeleteCalendar}
+            onChange={(e) => setConfirmBeforeDeleteCalendar(e.target.checked)}
+            className="rounded border-surface-300" 
+          />
+        </label>
+
+        <label className="flex items-center justify-between">
+          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting accounts</span>
+          <input 
+            type="checkbox" 
+            checked={confirmBeforeDeleteAccount}
+            onChange={(e) => setConfirmBeforeDeleteAccount(e.target.checked)}
+            className="rounded border-surface-300" 
+          />
+        </label>
+
+        <label className="flex items-center justify-between">
+          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting tags</span>
+          <input 
+            type="checkbox" 
+            checked={confirmBeforeDeleteTag}
+            onChange={(e) => setConfirmBeforeDeleteTag(e.target.checked)}
             className="rounded border-surface-300" 
           />
         </label>
@@ -615,6 +651,7 @@ function DataSettings() {
 function ConnectionsSettings({ accounts }: { accounts: Account[] }) {
   const deleteAccountMutation = useDeleteAccount();
   const { confirm } = useConfirmDialog();
+  const { confirmBeforeDeleteAccount } = useSettingsStore();
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (accountId: string) => {
@@ -630,16 +667,20 @@ function ConnectionsSettings({ accounts }: { accounts: Account[] }) {
   };
 
   const handleDeleteAccount = async (account: { id: string; name: string }) => {
-    const confirmed = await confirm({
-      title: 'Delete account',
-      message: `Are you sure you want to delete "${account.name}"? All tasks from this account will be removed from the app (they will remain on the server).`,
-      confirmLabel: 'Delete',
-      cancelLabel: 'Cancel',
-      destructive: true,
-    });
-    if (confirmed) {
-      deleteAccountMutation.mutate(account.id);
+    if (confirmBeforeDeleteAccount) {
+      const confirmed = await confirm({
+        title: 'Remove account',
+        subtitle: account.name,
+        message: `Are you sure? All tasks from this account will be removed from the app. They will remain on the server.`,
+        confirmLabel: 'Remove',
+        cancelLabel: 'Cancel',
+        destructive: true,
+      });
+      if (!confirmed) {
+        return;
+      }
     }
+    deleteAccountMutation.mutate(account.id);
   };
 
   return (
