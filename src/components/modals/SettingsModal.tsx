@@ -488,8 +488,6 @@ function NotificationSettings() {
   const { 
     notifications,
     setNotifications,
-    notifyBefore,
-    setNotifyBefore,
   } = useSettingsStore();
 
   return (
@@ -511,25 +509,6 @@ function NotificationSettings() {
                 className="rounded border-surface-300" 
               />
             </label>
-
-            {notifications && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-surface-600 dark:text-surface-400">Notify before due</span>
-                <select
-                  value={notifyBefore}
-                  onChange={(e) => setNotifyBefore(Number(e.target.value))}
-                  className="px-3 py-1.5 rounded-lg text-sm bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 border-0"
-                >
-                  <option value={5}>5 minutes</option>
-                  <option value={10}>10 minutes</option>
-                  <option value={15}>15 minutes</option>
-                  <option value={30}>30 minutes</option>
-                  <option value={60}>1 hour</option>
-                  <option value={120}>2 hours</option>
-                  <option value={1440}>1 day</option>
-                </select>
-              </div>
-            )}
           </div>
         </div>
 

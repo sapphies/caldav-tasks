@@ -44,7 +44,6 @@ interface SettingsStore {
   deleteSubtasksWithParent: SubtaskDeletionBehavior; // What to do with subtasks when deleting parent
   startOfWeek: StartOfWeek;
   notifications: boolean;
-  notifyBefore: number; // minutes before due date
   defaultCalendarId: string | null; // default calendar for new tasks when in "All Tasks" view
   keyboardShortcuts: KeyboardShortcut[];
   
@@ -66,7 +65,6 @@ interface SettingsStore {
   setDeleteSubtasksWithParent: (behavior: SubtaskDeletionBehavior) => void;
   setStartOfWeek: (day: StartOfWeek) => void;
   setNotifications: (enabled: boolean) => void;
-  setNotifyBefore: (minutes: number) => void;
   setDefaultCalendarId: (calendarId: string | null) => void;
   setKeyboardShortcuts: (shortcuts: KeyboardShortcut[]) => void;
   updateShortcut: (id: string, updates: Partial<KeyboardShortcut>) => void;
@@ -93,7 +91,6 @@ export const useSettingsStore = create<SettingsStore>()(
       deleteSubtasksWithParent: 'delete',
       startOfWeek: 'sunday',
       notifications: true,
-      notifyBefore: 15,
       defaultCalendarId: null,
       keyboardShortcuts: defaultShortcuts,
       defaultPriority: 'none',
@@ -112,7 +109,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setDeleteSubtasksWithParent: (deleteSubtasksWithParent) => set({ deleteSubtasksWithParent }),
       setStartOfWeek: (startOfWeek) => set({ startOfWeek }),
       setNotifications: (notifications) => set({ notifications }),
-      setNotifyBefore: (notifyBefore) => set({ notifyBefore }),
       setDefaultCalendarId: (defaultCalendarId) => set({ defaultCalendarId }),
       setKeyboardShortcuts: (keyboardShortcuts) => set({ keyboardShortcuts }),
       updateShortcut: (id, updates) => {
@@ -142,7 +138,6 @@ export const useSettingsStore = create<SettingsStore>()(
           deleteSubtasksWithParent: state.deleteSubtasksWithParent,
           startOfWeek: state.startOfWeek,
           notifications: state.notifications,
-          notifyBefore: state.notifyBefore,
           defaultCalendarId: state.defaultCalendarId,
           keyboardShortcuts: state.keyboardShortcuts,
           defaultPriority: state.defaultPriority,
@@ -172,7 +167,6 @@ export const useSettingsStore = create<SettingsStore>()(
             deleteSubtasksWithParent: data.deleteSubtasksWithParent ?? 'delete',
             startOfWeek: data.startOfWeek ?? 'sunday',
             notifications: data.notifications ?? true,
-            notifyBefore: data.notifyBefore ?? 15,
             defaultCalendarId: data.defaultCalendarId ?? null,
             keyboardShortcuts: data.keyboardShortcuts ?? defaultShortcuts,
             defaultPriority: data.defaultPriority ?? 'none',

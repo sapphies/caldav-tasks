@@ -61,7 +61,7 @@ async function showNotification(options: NotificationOptions): Promise<void> {
  */
 export function useNotifications() {
   const { data: tasks = [] } = useTasks();
-  const { notifications, notifyBefore } = useSettingsStore();
+  const { notifications } = useSettingsStore();
   const notifiedTasksRef = useRef<Set<string>>(new Set());
   const notifiedRemindersRef = useRef<Set<string>>(new Set());
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -105,7 +105,7 @@ export function useNotifications() {
           }
         }
 
-        // Check due dates
+        // check due dates
         if (!task.dueDate) continue;
 
         const dueDate = new Date(task.dueDate);
@@ -113,29 +113,8 @@ export function useNotifications() {
 
         // skip if we already notified about this task
         if (notifiedTasksRef.current.has(taskKey)) continue;
-
-        // check if the task is due within the notification window
-        const minutesUntilDue = differenceInMinutes(dueDate, now);
         
-        if (minutesUntilDue <= notifyBefore && minutesUntilDue >= 0) {
-          // task is due soon, show notification
-          let timeText: string;
-          if (minutesUntilDue === 0) {
-            timeText = 'now';
-          } else if (minutesUntilDue < 60) {
-            timeText = `in ${minutesUntilDue} minute${minutesUntilDue === 1 ? '' : 's'}`;
-          } else {
-            const hours = Math.floor(minutesUntilDue / 60);
-            timeText = `in ${hours} hour${hours === 1 ? '' : 's'}`;
-          }
-
-          showNotification({
-            title: `Task Due ${timeText}`,
-            body: task.title,
-          });
-
-          notifiedTasksRef.current.add(taskKey);
-        } else if (isPast(dueDate) && !notifiedTasksRef.current.has(taskKey)) {
+        if (isPast(dueDate) && !notifiedTasksRef.current.has(taskKey)) {
           // task is overdue, show notification
           showNotification({
             title: 'Task Overdue',
@@ -167,5 +146,5 @@ export function useNotifications() {
         checkIntervalRef.current = null;
       }
     };
-  }, [tasks, notifications, notifyBefore]);
+  }, [tasks, notifications]);
 }
