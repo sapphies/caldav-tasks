@@ -53,6 +53,26 @@ input[type="datetime-local"] {
   color-scheme: light;
 }
 
+/* Disable text selection globally except in specific elements */
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection in inputs, textareas, and contenteditable elements */
+input,
+textarea,
+[contenteditable="true"],
+.selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Allow selection in task editor content area */
+.task-editor-content {
+  user-select: text;
+  -webkit-user-select: text;
+}
 
 /* Accent-colored checkboxes */
 input[type="checkbox"] {
