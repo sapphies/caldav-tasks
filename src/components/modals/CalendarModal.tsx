@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import X from 'lucide-react/icons/x';
 import Loader2 from 'lucide-react/icons/loader-2';
 import { useAccounts, useUpdateAccount } from '@/hooks/queries';
 import { Calendar } from '@/types';
 import { caldavService } from '@/lib/caldav';
 import { IconPicker } from '../IconPicker';
+import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { COLOR_PRESETS } from '@/utils/constants';
 
 interface CalendarModalProps {
@@ -25,17 +26,7 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
   const [warning, setWarning] = useState('');
 
   // handle ESC key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [onClose]);
+  useModalEscapeKey(onClose);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
