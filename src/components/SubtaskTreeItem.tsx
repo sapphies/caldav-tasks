@@ -1,4 +1,4 @@
-import CheckCircle2 from 'lucide-react/icons/check-circle-2';
+import Check from 'lucide-react/icons/check';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import ChevronDown from 'lucide-react/icons/chevron-down';
 import X from 'lucide-react/icons/x';
@@ -96,7 +96,7 @@ export function SubtaskTreeItem({
             }
           `}
         >
-          {task.completed && <CheckCircle2 className="w-3 h-3" style={{ color: checkmarkColor }} />}
+          {task.completed && <Check className="w-3 h-3" style={{ color: checkmarkColor }} strokeWidth={3} />}
         </button>
 
         {/* Title */}

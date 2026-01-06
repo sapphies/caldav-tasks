@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import Calendar from 'lucide-react/icons/calendar';
+import Check from 'lucide-react/icons/check';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import ChevronDown from 'lucide-react/icons/chevron-down';
@@ -163,7 +164,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
               }
             `}
           >
-            {task.completed && <CheckCircle2 className="w-4 h-4" style={{ color: checkmarkColor }} />}
+            {task.completed && <Check className="w-4 h-4" style={{ color: checkmarkColor }} strokeWidth={3} />}
           </button>
         </div>
 

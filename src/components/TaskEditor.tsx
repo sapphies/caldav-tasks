@@ -6,6 +6,7 @@ import Calendar from 'lucide-react/icons/calendar';
 import Clock from 'lucide-react/icons/clock';
 import Flag from 'lucide-react/icons/flag';
 import Plus from 'lucide-react/icons/plus';
+import Check from 'lucide-react/icons/check';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
 import Tag from 'lucide-react/icons/tag';
 import FolderSync from 'lucide-react/icons/folder-sync';
@@ -495,7 +496,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
                         }
                       `}
                     >
-                      {subtask.completed && <CheckCircle2 className="w-3 h-3" style={{ color: checkmarkColor }} />}
+                      {subtask.completed && <Check className="w-3 h-3" style={{ color: checkmarkColor }} strokeWidth={3} />}
                     </button>
                     <input
                       type="text"
