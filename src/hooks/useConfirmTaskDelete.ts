@@ -27,28 +27,33 @@ export function useConfirmTaskDelete() {
       const descendantCount = countAllDescendants(task.uid);
       const deleteChildren = deleteSubtasksWithParent === 'delete';
 
-      if (confirmBeforeDelete) {
-        // Customize message based on whether task has subtasks
-        let message = 'Delete this task? This cannot be undone.';
-        if (descendantCount > 0) {
-          if (deleteChildren) {
-            message = `This task has ${descendantCount} ${pluralize(descendantCount, 'subtask')} that will also be deleted. This cannot be undone.`;
-          } else {
-            message = `This task has ${descendantCount} ${pluralize(descendantCount, 'subtask')} that will be kept. This cannot be undone.`;
-          }
-        }
-        
-        const confirmed = await confirm({
-          title: 'Delete task',
-          subtitle: task.title ?? 'Untitled task',
-          message,
-          confirmLabel: 'Delete',
-          cancelLabel: 'Cancel',
-          destructive: true,
-        });
-        
-        if (!confirmed) return false;
+      // skip confirmation for untitled (newly created) tasks
+      const isUntitledTask = !task.title || task.title.trim() === '';
+      if (isUntitledTask || !confirmBeforeDelete) {
+        deleteTaskMutation.mutate({ id: taskId, deleteChildren });
+        return true;
       }
+
+      // Customize message based on whether task has subtasks
+      let message = 'Delete this task? This cannot be undone.';
+      if (descendantCount > 0) {
+        if (deleteChildren) {
+          message = `This task has ${descendantCount} ${pluralize(descendantCount, 'subtask')} that will also be deleted. This cannot be undone.`;
+        } else {
+          message = `This task has ${descendantCount} ${pluralize(descendantCount, 'subtask')} that will be kept. This cannot be undone.`;
+        }
+      }
+      
+      const confirmed = await confirm({
+        title: 'Delete task',
+        subtitle: task.title ?? 'Untitled task',
+        message,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        destructive: true,
+      });
+      
+      if (!confirmed) return false;
 
       deleteTaskMutation.mutate({ id: taskId, deleteChildren });
       return true;
