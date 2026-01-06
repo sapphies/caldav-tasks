@@ -212,7 +212,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             </div>
           )}
 
-          {(taskTags.length > 0 || showCalendar || task.dueDate || totalSubtasks > 0 || childCount > 0) && (
+          {(taskTags.length > 0 || showCalendar || totalSubtasks > 0 || childCount > 0) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {taskTags.map((tag) => {
                 if (!tag) return null;
