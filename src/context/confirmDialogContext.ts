@@ -2,6 +2,7 @@ import { createContext } from 'react';
 
 export interface ConfirmOptions {
   title?: string;
+  subtitle?: string; // For displaying things like task name being deleted
   message?: string;
   confirmLabel?: string;
   cancelLabel?: string;
@@ -21,8 +22,9 @@ export interface ConfirmDialogContextValue {
 
 export const ConfirmDialogContext = createContext<ConfirmDialogContextValue | null>(null);
 
-export const defaultConfirmOptions: Required<Omit<ConfirmOptions, 'alternateLabel' | 'alternateDestructive'>> & Pick<ConfirmOptions, 'alternateLabel' | 'alternateDestructive'> = {
+export const defaultConfirmOptions: Required<Omit<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'>> & Pick<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'> = {
   title: 'Confirm action',
+  subtitle: undefined,
   message: 'Are you sure you want to proceed?',
   confirmLabel: 'Confirm',
   cancelLabel: 'Cancel',

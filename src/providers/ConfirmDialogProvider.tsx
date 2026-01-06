@@ -66,6 +66,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
       <ConfirmDialog
         isOpen={isOpen}
         title={options.title || defaultConfirmOptions.title}
+        subtitle={options.subtitle}
         message={options.message || defaultConfirmOptions.message}
         confirmLabel={options.confirmLabel || defaultConfirmOptions.confirmLabel}
         cancelLabel={options.cancelLabel || defaultConfirmOptions.cancelLabel}

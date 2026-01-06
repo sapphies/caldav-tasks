@@ -4,6 +4,7 @@ import X from 'lucide-react/icons/x';
 interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
+  subtitle?: string;
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
@@ -18,6 +19,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   isOpen,
   title,
+  subtitle,
   message,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
@@ -69,24 +71,32 @@ export function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between p-4 border-b border-surface-200 dark:border-surface-700 rounded-t-xl">
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 id="confirm-dialog-title" className="text-lg font-semibold text-surface-900 dark:text-surface-100">
               {title}
             </h2>
-            <p id="confirm-dialog-description" className="text-sm text-surface-600 dark:text-surface-400 mt-1">
-              {message}
-            </p>
+            {subtitle && (
+              <p id="confirm-dialog-subtitle" className="text-sm text-surface-700 dark:text-surface-300 mt-1 truncate">
+                {subtitle}
+              </p>
+            )}
           </div>
           <button
             onClick={onCancel}
-            className="flex-shrink-0 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 transition-colors"
+            className="flex-shrink-0 ml-3 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 p-1 rounded transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-4 flex justify-end gap-2">
+        <div className="p-4">
+          <p id="confirm-dialog-description" className="text-sm text-surface-600 dark:text-surface-400">
+            {message}
+          </p>
+        </div>
+
+        <div className="px-4 pb-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
             className="px-4 py-2 text-sm font-medium rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"

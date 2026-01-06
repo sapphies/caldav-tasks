@@ -40,6 +40,7 @@ export function useConfirmTaskDelete() {
         
         const confirmed = await confirm({
           title: 'Delete task',
+          subtitle: task.title ?? 'Untitled task',
           message,
           confirmLabel: 'Delete',
           cancelLabel: 'Cancel',
