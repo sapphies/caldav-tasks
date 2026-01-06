@@ -317,25 +317,36 @@ export function TaskEditor({ task }: TaskEditorProps) {
             <FolderSync className="w-4 h-4" />
             Calendar
           </label>
-          <select
-            value={task.calendarId}
-            onChange={(e) => handleCalendarChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
-          >
-            {accounts.map((account) => (
-              <optgroup key={account.id} label={account.name}>
-                {account.calendars.map((cal) => (
-                  <option key={cal.id} value={cal.id}>
-                    {cal.displayName}
-                  </option>
+          {allCalendars.length > 0 ? (
+            <>
+              <select
+                value={task.calendarId}
+                onChange={(e) => handleCalendarChange(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
+              >
+                {accounts.map((account) => (
+                  <optgroup key={account.id} label={account.name}>
+                    {account.calendars.map((cal) => (
+                      <option key={cal.id} value={cal.id}>
+                        {cal.displayName}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
-              </optgroup>
-            ))}
-          </select>
-          {currentCalendar && currentAccount && (
-            <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
-              Currently in: {currentAccount.name} / {currentCalendar.displayName}
-            </p>
+              </select>
+              {currentCalendar && currentAccount && (
+                <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
+                  Currently in: {currentAccount.name} / {currentCalendar.displayName}
+                </p>
+              )}
+            </>
+          ) : (
+            <div 
+              className="w-full px-3 py-2 text-sm border border-surface-200 dark:border-surface-600 bg-surface-100 dark:bg-surface-800 text-surface-400 dark:text-surface-500 rounded-lg cursor-not-allowed"
+              title="Add a CalDAV account to assign tasks to calendars"
+            >
+              No calendars available
+            </div>
           )}
         </div>
 
