@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
+import { useSettingsStore } from '@/store/settingsStore';
 import ChevronLeft from 'lucide-react/icons/chevron-left';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import X from 'lucide-react/icons/x';
@@ -54,14 +55,24 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
     }
   }, [isOpen]);
 
-  const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const { startOfWeek: weekStartsSetting } = useSettingsStore();
+  const weekStartsOn = weekStartsSetting === 'monday' ? 1 : 0;
+  
+  // Generate days of week labels based on setting
+  const daysOfWeekLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const daysOfWeek = weekStartsOn === 1 
+    ? [...daysOfWeekLabels.slice(1), daysOfWeekLabels[0]] 
+    : daysOfWeekLabels;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // pad start of month
-  const startPadding = monthStart.getDay();
+  // pad start of month based on week start setting
+  const firstDayOfMonth = monthStart.getDay();
+  const startPadding = weekStartsOn === 1 
+    ? (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1)
+    : firstDayOfMonth;
   const paddedDays = Array(startPadding).fill(null).concat(days);
 
   const handleDayClick = (day: Date) => {
