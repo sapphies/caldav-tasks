@@ -3,6 +3,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useSyncQuery } from '@/hooks/queries';
 import { useTheme } from '@/hooks/useTheme';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useFileDrop } from '@/hooks/useFileDrop';
 import { useTasks, useUIState } from '@/hooks/queries';
 import { Sidebar } from '@/components/Sidebar';
 import { TaskList } from '@/components/TaskList';
@@ -11,14 +12,6 @@ import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ImportModal } from '@/components/modals/ImportModal';
 import { initWebKitDragFix } from './utils/webkit';
-
-// Supported file extensions for import
-const SUPPORTED_EXTENSIONS = ['.ics', '.ical', '.json'];
-
-function isSupportedFile(filename: string): boolean {
-  const lower = filename.toLowerCase();
-  return SUPPORTED_EXTENSIONS.some(ext => lower.endsWith(ext));
-}
 
 function App() {
   // Initialize WebKit drag-and-drop fix for Safari/Tauri
@@ -29,9 +22,22 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [preloadedFile, setPreloadedFile] = useState<{ name: string; content: string } | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [isUnsupportedFile, setIsUnsupportedFile] = useState(false);
   const { isSyncing, isOffline, lastSyncTime, syncAll } = useSyncQuery();
+  
+  // File drop handling via hook
+  const {
+    isDragOver,
+    isUnsupportedFile,
+    handleFileDrop,
+    handleDragOver,
+    handleDragEnter,
+    handleDragLeave,
+  } = useFileDrop({
+    onFileDrop: (file) => {
+      setPreloadedFile(file);
+      setShowImport(true);
+    },
+  });
   
   useTheme();
 
@@ -47,104 +53,6 @@ function App() {
   const isEditorOpen = uiState?.isEditorOpen ?? false;
   const selectedTaskId = uiState?.selectedTaskId ?? null;
   const selectedTask = tasks.find((t) => t.id === selectedTaskId);
-
-  // Check if dragged files are supported
-  const checkDraggedFiles = useCallback((e: React.DragEvent): boolean => {
-    const items = e.dataTransfer?.items;
-    if (!items || items.length === 0) return true; // Default to supported if we can't check
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === 'file') {
-        // Try to get filename from type or check DataTransferItemList
-        const file = item.getAsFile?.();
-        if (file && !isSupportedFile(file.name)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }, []);
-
-  // handle file drop for import
-  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-    setIsUnsupportedFile(false);
-
-    const file = e.dataTransfer?.files?.[0];
-    if (!file) return;
-
-    // Check if it's a supported file type
-    if (!isSupportedFile(file.name)) {
-      // Unsupported file - don't do anything (already showed feedback during drag)
-      return;
-    }
-
-    // check if it's a calendar or task file
-    const isIcs = file.name.endsWith('.ics') || file.name.endsWith('.ical');
-    const isJson = file.name.endsWith('.json');
-
-    if (isIcs || isJson) {
-      try {
-        const content = await file.text();
-        // check if JSON is a tasks file (not settings)
-        if (isJson) {
-          try {
-            const parsed = JSON.parse(content);
-            // check if it looks like a tasks export (array with task properties)
-            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title) {
-              setPreloadedFile({ name: file.name, content });
-              setShowImport(true);
-            }
-          } catch {
-            // not valid JSON, ignore
-          }
-        } else {
-          setPreloadedFile({ name: file.name, content });
-          setShowImport(true);
-        }
-      } catch (err) {
-        console.error('Failed to read dropped file:', err);
-      }
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Check if files are supported and update visual feedback
-    const isSupported = checkDraggedFiles(e);
-    setIsUnsupportedFile(!isSupported);
-    
-    // Set the dropEffect to show appropriate cursor
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = isSupported ? 'copy' : 'none';
-    }
-
-    setIsDragOver(true);
-  }, [checkDraggedFiles]);
-
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const isSupported = checkDraggedFiles(e);
-    setIsUnsupportedFile(!isSupported);
-
-    setIsDragOver(true);
-  }, [checkDraggedFiles]);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
-      setIsDragOver(false);
-      setIsUnsupportedFile(false);
-    }
-  }, []);
 
   // reset preloaded file when import modal closes
   const handleImportClose = useCallback(() => {
