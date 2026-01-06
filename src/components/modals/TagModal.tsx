@@ -111,7 +111,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-8 h-8 rounded cursor-pointer"
+                className="w-10 h-10 rounded-lg border border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-700 flex items-center justify-center hover:border-surface-300 dark:hover:border-surface-500 transition-colors cursor-pointer [&::-webkit-color-swatch-wrapper]:p-2 [&::-webkit-color-swatch]:rounded-full"
               />
               <input
                 type="text"
