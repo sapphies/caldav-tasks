@@ -669,9 +669,7 @@ function ConnectionsSettings({ accounts }: { accounts: Account[] }) {
                       <p className="text-xs text-surface-500 dark:text-surface-400">{account.username} ({account.serverType})</p>
                     </div>
                   </div>
-                  <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-                    Connected
-                  </span>
+
                 </div>
                 
                 {isExpanded && (
