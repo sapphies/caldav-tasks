@@ -238,8 +238,12 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
 
               {showCalendar && (
                 <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                  style={{ backgroundColor: `${calendarColor}20`, color: calendarColor }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border"
+                  style={{ 
+                    borderColor: calendarColor,
+                    backgroundColor: `${calendarColor}15`,
+                    color: calendarColor 
+                  }}
                 >
                   <Calendar className="w-3 h-3" />
                   {calendar?.displayName || 'Calendar'}
