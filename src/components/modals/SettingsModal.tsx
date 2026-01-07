@@ -50,10 +50,15 @@ export function SettingsModal({ onClose, initialCategory, initialSubtab }: Setti
     account: initialCategory === 'account' && initialSubtab ? initialSubtab : 'connections',
     about: initialCategory === 'about' && initialSubtab ? initialSubtab : 'version',
   });
+  const [isChildModalOpen, setIsChildModalOpen] = useState(false);
   const { data: accounts = [] } = useAccounts();
 
-  // handle ESC key to close modal
-  useModalEscapeKey(onClose);
+  // handle ESC key to close modal - but not if a child modal is open
+  useModalEscapeKey(() => {
+    if (!isChildModalOpen) {
+      onClose();
+    }
+  });
 
   const categories: {
     id: SettingsCategory;
@@ -166,7 +171,7 @@ export function SettingsModal({ onClose, initialCategory, initialSubtab }: Setti
                 {currentSubtab === 'defaults' && <TaskDefaultsSettings />}
                 {currentSubtab === 'appearance' && <AppearanceSettings />}
                 {currentSubtab === 'notifications' && <NotificationSettings />}
-                {currentSubtab === 'shortcuts' && <ShortcutsSettings />}
+                {currentSubtab === 'shortcuts' && <ShortcutsSettings onEditingShortcutChange={setIsChildModalOpen} />}
               </div>
             )}
 

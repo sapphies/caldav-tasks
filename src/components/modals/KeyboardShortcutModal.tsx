@@ -33,7 +33,8 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        e.stopPropagation();
+        // Use stopImmediatePropagation to prevent SettingsModal's useModalEscapeKey from also running
+        e.stopImmediatePropagation();
         
         if (pendingShortcut) {
           // If recording, just cancel the recording (don't close anything)

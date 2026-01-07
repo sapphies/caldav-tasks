@@ -7,7 +7,7 @@ import { KeyboardShortcutModal } from '../KeyboardShortcutModal';
 
 const metaKeyLabel = getMetaKeyLabel();
 
-export function ShortcutsSettings() {
+export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortcutChange?: (editing: boolean) => void }) {
   const { keyboardShortcuts, updateShortcut, resetShortcuts } = useSettingsStore();
   const [editingShortcut, setEditingShortcut] = useState<KeyboardShortcut | null>(null);
 
@@ -28,6 +28,17 @@ export function ShortcutsSettings() {
   const handleSave = (id: string, updates: Partial<KeyboardShortcut>) => {
     updateShortcut(id, updates);
     setEditingShortcut(null);
+    onEditingShortcutChange?.(false);
+  };
+
+  const handleOpenEdit = (shortcut: KeyboardShortcut) => {
+    setEditingShortcut(shortcut);
+    onEditingShortcutChange?.(true);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingShortcut(null);
+    onEditingShortcutChange?.(false);
   };
 
   return (
@@ -67,7 +78,7 @@ export function ShortcutsSettings() {
                   ))}
                 </div>
                 <button
-                  onClick={() => setEditingShortcut(shortcut)}
+                  onClick={() => handleOpenEdit(shortcut)}
                   className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors"
                   title="Edit shortcut"
                 >
@@ -82,7 +93,7 @@ export function ShortcutsSettings() {
       <KeyboardShortcutModal
         isOpen={editingShortcut !== null}
         shortcut={editingShortcut}
-        onClose={() => setEditingShortcut(null)}
+        onClose={handleCloseEdit}
         onSave={handleSave}
       />
     </>
