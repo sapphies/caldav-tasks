@@ -10,6 +10,37 @@ import { createLogger } from '@/lib/logger';
 
 const log = createLogger('iCal', '#22c55e');
 
+/**
+ * default descriptions used by CalDAV clients that should be filtered out
+ * these are placeholder descriptions that apps like Tasks.org and Mozilla Thunderbird
+ * insert when no description is provided
+ */
+const DEFAULT_CALDAV_DESCRIPTIONS = [
+  'Default Tasks.org description',
+  'Default Mozilla Description',
+];
+
+/**
+ * check if a description is a default placeholder from a CalDAV client
+ * @param description the description to check
+ * @returns true if the description should be filtered out
+ */
+export function isDefaultCalDavDescription(description: string | undefined | null): boolean {
+  if (!description) return false;
+  return DEFAULT_CALDAV_DESCRIPTIONS.includes(description.trim());
+}
+
+/**
+ * filter out default CalDAV descriptions, returning empty string if it's a default
+ * @param description the description to filter
+ * @returns the description if not a default, empty string otherwise
+ */
+export function filterCalDavDescription(description: string | undefined | null): string {
+  if (!description) return '';
+  if (isDefaultCalDavDescription(description)) return '';
+  return description;
+}
+
 // Apple epoch: January 1, 2001 00:00:00 GMT in milliseconds since Unix epoch
 // Used for X-APPLE-SORT-ORDER which stores seconds since Apple epoch
 export const APPLE_EPOCH = 978307200000;
@@ -610,7 +641,7 @@ export function vtodoToTask(
       etag,
       href,
       title: parsed.summary || 'Untitled Task',
-      description: parsed.description || '',
+      description: filterCalDavDescription(parsed.description),
       completed: parsed.status === 'COMPLETED',
       completedAt: parsed.completed,
       priority: icalToPriority(parsed.priority || 0),
@@ -777,7 +808,7 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
         id: uuidv4(),
         uid: parsed.uid || uuidv4(),
         title: parsed.summary || 'Untitled Task',
-        description: parsed.description || '',
+        description: filterCalDavDescription(parsed.description),
         completed: parsed.status === 'COMPLETED',
         completedAt: parsed.completed,
         priority: icalToPriority(parsed.priority || 0),

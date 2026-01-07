@@ -27,6 +27,7 @@ import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
 import { pluralize } from '../utils/format';
 import { getIconByName } from './IconPicker';
 import { formatDueDate } from '@/utils/date';
+import { filterCalDavDescription } from '@/utils/ical';
 
 interface TaskItemProps {
   task: Task;
@@ -206,9 +207,9 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             )}
           </div>
 
-          {task.description && (
+          {filterCalDavDescription(task.description) && (
             <div className={`text-xs mt-1 line-clamp-1 ${task.completed ? 'text-surface-400 dark:text-surface-500' : 'text-surface-500 dark:text-surface-400'}`}>
-              {task.description}
+              {filterCalDavDescription(task.description)}
             </div>
           )}
 
