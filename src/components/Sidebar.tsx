@@ -132,6 +132,34 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   // Resizing logic
   const [isResizing, setIsResizing] = useState(false);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
+  
+  // Track transition state for smoother animations
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showExpandedContent, setShowExpandedContent] = useState(!isCollapsed);
+  const [showCollapsedContent, setShowCollapsedContent] = useState(isCollapsed);
+  
+  // Handle content visibility during transitions
+  useEffect(() => {
+    if (isCollapsed) {
+      // Collapsing: hide expanded content immediately, show collapsed after transition
+      setShowExpandedContent(false);
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setShowCollapsedContent(true);
+        setIsTransitioning(false);
+      }, 200); // Match transition duration
+      return () => clearTimeout(timer);
+    } else {
+      // Expanding: hide collapsed content immediately, show expanded after transition
+      setShowCollapsedContent(false);
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setShowExpandedContent(true);
+        setIsTransitioning(false);
+      }, 200); // Match transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [isCollapsed]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -204,12 +232,12 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   return (
     <>
       <div 
-        className={`bg-surface-100 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 flex flex-col h-full relative ${!isResizing ? 'transition-[width] duration-200 ease-in-out' : ''}`}
+        className={`bg-surface-100 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 flex flex-col h-full relative overflow-hidden ${!isResizing ? 'transition-[width] duration-200 ease-in-out' : ''}`}
         style={{ width: isCollapsed ? 48 : width }}
         onClick={handleCloseContextMenu}
       >
         {/* Resize handle */}
-        {!isCollapsed && (
+        {!isCollapsed && !isTransitioning && (
           <div
             ref={resizeHandleRef}
             onMouseDown={handleResizeStart}
@@ -227,7 +255,9 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               <PanelLeftOpen className="w-5 h-5" />
             </button>
           ) : (
-            <div className="flex items-center flex-1 px-2">
+            <div 
+              className={`flex items-center flex-1 px-2 transition-opacity duration-150 ${showExpandedContent ? 'opacity-100' : 'opacity-0'}`}
+            >
               <h1 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2 flex-1 min-w-0">
                 <FolderKanban className="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
                 <span className="truncate">caldav-tasks</span>
@@ -237,14 +267,14 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                 className="p-1.5 text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-700 rounded-lg transition-colors shrink-0"
                 title="Collapse sidebar"
               >
-                <PanelLeftClose className="w-4 h-4" />
+                <PanelLeftClose className="w-5 h-5" />
               </button>
             </div>
           )}
         </div>
 
         {!isCollapsed && (
-          <>
+          <div className={`flex-1 flex flex-col min-h-0 transition-opacity duration-150 ${showExpandedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="flex-1 overflow-y-auto overscroll-contain">
           <button
             onClick={() => {
@@ -458,12 +488,12 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
             <span className="ml-auto text-xs text-surface-400">{settingsShortcut}</span>
           </button>
         </div>
-          </>
+          </div>
         )}
 
         {/* Collapsed state - show icons for navigation */}
         {isCollapsed && (
-          <div className="flex-1 flex flex-col items-center py-2 gap-1 overflow-y-auto">
+          <div className={`flex-1 flex flex-col items-center py-2 gap-1 overflow-y-auto transition-opacity duration-150 ${showCollapsedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             {/* All Tasks */}
             <Tooltip content="All Tasks" position="right">
               <button
