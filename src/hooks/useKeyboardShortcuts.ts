@@ -7,6 +7,7 @@ import {
   useSetSelectedTask, 
   useSetEditorOpen,
   useFilteredTasks,
+  useSetShowCompletedTasks,
 } from '@/hooks/queries';
 import * as taskData from '@/lib/taskData';
 import { useSettingsStore, KeyboardShortcut } from '@/store/settingsStore';
@@ -30,8 +31,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   const toggleTaskCompleteMutation = useToggleTaskComplete();
   const setSelectedTaskMutation = useSetSelectedTask();
   const setEditorOpenMutation = useSetEditorOpen();
+  const setShowCompletedMutation = useSetShowCompletedTasks();
   
   const selectedTaskId = uiState?.selectedTaskId ?? null;
+  const showCompletedTasks = uiState?.showCompletedTasks ?? true;
   const sortConfig = uiState?.sortConfig ?? { mode: 'manual' as const, direction: 'asc' as const };
   
   const { keyboardShortcuts } = useSettingsStore();
@@ -112,6 +115,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     onSync?.();
   }, [onSync]);
 
+  const handleToggleShowCompleted = useCallback(() => {
+    setShowCompletedMutation.mutate(!showCompletedTasks);
+  }, [setShowCompletedMutation, showCompletedTasks]);
+
   // Map shortcut IDs to their handler functions
   const actionHandlers: Record<string, () => void> = useMemo(() => ({
     'new-task': handleNewTask,
@@ -120,10 +127,11 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     'sync': handleSync,
     'delete': handleDelete,
     'toggle-complete': handleToggleComplete,
+    'toggle-show-completed': handleToggleShowCompleted,
     'close': handleEscape,
     'nav-up': handleNavigateUp,
     'nav-down': handleNavigateDown,
-  }), [handleNewTask, handleSearch, handleOpenSettings, handleSync, handleDelete, handleToggleComplete, handleEscape, handleNavigateUp, handleNavigateDown]);
+  }), [handleNewTask, handleSearch, handleOpenSettings, handleSync, handleDelete, handleToggleComplete, handleToggleShowCompleted, handleEscape, handleNavigateUp, handleNavigateDown]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -163,7 +171,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
       
       // Shortcuts that should NOT work when a modal is open
       // (except for 'settings' which toggles, and 'close' which closes modals)
-      const blockedInModal = ['new-task', 'search', 'sync', 'delete', 'toggle-complete', 'nav-up', 'nav-down', 'nav-up-vim', 'nav-down-vim'];
+      const blockedInModal = ['new-task', 'search', 'sync', 'delete', 'toggle-complete', 'toggle-show-completed', 'nav-up', 'nav-down'];
 
       for (const shortcut of keyboardShortcuts) {
         const handler = actionHandlers[shortcut.id];

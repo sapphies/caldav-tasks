@@ -26,6 +26,7 @@ export const defaultShortcuts: KeyboardShortcut[] = [
   { id: 'sync', key: 'r', meta: true, description: 'Sync with server' },
   { id: 'delete', key: 'Backspace', meta: true, description: 'Delete selected task' },
   { id: 'toggle-complete', key: 'z', description: 'Toggle task completion' },
+  { id: 'toggle-show-completed', key: 'h', meta: true, shift: true, description: 'Toggle completed tasks' },
   { id: 'close', key: 'Escape', description: 'Close editor / Clear search' },
   { id: 'nav-up', key: 'ArrowUp', description: 'Navigate to previous task' },
   { id: 'nav-down', key: 'ArrowDown', description: 'Navigate to next task' },
