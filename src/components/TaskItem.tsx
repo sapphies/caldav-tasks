@@ -169,9 +169,9 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
         onContextMenu={handleContextMenu}
         data-context-menu
         className={`
-          group relative flex items-start gap-3 pr-3 py-3 bg-white dark:bg-surface-800 rounded-lg border transition-all
+          group relative flex items-start gap-3 pr-3 py-3 bg-white dark:bg-surface-800 rounded-lg border transition-all focus:outline-none
           ${isOverlay ? 'shadow-xl' : 'shadow-sm hover:shadow-md'}
-          ${isSelected ? 'ring-2 ring-primary-100 dark:ring-primary-900/50' : task.priority === 'none' ? 'border-surface-200 dark:border-surface-700' : ''}
+          ${isSelected ? 'ring-2 ring-primary-100 dark:ring-primary-500/50' : task.priority === 'none' ? 'border-surface-200 dark:border-surface-700' : ''}
           ${task.completed ? 'opacity-60' : ''}
           ${isDragEnabled ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
           ${priorityColors[task.priority]}
@@ -219,6 +219,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
 
           {(taskTags.length > 0 || showCalendar || totalSubtasks > 0 || childCount > 0) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
+              
               {taskTags.map((tag) => {
                 if (!tag) return null;
                 const TagIcon = getIconByName(tag.icon || 'tag');
