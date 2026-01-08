@@ -56,7 +56,7 @@ export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortc
           </button>
         </div>
         
-        <div className="space-y-1 rounded-lg border border-surface-200 dark:border-surface-700 overflow-hidden">
+        <div className="rounded-lg border border-surface-200 dark:border-surface-700 overflow-hidden">
           {keyboardShortcuts.map((shortcut) => (
             <div
               key={shortcut.id}
@@ -65,7 +65,7 @@ export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortc
               <span className="text-sm text-surface-600 dark:text-surface-400">{shortcut.description}</span>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center">
                   {formatShortcut(shortcut).split(' + ').map((key, keyIndex, arr) => (
                     <span key={keyIndex} className="flex items-center">
                       <kbd className="px-2 py-1 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-xs font-mono text-surface-700 dark:text-surface-300">

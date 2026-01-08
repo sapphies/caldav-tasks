@@ -153,7 +153,7 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
               className="w-full h-20 flex items-center justify-center bg-surface-50 dark:bg-surface-900 border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-500 focus:bg-primary-50 dark:focus:bg-primary-900/20 transition-colors cursor-text"
             >
               {displayShortcut ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   {formatShortcut(displayShortcut).split(' + ').map((key, idx, arr) => (
                     <span key={idx} className="flex items-center">
                       <kbd className={`px-3 py-2 rounded-lg text-sm font-mono shadow-sm ${
