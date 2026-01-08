@@ -122,7 +122,7 @@ export function SubtaskTreeItem({
 
       {/* Nested children */}
       {isExpanded && childTasks.length > 0 && (
-        <div className="border-l border-primary-200 dark:border-primary-800" style={{ marginLeft: `${depth * 16 + 24}px` }}>
+        <div style={{ marginLeft: `${depth * 16 + 24}px` }}>
           {childTasks.map((childTask) => (
             <SubtaskTreeItem
               key={childTask.id}
