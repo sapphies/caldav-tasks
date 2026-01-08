@@ -9,7 +9,7 @@ export function getAltKeyLabel(): string {
 }
 
 export function getShiftKeyLabel(): string {
-  return isMacPlatform() ? '⇧' : 'Shift';
+  return 'Shift';
 }
 
 export function getModifierJoiner(): string {
