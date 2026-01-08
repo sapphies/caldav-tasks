@@ -58,6 +58,10 @@ interface SettingsStore {
   sidebarCollapsed: boolean;
   sidebarWidth: number; // in pixels
 
+  // Account expansion state
+  expandedAccountIds: string[]; // IDs of accounts that are expanded
+  defaultAccountsExpanded: boolean; // Whether newly created accounts should be expanded by default
+
   // actions
   setTheme: (theme: Theme) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
@@ -81,6 +85,9 @@ interface SettingsStore {
   setDefaultPriority: (priority: Priority) => void;
   setDefaultTags: (tagIds: string[]) => void;
   toggleSidebarCollapsed: () => void;
+  setExpandedAccountIds: (accountIds: string[]) => void;
+  toggleAccountExpanded: (accountId: string) => void;
+  setDefaultAccountsExpanded: (expanded: boolean) => void;
   exportSettings: () => string;
   importSettings: (json: string) => boolean;
 }
@@ -107,6 +114,8 @@ export const useSettingsStore = create<SettingsStore>()(
       defaultTags: [],
       sidebarCollapsed: false,
       sidebarWidth: 256, // 16rem = 256px
+      expandedAccountIds: [], // Will be populated with account IDs as they're expanded
+      defaultAccountsExpanded: true, // New accounts are expanded by default
 
       setTheme: (theme) => set({ theme }),
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
@@ -135,6 +144,16 @@ export const useSettingsStore = create<SettingsStore>()(
       resetShortcuts: () => set({ keyboardShortcuts: defaultShortcuts }),
       setDefaultPriority: (defaultPriority) => set({ defaultPriority }),
       setDefaultTags: (defaultTags) => set({ defaultTags }),
+      setExpandedAccountIds: (expandedAccountIds) => set({ expandedAccountIds }),
+      toggleAccountExpanded: (accountId) => {
+        const current = get().expandedAccountIds;
+        if (current.includes(accountId)) {
+          set({ expandedAccountIds: current.filter(id => id !== accountId) });
+        } else {
+          set({ expandedAccountIds: [...current, accountId] });
+        }
+      },
+      setDefaultAccountsExpanded: (defaultAccountsExpanded) => set({ defaultAccountsExpanded }),
       
       exportSettings: () => {
         const state = get();
@@ -159,6 +178,8 @@ export const useSettingsStore = create<SettingsStore>()(
           defaultTags: state.defaultTags,
           sidebarCollapsed: state.sidebarCollapsed,
           sidebarWidth: state.sidebarWidth,
+          expandedAccountIds: state.expandedAccountIds,
+          defaultAccountsExpanded: state.defaultAccountsExpanded,
         };
         return JSON.stringify(exportData, null, 2);
       },
@@ -190,6 +211,8 @@ export const useSettingsStore = create<SettingsStore>()(
             defaultTags: data.defaultTags ?? [],
             sidebarCollapsed: data.sidebarCollapsed ?? false,
             sidebarWidth: data.sidebarWidth ?? 256,
+            expandedAccountIds: data.expandedAccountIds ?? [],
+            defaultAccountsExpanded: data.defaultAccountsExpanded ?? true,
           });
           return true;
         } catch (e) {

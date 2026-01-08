@@ -17,6 +17,8 @@ export function BehaviorSettings() {
     setStartOfWeek,
     defaultCalendarId,
     setDefaultCalendarId,
+    defaultAccountsExpanded,
+    setDefaultAccountsExpanded,
   } = useSettingsStore();
   const { data: accounts = [] } = useAccounts();
   
@@ -101,6 +103,19 @@ export function BehaviorSettings() {
             <option value="monday">Monday</option>
           </select>
         </div>
+
+        <label className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-surface-700 dark:text-surface-300">Expand new accounts by default</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">Show calendars when adding a new account</p>
+          </div>
+          <input 
+            type="checkbox" 
+            checked={defaultAccountsExpanded}
+            onChange={(e) => setDefaultAccountsExpanded(e.target.checked)}
+            className="rounded border-surface-300" 
+          />
+        </label>
 
         {allCalendars.length > 0 && (
           <div>

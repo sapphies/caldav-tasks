@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import ChevronDown from 'lucide-react/icons/chevron-down';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import Plus from 'lucide-react/icons/plus';
@@ -80,12 +80,34 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   const { 
     confirmBeforeDeleteCalendar, 
     confirmBeforeDeleteAccount, 
-    confirmBeforeDeleteTag 
+    confirmBeforeDeleteTag,
+    expandedAccountIds,
+    defaultAccountsExpanded,
+    toggleAccountExpanded,
+    setExpandedAccountIds,
   } = useSettingsStore();
-
-  const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(
-    new Set(accounts.map((a) => a.id))
-  );
+    
+  // Track which account IDs we've already initialized (to avoid re-processing)
+  const initializedAccountIdsRef = useRef<Set<string>>(new Set(expandedAccountIds));
+      
+  // Initialize expanded accounts: new accounts should follow defaultAccountsExpanded setting
+  useEffect(() => {
+    const currentAccountIds = accounts.map(a => a.id);
+    const newAccountIds = currentAccountIds.filter(id => !initializedAccountIdsRef.current.has(id));
+    
+    if (newAccountIds.length > 0) {
+      // Mark these accounts as initialized
+      newAccountIds.forEach(id => initializedAccountIdsRef.current.add(id));
+      
+      // If they should be expanded by default, add them to the expanded list
+      if (defaultAccountsExpanded) {
+        setExpandedAccountIds([...expandedAccountIds, ...newAccountIds]);
+      }
+    }
+  }, [accounts, defaultAccountsExpanded, setExpandedAccountIds, expandedAccountIds]);
+    
+  // Convert expandedAccountIds array to a Set for efficient lookups
+  const expandedAccounts = useMemo(() => new Set(expandedAccountIds), [expandedAccountIds]);
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -144,13 +166,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   };
 
   const toggleAccount = (id: string) => {
-    const next = new Set(expandedAccounts);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    setExpandedAccounts(next);
+    toggleAccountExpanded(id);
   };
 
   const handleContextMenu = (
