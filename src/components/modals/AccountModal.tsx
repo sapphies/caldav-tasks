@@ -107,7 +107,7 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 animate-fade-in">
       <div 
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-md animate-scale-in"
         onClick={(e) => e.stopPropagation()}
