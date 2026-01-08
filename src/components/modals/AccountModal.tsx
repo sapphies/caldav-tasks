@@ -226,7 +226,7 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !name.trim() || !serverUrl.trim() || !username.trim() || (!account && !password.trim())}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
