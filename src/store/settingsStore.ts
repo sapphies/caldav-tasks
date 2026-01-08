@@ -59,6 +59,9 @@ interface SettingsStore {
   sidebarCollapsed: boolean;
   sidebarWidth: number; // in pixels
 
+  // Onboarding
+  onboardingCompleted: boolean;
+
   // Account expansion state
   expandedAccountIds: string[]; // IDs of accounts that are expanded
   defaultAccountsExpanded: boolean; // Whether newly created accounts should be expanded by default
@@ -86,6 +89,7 @@ interface SettingsStore {
   setDefaultPriority: (priority: Priority) => void;
   setDefaultTags: (tagIds: string[]) => void;
   toggleSidebarCollapsed: () => void;
+  setOnboardingCompleted: (completed: boolean) => void;
   setExpandedAccountIds: (accountIds: string[]) => void;
   toggleAccountExpanded: (accountId: string) => void;
   setDefaultAccountsExpanded: (expanded: boolean) => void;
@@ -115,6 +119,7 @@ export const useSettingsStore = create<SettingsStore>()(
       defaultTags: [],
       sidebarCollapsed: false,
       sidebarWidth: 256, // 16rem = 256px
+      onboardingCompleted: false,
       expandedAccountIds: [], // Will be populated with account IDs as they're expanded
       defaultAccountsExpanded: true, // New accounts are expanded by default
 
@@ -145,6 +150,7 @@ export const useSettingsStore = create<SettingsStore>()(
       resetShortcuts: () => set({ keyboardShortcuts: defaultShortcuts }),
       setDefaultPriority: (defaultPriority) => set({ defaultPriority }),
       setDefaultTags: (defaultTags) => set({ defaultTags }),
+      setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
       setExpandedAccountIds: (expandedAccountIds) => set({ expandedAccountIds }),
       toggleAccountExpanded: (accountId) => {
         const current = get().expandedAccountIds;
@@ -179,6 +185,7 @@ export const useSettingsStore = create<SettingsStore>()(
           defaultTags: state.defaultTags,
           sidebarCollapsed: state.sidebarCollapsed,
           sidebarWidth: state.sidebarWidth,
+          onboardingCompleted: state.onboardingCompleted,
           expandedAccountIds: state.expandedAccountIds,
           defaultAccountsExpanded: state.defaultAccountsExpanded,
         };
@@ -212,6 +219,7 @@ export const useSettingsStore = create<SettingsStore>()(
             defaultTags: data.defaultTags ?? [],
             sidebarCollapsed: data.sidebarCollapsed ?? false,
             sidebarWidth: data.sidebarWidth ?? 256,
+            onboardingCompleted: data.onboardingCompleted ?? false,
             expandedAccountIds: data.expandedAccountIds ?? [],
             defaultAccountsExpanded: data.defaultAccountsExpanded ?? true,
           });

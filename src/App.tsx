@@ -18,6 +18,7 @@ import { ImportModal } from '@/components/modals/ImportModal';
 import { ExportModal } from '@/components/modals/ExportModal';
 import { AccountModal } from '@/components/modals/AccountModal';
 import { CreateCalendarModal } from '@/components/modals/CreateCalendarModal';
+import { OnboardingModal } from '@/components/modals/OnboardingModal';
 import { initWebKitDragFix } from './utils/webkit';
 
 function App() {
@@ -27,9 +28,17 @@ function App() {
   }, []);
 
   const [preloadedFile, setPreloadedFile] = useState<{ name: string; content: string } | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { isSyncing, isOffline, lastSyncTime, syncAll } = useSyncQuery();
   const { data: accounts = [] } = useAccounts();
-  const { sidebarCollapsed, sidebarWidth, toggleSidebarCollapsed, setSidebarWidth } = useSettingsStore();
+  const { sidebarCollapsed, sidebarWidth, toggleSidebarCollapsed, setSidebarWidth, onboardingCompleted } = useSettingsStore();
+
+  // show onboarding modal on first launch
+  useEffect(() => {
+    if (!onboardingCompleted) {
+      setShowOnboarding(true);
+    }
+  }, [onboardingCompleted]);
 
   // app menu state synchronization
   useAppMenu();
@@ -189,6 +198,15 @@ function App() {
         menuHandlers.setShowCreateCalendar(false);
         return null;
       })()}
+
+      {showOnboarding && (
+        <OnboardingModal
+          onComplete={() => setShowOnboarding(false)}
+          onAddAccount={() => {
+            menuHandlers.setShowAccountModal(true);
+          }}
+        />
+      )}
     </div>
   );
 }
