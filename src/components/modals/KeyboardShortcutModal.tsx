@@ -60,6 +60,15 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
       return;
     }
 
+    // Enter saves the current shortcut
+    if (e.key === 'Enter') {
+      if (pendingShortcut && shortcut) {
+        onSave(shortcut.id, pendingShortcut);
+        onClose();
+      }
+      return;
+    }
+
     // Ignore modifier-only keypresses
     if (['Control', 'Meta', 'Alt', 'Shift'].includes(e.key)) {
       return;
@@ -178,7 +187,8 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
             )}
           </div>
 
-          <div className="text-xs text-surface-500 dark:text-surface-400 text-center">
+          <div className="text-xs text-surface-500 dark:text-surface-400 text-center space-y-1">
+            <p>Press <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">Enter</kbd> to save</p>
             <p>Press <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">Esc</kbd> to cancel recording</p>
           </div>
         </div>
