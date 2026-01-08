@@ -163,23 +163,25 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
           </Tooltip>
 
           <div className="relative">
-            <button
-              onClick={() => setShowSortMenu(!showSortMenu)}
-              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm transition-colors ${
-                showSortMenu
-                  ? 'bg-surface-200 dark:bg-surface-600 text-surface-700 dark:text-surface-200'
-                  : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
-              }`}
-            >
-              {sortConfig.direction === 'asc' ? (
-                <SortAsc className="w-4 h-4" />
-              ) : (
-                <SortDesc className="w-4 h-4" />
-              )}
-              <span>
-                {sortOptions.find((o) => o.value === sortConfig.mode)?.label}
-              </span>
-            </button>
+            <Tooltip content="Change sort order" position="bottom">
+              <button
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  showSortMenu
+                    ? 'bg-surface-200 dark:bg-surface-600 text-surface-700 dark:text-surface-200'
+                    : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
+                }`}
+              >
+                {sortConfig.direction === 'asc' ? (
+                  <SortAsc className="w-4 h-4" />
+                ) : (
+                  <SortDesc className="w-4 h-4" />
+                )}
+                <span>
+                  {sortOptions.find((o) => o.value === sortConfig.mode)?.label}
+                </span>
+              </button>
+            </Tooltip>
 
             {showSortMenu && (
               <>
@@ -187,7 +189,10 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
                   className="fixed inset-0 z-40"
                   onClick={() => setShowSortMenu(false)}
                 />
-                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-1 z-50 min-w-[180px] animate-scale-in">
+                <div 
+                  data-context-menu-content
+                  className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-1 z-50 min-w-[180px] animate-scale-in"
+                >
                   {sortOptions.map((option) => (
                     <button
                       key={option.value}

@@ -22,18 +22,18 @@ export function Tooltip({
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { isAnyModalOpen } = useModalState();
+  const { isAnyModalOpen, isContextMenuOpen } = useModalState();
 
-  // Hide tooltip when a modal opens
+  // hide tooltip when a modal or context menu opens
   useEffect(() => {
-    if (isAnyModalOpen && isVisible) {
+    if ((isAnyModalOpen || isContextMenuOpen) && isVisible) {
       setIsVisible(false);
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
     }
-  }, [isAnyModalOpen, isVisible]);
+  }, [isAnyModalOpen, isContextMenuOpen, isVisible]);
 
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
@@ -74,8 +74,8 @@ export function Tooltip({
   }, [position]);
 
   const showTooltip = () => {
-    // Don't show tooltip when a modal is open
-    if (isAnyModalOpen) return;
+    // Don't show tooltip when a modal or context menu is open
+    if (isAnyModalOpen || isContextMenuOpen) return;
     
     const show = () => {
       updatePosition();

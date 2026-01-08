@@ -4,6 +4,7 @@ import { ModalStateContext } from '@/context/modalStateContext';
 // This provider tracks modal state and manages hover state resets
 export function ModalStateProvider({ children }: { children: ReactNode }) {
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
 
   useEffect(() => {
     // Observer to detect modal elements being added/removed
@@ -11,7 +12,12 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
       // Check for modal backdrop elements
       const modals = document.querySelectorAll('[role="dialog"], .fixed.inset-0.z-50, .fixed.inset-0.z-\\[60\\]');
       const hasOpenModal = modals.length > 0;
-      
+
+      // Check for context menu elements
+      const contextMenus = document.querySelectorAll('[data-context-menu-content]');
+      const hasContextMenu = contextMenus.length > 0;
+      setIsContextMenuOpen(hasContextMenu);
+
       setIsAnyModalOpen((prev) => {
         if (hasOpenModal && !prev) {
           // Modal opening - set data attribute for CSS
@@ -41,7 +47,7 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo(() => ({ isAnyModalOpen }), [isAnyModalOpen]);
+  const value = useMemo(() => ({ isAnyModalOpen, isContextMenuOpen }), [isAnyModalOpen, isContextMenuOpen]);
 
   return (
     <ModalStateContext.Provider value={value}>
