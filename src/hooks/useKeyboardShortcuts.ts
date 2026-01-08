@@ -52,7 +52,14 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   const handleSearch = useCallback(() => {
     const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
-    searchInput?.focus();
+    if (searchInput) {
+      // Toggle focus: if already focused, blur it; otherwise focus it
+      if (document.activeElement === searchInput) {
+        searchInput.blur();
+      } else {
+        searchInput.focus();
+      }
+    }
   }, []);
 
   const handleDelete = useCallback(async () => {
