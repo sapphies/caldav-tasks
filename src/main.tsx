@@ -7,7 +7,10 @@ import { ConfirmDialogProvider } from '@/providers/ConfirmDialogProvider';
 import { ModalStateProvider } from '@/providers/ModalStateProvider';
 import { queryClient } from '@/lib/queryClient';
 import { initializeDataStore } from '@/lib/taskData';
-import { createLogger } from './lib/logger';
+import { getUIState } from '@/lib/database';
+import { initAppMenu } from '@/utils/menu';
+import { useSettingsStore } from '@/store/settingsStore';
+import { createLogger } from '@/lib/logger';
 
 const log = createLogger('Bootstrap', '#a855f7');
 
@@ -15,7 +18,16 @@ const log = createLogger('Bootstrap', '#a855f7');
 async function bootstrap() {
   // Initialize data store (SQLite connection + initial data load)
   await initializeDataStore();
-  
+
+  // Get initial UI state for menu initialization
+  const uiState = await getUIState();
+  const sortMode = uiState.sortConfig?.mode ?? 'manual';
+  const menuSortMode: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified' =
+    sortMode === 'start-date' ? 'manual' : sortMode;
+
+  // Get keyboard shortcuts from settings store
+  const shortcuts = useSettingsStore.getState().keyboardShortcuts;
+
   // Now render the app
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
@@ -28,17 +40,24 @@ async function bootstrap() {
       </QueryClientProvider>
     </React.StrictMode>
   );
-  
+
   // delay showing the window to prevent white flash on startup
   // should experiment with the exact timing here
   // 100ms seems to work ok on my macbook but i'll try it on windows and fedora later...
   setTimeout(async () => {
     (await import('@tauri-apps/api/window')).getCurrentWindow().show();
   }, 200);
+
+  // Initialize macOS application menu with current state and user shortcuts
+  await initAppMenu({
+    showCompleted: uiState.showCompletedTasks,
+    sortMode: menuSortMode,
+    shortcuts,
+  });
 }
 
 await bootstrap().catch(error => {
-  log.error('[Bootstrap] Failed to initialize app:', error);
+  log.error('Failed to initialize app:', error);
   // Show error in the DOM for debugging
   const root = document.getElementById('root');
   if (root) {

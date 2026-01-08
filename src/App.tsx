@@ -4,6 +4,8 @@ import { useSyncQuery } from '@/hooks/queries';
 import { useTheme } from '@/hooks/useTheme';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFileDrop } from '@/hooks/useFileDrop';
+import { useMenuHandlers } from '@/hooks/useMenuHandlers';
+import { useAppMenu } from '@/hooks/useAppMenu';
 import { useTasks, useUIState, useAccounts } from '@/hooks/queries';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Sidebar } from '@/components/Sidebar';
@@ -13,6 +15,9 @@ import { TaskEditor } from '@/components/TaskEditor';
 import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ImportModal } from '@/components/modals/ImportModal';
+import { ExportModal } from '@/components/modals/ExportModal';
+import { AccountModal } from '@/components/modals/AccountModal';
+import { CreateCalendarModal } from '@/components/modals/CreateCalendarModal';
 import { initWebKitDragFix } from './utils/webkit';
 
 function App() {
@@ -21,14 +26,18 @@ function App() {
     initWebKitDragFix();
   }, []);
 
-  const [showSettings, setShowSettings] = useState(false);
-  const [showImport, setShowImport] = useState(false);
   const [preloadedFile, setPreloadedFile] = useState<{ name: string; content: string } | null>(null);
   const { isSyncing, isOffline, lastSyncTime, syncAll } = useSyncQuery();
   const { data: accounts = [] } = useAccounts();
   const { sidebarCollapsed, sidebarWidth, toggleSidebarCollapsed, setSidebarWidth } = useSettingsStore();
-  
-  // File drop handling via hook
+
+  // app menu state synchronization
+  useAppMenu();
+
+  // menu handlers and modal state
+  const menuHandlers = useMenuHandlers();
+
+  // file drop handling via hook
   const {
     isDragOver,
     isUnsupportedFile,
@@ -39,20 +48,21 @@ function App() {
   } = useFileDrop({
     onFileDrop: (file) => {
       setPreloadedFile(file);
-      setShowImport(true);
+      menuHandlers.setShowImport(true);
     },
   });
-  
+
   useTheme();
   useNotifications();
-  
+
   useKeyboardShortcuts({
     onOpenSettings: () => {
-      setShowSettings((prev: boolean) => !prev);
+      menuHandlers.setSettingsInitialTab({});
+      menuHandlers.setShowSettings((prev: boolean) => !prev);
     },
     onSync: syncAll,
   });
-  
+
   const { data: uiState } = useUIState();
   const { data: tasks = [] } = useTasks();
   const isEditorOpen = uiState?.isEditorOpen ?? false;
@@ -61,9 +71,9 @@ function App() {
 
   // reset preloaded file when import modal closes
   const handleImportClose = useCallback(() => {
-    setShowImport(false);
+    menuHandlers.setShowImport(false);
     setPreloadedFile(null);
-  }, []);
+  }, [menuHandlers]);
 
   // disable default browser context menu globally
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -74,7 +84,7 @@ function App() {
   };
 
   return (
-    <div 
+    <div
       className="flex h-screen bg-surface-50 dark:bg-surface-900 overflow-hidden"
       onContextMenu={handleContextMenu}
       onDrop={handleFileDrop}
@@ -83,17 +93,15 @@ function App() {
       onDragLeave={handleDragLeave}
     >
       {isDragOver && (
-        <div className={`pointer-events-none fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm ${
-          isUnsupportedFile 
-            ? 'bg-red-600/10' 
-            : 'bg-primary-600/10'
-        }`}>
-          <div className={`px-4 py-3 rounded-lg text-sm font-medium shadow-lg border ${
-            isUnsupportedFile
-              ? 'bg-red-50/90 dark:bg-red-900/90 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800'
-              : 'bg-white/90 dark:bg-surface-800/90 text-surface-800 dark:text-surface-200 border-primary-200 dark:border-primary-800'
+        <div className={`pointer-events-none fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm ${isUnsupportedFile
+          ? 'bg-red-600/10'
+          : 'bg-primary-600/10'
           }`}>
-            {isUnsupportedFile 
+          <div className={`px-4 py-3 rounded-lg text-sm font-medium shadow-lg border ${isUnsupportedFile
+            ? 'bg-red-50/90 dark:bg-red-900/90 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800'
+            : 'bg-white/90 dark:bg-surface-800/90 text-surface-800 dark:text-surface-200 border-primary-200 dark:border-primary-800'
+            }`}>
+            {isUnsupportedFile
               ? 'Unsupported file format. Only .ics and .json files are supported.'
               : 'Drop .ics or .json files anywhere to import tasks'
             }
@@ -101,9 +109,9 @@ function App() {
         </div>
       )}
 
-      <Sidebar 
-        onOpenSettings={() => setShowSettings(true)} 
-        onOpenImport={() => setShowImport(true)}
+      <Sidebar
+        onOpenSettings={menuHandlers.handleOpenSettings}
+        onOpenImport={() => menuHandlers.setShowImport(true)}
         isCollapsed={sidebarCollapsed}
         width={sidebarWidth}
         onToggleCollapse={toggleSidebarCollapsed}
@@ -117,12 +125,12 @@ function App() {
           </div>
         )}
 
-        <Header 
-          isSyncing={isSyncing} 
+        <Header
+          isSyncing={isSyncing}
           onSync={syncAll}
           disableSync={accounts.length === 0}
-          isOffline={isOffline} 
-          lastSyncTime={lastSyncTime} 
+          isOffline={isOffline}
+          lastSyncTime={lastSyncTime}
         />
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
@@ -138,15 +146,49 @@ function App() {
         </div>
       </main>
 
-      {showSettings && (
-        <SettingsModal onClose={() => setShowSettings(false)} />
+      {menuHandlers.showSettings && (
+        <SettingsModal
+          onClose={() => {
+            menuHandlers.setShowSettings(false);
+            menuHandlers.setSettingsInitialTab({});
+          }}
+          initialCategory={menuHandlers.settingsInitialTab.category as 'general' | 'account' | 'about' | undefined}
+          initialSubtab={menuHandlers.settingsInitialTab.subtab as any}
+        />
       )}
 
       <ImportModal
-        isOpen={showImport}
+        isOpen={menuHandlers.showImport}
         onClose={handleImportClose}
         preloadedFile={preloadedFile}
       />
+
+      {menuHandlers.showExport && (
+        <ExportModal
+          tasks={tasks}
+          type="tasks"
+          onClose={() => menuHandlers.setShowExport(false)}
+        />
+      )}
+
+      {menuHandlers.showAccountModal && (
+        <AccountModal
+          account={null}
+          onClose={() => menuHandlers.setShowAccountModal(false)}
+        />
+      )}
+
+      {menuHandlers.showCreateCalendar && accounts.length > 0 && (
+        <CreateCalendarModal
+          accountId={accounts[0].id}
+          onClose={() => menuHandlers.setShowCreateCalendar(false)}
+        />
+      )}
+
+      {menuHandlers.showCreateCalendar && accounts.length === 0 && (() => {
+        menuHandlers.setShowCreateCalendar(false);
+        return null;
+      })()}
     </div>
   );
 }

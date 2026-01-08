@@ -1,0 +1,507 @@
+
+import { Menu, Submenu, MenuItem, PredefinedMenuItem, IconMenuItem, CheckMenuItem } from '@tauri-apps/api/menu';
+import { emit } from '@tauri-apps/api/event';
+import { loggers } from '@/lib/logger';
+import type { KeyboardShortcut } from '@/store/settingsStore';
+
+const log = loggers.menu;
+
+export const MENU_EVENTS = {
+  ABOUT: 'menu:about',
+  NEW_TASK: 'menu:new-task',
+  SYNC: 'menu:sync',
+  PREFERENCES: 'menu:preferences',
+  ADD_ACCOUNT: 'menu:add-account',
+  ADD_CALENDAR: 'menu:add-calendar',
+  IMPORT_TASKS: 'menu:import-tasks',
+  EXPORT_TASKS: 'menu:export-tasks',
+  SEARCH: 'menu:search',
+  SHOW_KEYBOARD_SHORTCUTS: 'menu:show-keyboard-shortcuts',
+  TOGGLE_COMPLETED: 'menu:toggle-completed',
+  SORT_MANUAL: 'menu:sort-manual',
+  SORT_SMART: 'menu:sort-smart',
+  SORT_DUE_DATE: 'menu:sort-due-date',
+  SORT_PRIORITY: 'menu:sort-priority',
+  SORT_TITLE: 'menu:sort-title',
+  SORT_CREATED: 'menu:sort-created',
+  SORT_MODIFIED: 'menu:sort-modified',
+} as const;
+
+// store menu item references for updates
+let menuItemRefs: {
+  sync?: IconMenuItem;
+  export?: IconMenuItem;
+  addCalendar?: MenuItem;
+  toggleCompleted?: CheckMenuItem;
+  sortManual?: MenuItem;
+  sortSmart?: MenuItem;
+  sortDueDate?: MenuItem;
+  sortPriority?: MenuItem;
+  sortTitle?: MenuItem;
+  sortCreated?: MenuItem;
+  sortModified?: MenuItem;
+} = {};
+
+/**
+ * converts a KeyboardShortcut to Tauri accelerator format
+ */
+function shortcutToAccelerator(shortcut?: KeyboardShortcut): string | undefined {
+  if (!shortcut) return undefined;
+  
+  const parts: string[] = [];
+  
+  if (shortcut.meta) parts.push('CmdOrCtrl');
+  if (shortcut.ctrl && !shortcut.meta) parts.push('Ctrl');
+  if (shortcut.shift) parts.push('Shift');
+  if (shortcut.alt) parts.push('Alt');
+  
+  if (shortcut.key) {
+    // map special keys
+    const keyMap: Record<string, string> = {
+      'ArrowUp': 'Up',
+      'ArrowDown': 'Down',
+      'ArrowLeft': 'Left',
+      'ArrowRight': 'Right',
+      ' ': 'Space',
+    };
+    const key = keyMap[shortcut.key] || shortcut.key.toUpperCase();
+    parts.push(key);
+  }
+  
+  return parts.length > 0 ? parts.join('+') : undefined;
+}
+
+/**
+ * gets the accelerator for a specific shortcut ID from the shortcuts array
+ */
+function getAcceleratorById(shortcuts: KeyboardShortcut[] | undefined, id: string): string | undefined {
+  if (!shortcuts) return undefined;
+  const shortcut = shortcuts.find(s => s.id === id);
+  return shortcutToAccelerator(shortcut);
+}
+
+/**
+ * creates and sets the macOS application menu
+ * only called on macOS
+ */
+export async function createMacMenu(options?: {
+  showCompleted?: boolean;
+  sortMode?: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified';
+  shortcuts?: KeyboardShortcut[];
+}): Promise<Menu> {
+  const showCompleted = options?.showCompleted ?? true;
+  const sortMode = options?.sortMode ?? 'manual';
+  const shortcuts = options?.shortcuts;
+
+  const appSubmenu = await Submenu.new({
+    text: 'caldav-tasks',
+    items: [
+      await MenuItem.new({
+        id: 'about',
+        text: 'About CalDAV Tasks',
+        action: () => {
+          emit(MENU_EVENTS.ABOUT);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await MenuItem.new({
+        id: 'preferences',
+        text: 'Preferences...',
+        accelerator: getAcceleratorById(shortcuts, 'settings') || 'CmdOrCtrl+,',
+        action: () => {
+          emit(MENU_EVENTS.PREFERENCES);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Services',
+        item: 'Services',
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Hide CalDAV Tasks',
+        item: 'Hide',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Hide Others',
+        item: 'HideOthers',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Show All',
+        item: 'ShowAll',
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Quit CalDAV Tasks',
+        item: 'Quit',
+      }),
+    ],
+  });
+
+  const fileSubmenu = await Submenu.new({
+    text: 'File',
+    items: [
+      await IconMenuItem.new({
+        id: 'new-task',
+        text: 'New Task',
+        icon: 'Add',
+        accelerator: getAcceleratorById(shortcuts, 'new-task') || 'CmdOrCtrl+N',
+        action: () => {
+          emit(MENU_EVENTS.NEW_TASK);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      menuItemRefs.sync = await IconMenuItem.new({
+        id: 'sync',
+        text: 'Sync',
+        icon: 'Refresh',
+        accelerator: getAcceleratorById(shortcuts, 'sync') || 'CmdOrCtrl+R',
+        enabled: false,
+        action: () => {
+          emit(MENU_EVENTS.SYNC);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await IconMenuItem.new({
+        id: 'import',
+        text: 'Import...',
+        icon: 'Bookmarks',
+        accelerator: 'CmdOrCtrl+I',
+        action: () => {
+          emit(MENU_EVENTS.IMPORT_TASKS);
+        },
+      }),
+      menuItemRefs.export = await IconMenuItem.new({
+        id: 'export',
+        text: 'Export...',
+        icon: 'Share',
+        accelerator: 'CmdOrCtrl+E',
+        enabled: false,
+        action: () => {
+          emit(MENU_EVENTS.EXPORT_TASKS);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Close Window',
+        item: 'CloseWindow',
+      }),
+    ],
+  });
+
+  const editSubmenu = await Submenu.new({
+    text: 'Edit',
+    items: [
+      await PredefinedMenuItem.new({
+        text: 'Undo',
+        item: 'Undo',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Redo',
+        item: 'Redo',
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Cut',
+        item: 'Cut',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Copy',
+        item: 'Copy',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Paste',
+        item: 'Paste',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Select All',
+        item: 'SelectAll',
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await MenuItem.new({
+        id: 'search',
+        text: 'Search Tasks...',
+        accelerator: getAcceleratorById(shortcuts, 'search') || 'CmdOrCtrl+F',
+        action: () => {
+          emit(MENU_EVENTS.SEARCH);
+        },
+      }),
+    ],
+  });
+
+  // View submenu
+  const viewSubmenu = await Submenu.new({
+    text: 'View',
+    items: [
+      menuItemRefs.toggleCompleted = await CheckMenuItem.new({
+        id: 'toggle-completed',
+        text: 'Show Completed Tasks',
+        accelerator: getAcceleratorById(shortcuts, 'toggle-show-completed') || 'CmdOrCtrl+Shift+H',
+        checked: showCompleted,
+        action: () => {
+          emit(MENU_EVENTS.TOGGLE_COMPLETED);
+        },
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await Submenu.new({
+        icon: 'ListView',
+        text: 'Sort By',
+        items: [
+          menuItemRefs.sortManual = await MenuItem.new({
+            id: 'sort-manual',
+            text: sortMode === 'manual' ? '✓ Manual' : 'Manual',
+            action: () => {
+              emit(MENU_EVENTS.SORT_MANUAL);
+            },
+          }),
+          menuItemRefs.sortSmart = await MenuItem.new({
+            id: 'sort-smart',
+            text: sortMode === 'smart' ? '✓ Smart Sort' : 'Smart Sort',
+            action: () => {
+              emit(MENU_EVENTS.SORT_SMART);
+            },
+          }),
+          menuItemRefs.sortDueDate = await MenuItem.new({
+            id: 'sort-due-date',
+            text: sortMode === 'due-date' ? '✓ Due Date' : 'Due Date',
+            action: () => {
+              emit(MENU_EVENTS.SORT_DUE_DATE);
+            },
+          }),
+          menuItemRefs.sortPriority = await MenuItem.new({
+            id: 'sort-priority',
+            text: sortMode === 'priority' ? '✓ Priority' : 'Priority',
+            action: () => {
+              emit(MENU_EVENTS.SORT_PRIORITY);
+            },
+          }),
+          menuItemRefs.sortTitle = await MenuItem.new({
+            id: 'sort-title',
+            text: sortMode === 'title' ? '✓ Title' : 'Title',
+            action: () => {
+              emit(MENU_EVENTS.SORT_TITLE);
+            },
+          }),
+          menuItemRefs.sortCreated = await MenuItem.new({
+            id: 'sort-created',
+            text: sortMode === 'created' ? '✓ Date Created' : 'Date Created',
+            action: () => {
+              emit(MENU_EVENTS.SORT_CREATED);
+            },
+          }),
+          menuItemRefs.sortModified = await MenuItem.new({
+            id: 'sort-modified',
+            text: sortMode === 'modified' ? '✓ Date Modified' : 'Date Modified',
+            action: () => {
+              emit(MENU_EVENTS.SORT_MODIFIED);
+            },
+          }),
+        ],
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+      await PredefinedMenuItem.new({
+        text: 'Enter Full Screen',
+        item: 'Fullscreen',
+      })
+    ],
+  });
+
+  // Calendar submenu
+  const calendarSubmenu = await Submenu.new({
+    text: 'Calendar',
+    items: [
+      await MenuItem.new({
+        id: 'add-account',
+        text: 'Add Account...',
+        action: () => {
+          emit(MENU_EVENTS.ADD_ACCOUNT);
+        },
+      }),
+      menuItemRefs.addCalendar = await MenuItem.new({
+        id: 'add-calendar',
+        text: 'Add Calendar...',
+        enabled: false,
+        action: () => {
+          emit(MENU_EVENTS.ADD_CALENDAR);
+        },
+      }),
+    ],
+  });
+
+  // Window submenu
+  const windowSubmenu = await Submenu.new({
+    text: 'Window',
+    items: [
+      await PredefinedMenuItem.new({
+        text: 'Minimize',
+        item: 'Minimize',
+      }),
+      await PredefinedMenuItem.new({
+        text: 'Zoom',
+        item: 'Maximize',
+      }),
+      await PredefinedMenuItem.new({ item: 'Separator' }),
+    ],
+  });
+
+  await windowSubmenu.setAsWindowsMenuForNSApp();
+
+  // Help submenu
+  const helpSubmenu = await Submenu.new({
+    text: 'Help',
+    items: [
+      await MenuItem.new({
+        id: 'keyboard-shortcuts',
+        text: 'Keyboard Shortcuts',
+        accelerator: 'CmdOrCtrl+/',
+        action: () => {
+          emit(MENU_EVENTS.SHOW_KEYBOARD_SHORTCUTS);
+        },
+      }),
+    ],
+  });
+
+  await helpSubmenu.setAsHelpMenuForNSApp().catch(() => {});
+
+  // Create the main menu
+  const menu = await Menu.new({
+    items: [
+      appSubmenu,
+      fileSubmenu,
+      editSubmenu,
+      viewSubmenu,
+      calendarSubmenu,
+      windowSubmenu,
+      helpSubmenu,
+    ],
+  });
+
+  return menu;
+}
+
+/**
+ * Initializes the application menu
+ * Should be called during app bootstrap
+ */
+export async function initAppMenu(options?: {
+  showCompleted?: boolean;
+  sortMode?: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified';
+  shortcuts?: KeyboardShortcut[];
+}): Promise<void> {
+  // Only create menu on macOS
+  if (!navigator.userAgent.includes('Macintosh')) {
+    return;
+  }
+
+  try {
+    const menu = await createMacMenu(options);
+    await menu.setAsAppMenu();
+    log.info('macOS menu initialized successfully');
+  } catch (error) {
+    log.error('Failed to initialize menu:', error);
+  }
+}
+
+/**
+ * Rebuilds the app menu with new shortcuts
+ * Call this when keyboard shortcuts are changed in settings
+ */
+export async function rebuildAppMenu(options?: {
+  showCompleted?: boolean;
+  sortMode?: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified';
+  shortcuts?: KeyboardShortcut[];
+}): Promise<void> {
+  await initAppMenu(options);
+}
+
+/**
+ * Updates a specific menu item's state
+ */
+export async function updateMenuItem(
+  menuId: string,
+  updates: {
+    text?: string;
+    enabled?: boolean;
+    checked?: boolean;
+  }
+): Promise<void> {
+  try {
+    // Use stored references instead of searching the menu
+    let item: MenuItem | IconMenuItem | CheckMenuItem | undefined;
+    
+    switch (menuId) {
+      case 'sync': item = menuItemRefs.sync; break;
+      case 'export': item = menuItemRefs.export; break;
+      case 'add-calendar': item = menuItemRefs.addCalendar; break;
+      case 'toggle-completed': item = menuItemRefs.toggleCompleted; break;
+      case 'sort-manual': item = menuItemRefs.sortManual; break;
+      case 'sort-smart': item = menuItemRefs.sortSmart; break;
+      case 'sort-due-date': item = menuItemRefs.sortDueDate; break;
+      case 'sort-priority': item = menuItemRefs.sortPriority; break;
+      case 'sort-title': item = menuItemRefs.sortTitle; break;
+      case 'sort-created': item = menuItemRefs.sortCreated; break;
+      case 'sort-modified': item = menuItemRefs.sortModified; break;
+    }
+    
+    if (!item) {
+      log.warn(`Item with id "${menuId}" not found in refs`);
+      return;
+    }
+
+    if (updates.text !== undefined && 'setText' in item) {
+      await item.setText(updates.text);
+    }
+
+    if (updates.enabled !== undefined && 'setEnabled' in item) {
+      await item.setEnabled(updates.enabled);
+    }
+
+    if (updates.checked !== undefined && 'setChecked' in item) {
+      await item.setChecked(updates.checked);
+    }
+  } catch (error) {
+    log.error(`Failed to update menu item "${menuId}":`, error);
+  }
+}
+
+/**
+ * updates the menu state based on app state
+ */
+export async function updateMenuState(options: {
+  hasAccounts?: boolean;
+  hasTasks?: boolean;
+  showCompleted?: boolean;
+  sortMode?: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified';
+}): Promise<void> {
+  if (options.hasAccounts !== undefined) {
+    await updateMenuItem('add-calendar', { enabled: options.hasAccounts });
+    await updateMenuItem('sync', { enabled: options.hasAccounts });
+  }
+  if (options.hasTasks !== undefined) {
+    await updateMenuItem('export', { enabled: options.hasTasks });
+  }
+  if (options.showCompleted !== undefined) {
+    await updateMenuItem('toggle-completed', { checked: options.showCompleted });
+  }
+  if (options.sortMode !== undefined) {
+    // update sort menu items with checkmarks in text (radio button behavior)
+    const sortOptions: Record<string, string> = {
+      'manual': 'Manual',
+      'smart': 'Smart Sort',
+      'due-date': 'Due Date',
+      'priority': 'Priority',
+      'title': 'Title',
+      'created': 'Date Created',
+      'modified': 'Date Modified',
+    };
+    
+    log.debug('Updating sort menu checkmarks, active mode:', options.sortMode);
+    for (const [mode, label] of Object.entries(sortOptions)) {
+      const hasCheck = mode === options.sortMode;
+      log.debug(`Setting sort-${mode} to: ${hasCheck ? '✓ ' : ''}${label}`);
+      await updateMenuItem(`sort-${mode}`, { 
+        text: hasCheck ? `✓ ${label}` : label 
+      });
+    }
+  }
+}
