@@ -150,6 +150,7 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
             >
               <option value="generic">Generic (auto-detect)</option>
+              <option value="nextcloud">Nextcloud</option>
               <option value="rustical">RustiCal</option>
               <option value="radicale">Radicale</option>
               <option value="baikal">Baikal</option>
@@ -158,6 +159,7 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
               {serverType === 'rustical' && 'Uses /caldav/principal/{username}/ path structure'}
               {serverType === 'radicale' && 'Uses /{username}/ path structure'}
               {serverType === 'baikal' && 'Uses /dav.php/principals/{username}/ path structure'}
+              {serverType === 'nextcloud' && 'Uses /remote.php/dav/ path structure'}
               {serverType === 'generic' && 'Auto-detects using .well-known/caldav'}
             </p>
           </div>

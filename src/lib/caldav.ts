@@ -10,7 +10,7 @@ interface AccountConnection {
   credentials: CalDAVCredentials;
   principalUrl: string;
   calendarHome: string;
-  serverType: 'rustical' | 'radicale' | 'baikal' | 'generic';
+  serverType: 'rustical' | 'radicale' | 'baikal' | 'nextcloud' | 'generic';
 }
 
 class CalDAVService {
@@ -22,6 +22,7 @@ class CalDAVService {
    * - rustical: {serverUrl}/caldav/principal/{username}/
    * - radicale: {serverUrl}/{username}/
    * - baikal: {serverUrl}/dav.php/principals/{username}/
+   * - nextcloud: {serverUrl}/remote.php/dav/principals/users/{username}/
    * - generic: tries .well-known/caldav discovery
    */
   async connect(
@@ -29,7 +30,7 @@ class CalDAVService {
     serverUrl: string,
     username: string,
     password: string,
-    serverType: 'rustical' | 'radicale' | 'baikal' | 'generic' = 'rustical'
+    serverType: 'rustical' | 'radicale' | 'baikal' | 'nextcloud' | 'generic' = 'rustical'
   ): Promise<{ principalUrl: string; displayName: string }> {
     const credentials: CalDAVCredentials = { username, password };
     
@@ -52,6 +53,10 @@ class CalDAVService {
       case 'baikal':
         principalUrl = `${baseUrl}/dav.php/principals/${username}/`;
         calendarHome = principalUrl;
+        break;
+      case 'nextcloud':
+        principalUrl = `${baseUrl}/remote.php/dav/principals/users/${username}/`;
+        calendarHome = `${baseUrl}/remote.php/dav/calendars/${username}/`;
         break;
       case 'generic': {
         // for generic servers, perform proper CalDAV discovery per RFC 4791

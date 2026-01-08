@@ -87,7 +87,7 @@ export interface Calendar {
   supportedComponents?: string[]; // e.g., ['VTODO', 'VEVENT']
 }
 
-export type ServerType = 'rustical' | 'radicale' | 'baikal' | 'generic';
+export type ServerType = 'rustical' | 'radicale' | 'baikal' | 'nextcloud' | 'generic';
 
 export interface Account {
   id: string;
