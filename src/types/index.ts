@@ -61,6 +61,9 @@ export interface Task {
   // sorting
   sortOrder: number; // x-apple-sort-order
   
+  // URL (RFC 7986)
+  url?: string;
+
   // sync
   accountId: string;
   calendarId: string;

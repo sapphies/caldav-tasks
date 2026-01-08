@@ -12,6 +12,7 @@ import Tag from 'lucide-react/icons/tag';
 import FolderSync from 'lucide-react/icons/folder-sync';
 import Bell from 'lucide-react/icons/bell';
 import Pencil from 'lucide-react/icons/pencil';
+import Link from 'lucide-react/icons/link';
 import { 
   useUpdateTask, 
   useSetEditorOpen,
@@ -114,6 +115,10 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateTaskMutation.mutate({ id: task.id, updates: { description: e.target.value } });
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateTaskMutation.mutate({ id: task.id, updates: { url: e.target.value || undefined } });
   };
 
   const handlePriorityChange = (priority: Priority) => {
@@ -253,6 +258,33 @@ export function TaskEditor({ task }: TaskEditorProps) {
             rows={4}
             className="w-full px-3 py-2 text-sm text-surface-700 dark:text-surface-300 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 resize-none"
           />
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
+            <Link className="w-4 h-4" />
+            URL
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="url"
+              value={task.url || ''}
+              onChange={handleUrlChange}
+              placeholder="https://example.com"
+              className="flex-1 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
+            />
+            {task.url && (
+              <a
+                href={task.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
+                title="Open URL"
+              >
+                <Link className="w-4 h-4" />
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">

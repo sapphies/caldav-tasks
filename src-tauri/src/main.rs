@@ -164,6 +164,15 @@ fn main() {
             "#,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "add_url_field_to_tasks",
+            sql: r#"
+                -- Add URL field for RFC 7986 support
+                ALTER TABLE tasks ADD COLUMN url TEXT;
+            "#,
+            kind: MigrationKind::Up,
+        }
     ];
 
     tauri::Builder::default()

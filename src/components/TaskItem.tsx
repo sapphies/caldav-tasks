@@ -9,6 +9,7 @@ import ChevronDown from 'lucide-react/icons/chevron-down';
 import Trash2 from 'lucide-react/icons/trash-2';
 import Edit2 from 'lucide-react/icons/edit-2';
 import Share2 from 'lucide-react/icons/share-2';
+import Link from 'lucide-react/icons/link';
 import { useState } from 'react';
 import { 
   useToggleTaskComplete, 
@@ -217,8 +218,20 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             </div>
           )}
 
-          {(taskTags.length > 0 || showCalendar || totalSubtasks > 0 || childCount > 0) && (
+          {(taskTags.length > 0 || showCalendar || totalSubtasks > 0 || childCount > 0 || task.url) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {task.url && (
+                <a
+                  href={task.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors"
+                  title={task.url}
+                >
+                  <Link className="w-3 h-3" />
+                  URL
+                </a>
+              )}
               
               {taskTags.map((tag) => {
                 if (!tag) return null;

@@ -274,6 +274,7 @@ interface ParsedVTodo {
   isCollapsed?: boolean;
   parentUid?: string;
   alarms?: ParsedVAlarm[];
+  url?: string;
 }
 
 /**
@@ -423,6 +424,9 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
           result.parentUid = prop.value;
         }
         break;
+      case 'URL':
+        result.url = prop.value;
+        break;
     }
   }
   
@@ -546,6 +550,11 @@ function generateVTodo(task: Task): string {
     lines.push(`X-CALDAV-TASKS-SUBTASKS:${subtasksJson}`);
   }
 
+  // URL (RFC 7986)
+  if (task.url) {
+    lines.push(`URL:${escapeICalText(task.url)}`);
+  }
+
   // Reminders as VALARMs
   if (task.reminders && task.reminders.length > 0) {
     for (const reminder of task.reminders) {
@@ -656,6 +665,7 @@ export function vtodoToTask(
       parentUid: parsed.parentUid,
       isCollapsed: parsed.isCollapsed || false,
       sortOrder,
+      url: parsed.url,
       accountId,
       calendarId,
       synced: true,
@@ -823,6 +833,7 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
         parentUid: parsed.parentUid,
         isCollapsed: parsed.isCollapsed || false,
         sortOrder,
+        url: parsed.url,
         synced: false,
         reminders,
       });

@@ -127,6 +127,7 @@ function rowToTask(row: any): Task {
     parentUid: row.parent_uid || undefined,
     isCollapsed: row.is_collapsed === 1,
     sortOrder: row.sort_order,
+    url: row.url || undefined,
     accountId: row.account_id || '',
     calendarId: row.calendar_id || '',
     synced: row.synced === 1,
@@ -298,8 +299,8 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
       tags, category_id, priority, start_date, start_date_all_day,
       due_date, due_date_all_day, created_at, modified_at, reminders,
       subtasks, parent_uid, is_collapsed, sort_order, account_id,
-      calendar_id, synced, local_only
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
+      calendar_id, synced, local_only, url
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)`,
     [
       task.id,
       task.uid,
@@ -327,6 +328,7 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
       task.calendarId || null,
       task.synced ? 1 : 0,
       task.localOnly ? 1 : 0,
+      task.url || null,
     ]
   );
   
@@ -354,8 +356,8 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
       due_date = $13, due_date_all_day = $14, modified_at = $15,
       reminders = $16, subtasks = $17, parent_uid = $18, is_collapsed = $19,
       sort_order = $20, account_id = $21, calendar_id = $22, synced = $23,
-      local_only = $24
-     WHERE id = $25`,
+      local_only = $24, url = $25
+     WHERE id = $26`,
     [
       updatedTask.uid,
       updatedTask.etag || null,
@@ -381,6 +383,7 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
       updatedTask.calendarId || null,
       updatedTask.synced ? 1 : 0,
       updatedTask.localOnly ? 1 : 0,
+      updatedTask.url || null,
       id,
     ]
   );
