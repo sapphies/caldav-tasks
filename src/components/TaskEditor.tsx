@@ -122,10 +122,17 @@ export function TaskEditor({ task }: TaskEditorProps) {
   const handleCalendarChange = (calendarId: string) => {
     const targetCalendar = allCalendars.find(c => c.id === calendarId);
     if (targetCalendar) {
-      updateTaskMutation.mutate({ id: task.id, updates: { 
+      // If this is a subtask and calendar is being changed, convert it to a regular task
+      const updates: any = {
         calendarId: targetCalendar.id,
         accountId: targetCalendar.accountId,
-      } });
+      };
+
+      if (task.parentUid) {
+        updates.parentUid = undefined;
+      }
+
+      updateTaskMutation.mutate({ id: task.id, updates });
     }
   };
 
@@ -337,6 +344,11 @@ export function TaskEditor({ task }: TaskEditorProps) {
               {currentCalendar && currentAccount && (
                 <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
                   Currently in: {currentAccount.name} / {currentCalendar.displayName}
+                </p>
+              )}
+              {task.parentUid && (
+                <p className="mt-3 text-xs text-surface-700 dark:text-surface-200 border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 rounded-md p-2">
+                  Changing the calendar will convert this subtask to a regular task.
                 </p>
               )}
             </>
