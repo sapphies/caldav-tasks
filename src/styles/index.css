@@ -53,13 +53,13 @@ input[type="datetime-local"] {
   color-scheme: light;
 }
 
-/* Disable text selection globally except in specific elements */
-body {
+/* prevent text selection on UI elements (buttons, headers, etc.) but allow on content */
+button,
+.no-select {
   user-select: none;
   -webkit-user-select: none;
 }
 
-/* Allow text selection in inputs, textareas, and contenteditable elements */
 input,
 textarea,
 [contenteditable="true"],
@@ -149,4 +149,11 @@ input[type="checkbox"]:checked::after {
   html[data-modal-open="true"] {
     cursor: default !important;
   }
+}
+
+/* hide focus ring on task items when not focused via keyboard */
+/* the focus:outline-none class on task items handles keyboard focus */
+/* but we also need to remove any programmatic focus rings */
+.task-item:focus-visible {
+  outline: none;
 }
