@@ -969,18 +969,25 @@ export function updateAccount(id: string, updates: Partial<Account>): Account | 
 export function deleteAccount(id: string): void {
   const data = loadDataStore();
   const newAccounts = data.accounts.filter(acc => acc.id !== id);
+  const deletedAccount = data.accounts.find(acc => acc.id === id);
+  const deletedCalendarIds = deletedAccount?.calendars.map(c => c.id) || [];
   
-  // Persist to SQLite
   db.deleteAccount(id).catch(e => log.error('Failed to persist account deletion:', e));
+  
+  // check if the active calendar belongs to the deleted account
+  const isActiveCalendarDeleted = deletedCalendarIds.includes(data.ui.activeCalendarId ?? '');
   
   saveDataStore({
     ...data,
     accounts: newAccounts,
     ui: {
       ...data.ui,
-      activeAccountId: data.ui.activeAccountId === id
-        ? newAccounts[0]?.id || null
-        : data.ui.activeAccountId,
+      // redirect to All Tasks view instead of another account's calendar
+      activeAccountId: isActiveCalendarDeleted ? null : (data.ui.activeAccountId === id ? null : data.ui.activeAccountId),
+      activeCalendarId: isActiveCalendarDeleted ? null : data.ui.activeCalendarId,
+      activeTagId: isActiveCalendarDeleted ? null : data.ui.activeTagId,
+      selectedTaskId: null,
+      isEditorOpen: false,
     },
     tasks: data.tasks.filter(task => task.accountId !== id),
   });
