@@ -19,9 +19,19 @@
     "core:window:allow-show",
     "dialog:default",
     "fs:default",
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [
+        {
+          "path": "$APPLOCALDATA/caldav-tasks.db"
+        }
+      ]
+    },
     "shell:allow-open",
     "notification:default",
     "sql:default",
-    "sql:allow-execute"
+    "sql:allow-execute",
+    "process:default",
+    "core:window:allow-set-focus"
   ]
 }
