@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import ChevronDown from 'lucide-react/icons/chevron-down';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import Plus from 'lucide-react/icons/plus';
@@ -60,6 +61,7 @@ const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 400;
 
 export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onToggleCollapse, onWidthChange }: SidebarProps) {
+  const queryClient = useQueryClient();
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
   const { data: uiState } = useUIState();
@@ -737,11 +739,24 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                     return;
                   }
                 }
+                // check if this is the active calendar
+                const isActiveCalendar = uiState?.activeCalendarId === contextMenu.id;
+                
                 // delete calendar from server
                 try {
                   await caldavService.deleteCalendar(contextMenu.accountId, contextMenu.id);
                   // delete calendar and its tasks from local state
                   taskData.deleteCalendar(contextMenu.accountId, contextMenu.id);
+                  
+                  // if this was the active calendar, redirect to All Tasks
+                  if (isActiveCalendar) {
+                    setAllTasksViewMutation.mutate();
+                  }
+                  
+                  // Invalidate queries to refresh UI
+                  queryClient.invalidateQueries({ queryKey: ['accounts'] });
+                  queryClient.invalidateQueries({ queryKey: ['tasks'] });
+                  queryClient.invalidateQueries({ queryKey: ['uiState'] });
                 } catch (error) {
                   log.error('Failed to delete calendar:', error);
                 }
