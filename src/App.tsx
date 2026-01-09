@@ -6,6 +6,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useFileDrop } from '@/hooks/useFileDrop';
 import { useMenuHandlers } from '@/hooks/useMenuHandlers';
 import { useAppMenu } from '@/hooks/useAppMenu';
+import { useTray } from '@/hooks/useTray';
 import { useTasks, useUIState, useAccounts } from '@/hooks/queries';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Sidebar } from '@/components/Sidebar';
@@ -39,6 +40,13 @@ function App() {
       setShowOnboarding(true);
     }
   }, [onboardingCompleted]);
+  
+  // system tray integration (sync button, status updates)
+  useTray({
+    isSyncing,
+    lastSyncTime,
+    onSyncRequest: syncAll,
+  });
 
   // app menu state synchronization
   useAppMenu();

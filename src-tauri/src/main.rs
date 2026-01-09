@@ -3,7 +3,30 @@
     windows_subsystem = "windows"
 )]
 
+use tauri::{
+    menu::{Menu, MenuItem, PredefinedMenuItem},
+    tray::{TrayIconBuilder, TrayIconEvent},
+    Emitter, Manager, RunEvent, WindowEvent,
+};
 use tauri_plugin_sql::{Builder, Migration, MigrationKind};
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+
+// global storage for the last sync menu item updater function
+lazy_static! {
+    static ref MENU_UPDATER: Mutex<Option<Box<dyn Fn(String) + Send>>> = Mutex::new(None);
+}
+
+
+#[tauri::command]
+async fn update_tray_sync_time(_app_handle: tauri::AppHandle, time_str: String) -> Result<(), String> {
+    // update the menu item via the updater closure
+    if let Some(updater) = MENU_UPDATER.lock().expect("Failed to lock MENU_UPDATER").as_ref() {
+        updater(time_str);
+    }
+    
+    Ok(())
+}
 
 fn main() {
     let migrations = vec![
@@ -172,7 +195,7 @@ fn main() {
                 ALTER TABLE tasks ADD COLUMN url TEXT;
             "#,
             kind: MigrationKind::Up,
-        }
+        },
     ];
 
     tauri::Builder::default()
@@ -186,6 +209,99 @@ fn main() {
                 .add_migrations("sqlite:caldav-tasks.db", migrations)
                 .build(),
         )
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .invoke_handler(tauri::generate_handler![update_tray_sync_time])
+        .setup(|app| {
+            let show_item = MenuItem::with_id(app, "show", "Show Window", true, None::<&str>)?;
+            
+            let separator_item1 = PredefinedMenuItem::separator(app)?;
+            
+            let last_sync_item = MenuItem::with_id(app, "last_sync", "Last sync: Never", false, None::<&str>)?;
+            let sync_item = MenuItem::with_id(app, "sync", "Sync Now", true, None::<&str>)?;
+            
+            // store a closure that can update this item
+            // cloning is required to capture menuitem reference. oh well
+            let item_clone = last_sync_item.clone();
+            *MENU_UPDATER.lock().expect("Failed to lock MENU_UPDATER") = Some(Box::new(move |text: String| {
+                let _ = item_clone.set_text(&text);
+            }));
+            
+            let separator_item2 = PredefinedMenuItem::separator(app)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+
+            // build the tray menu
+            let menu = Menu::with_items(app, &[&show_item, &separator_item1, &last_sync_item, &sync_item, &separator_item2, &quit_item])?;
+            // create tray icon
+            let _tray = TrayIconBuilder::new()
+                // unfortunately cloning is also required here due to the API ☹️
+                // Image<'_> as opposed to &Image<'_>
+                // ugh
+                .icon(app.default_window_icon().expect("No default window icon found").clone())
+                .menu(&menu)
+                .tooltip("caldav-tasks")
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "show" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            
+                            // on macOS, restore the dock icon when showing the window
+                            #[cfg(target_os = "macos")]
+                            {
+                                let _ = app.set_activation_policy(tauri::ActivationPolicy::Regular);
+                            }
+                        }
+                    }
+                    "sync" => {
+                        // emit event to frontend to trigger sync
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.emit("tray-sync", ());
+                        }
+                    }
+                    "quit" => {
+                        app.exit(0);
+                    }
+                    _ => {}
+                })
+                .on_tray_icon_event(|_tray, event| {
+                    // on macOS, clicking the tray icon shows the menu (handled automatically)
+                    // on other platforms, we could add custom behavior here if needed... hm
+                    if let TrayIconEvent::Click { .. } = event {
+                        // menu is shown automatically on click for macOS
+                        // for other platforms, you could manually show the window here if desired
+                    }
+                })
+                .build(app)?;
+
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            // hide window instead of closing when X is clicked
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                let _ = window.hide();
+                api.prevent_close();
+                
+                // on macOS, hide the dock icon when the window is hidden
+                #[cfg(target_os = "macos")]
+                {
+                    let _ = window.app_handle().set_activation_policy(tauri::ActivationPolicy::Accessory);
+                }
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|app_handle, event| {
+            // handle app reactivation (e.g., from Spotlight, Dock, Cmd+Tab)
+            if let RunEvent::Reopen { .. } = event {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    
+                    // restore the dock icon
+                    #[cfg(target_os = "macos")]
+                    {
+                        let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
+                    }
+                }
+            }
+        });
 }
