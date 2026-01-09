@@ -50,15 +50,15 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(|app_handle, event| {
-            // Handle app reactivation (e.g., from Spotlight, Dock, Cmd+Tab)
-            if let RunEvent::Reopen { .. } = event {
-                if let Some(window) = app_handle.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                    
-                    // restore the dock icon
-                    #[cfg(target_os = "macos")]
-                    {
+            // handle app reactivation (e.g., from Spotlight, Dock, Cmd+Tab)
+            #[cfg(target_os = "macos")]
+            {
+                if let RunEvent::Reopen { .. } = event {
+                    if let Some(window) = app_handle.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                        
+                        // restore the dock icon
                         let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
                     }
                 }
