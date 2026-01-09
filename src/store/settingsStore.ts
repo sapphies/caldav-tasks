@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Priority } from '@/types';
 import { createLogger } from '@/lib/logger';
+import type { Priority } from '@/types';
 
 const log = createLogger('Settings', '#d946ef');
 

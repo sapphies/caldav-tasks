@@ -1,8 +1,8 @@
+import { differenceInSeconds, isPast } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { useTasks } from '@/hooks/queries';
-import { useSettingsStore } from '@/store/settingsStore';
-import { isPast, differenceInSeconds } from 'date-fns';
 import { createLogger } from '@/lib/logger';
+import { useSettingsStore } from '@/store/settingsStore';
 
 const log = createLogger('Notifications', '#f43f5e');
 

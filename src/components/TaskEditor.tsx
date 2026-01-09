@@ -1,45 +1,45 @@
-import { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
-import X from 'lucide-react/icons/x';
-import Trash2 from 'lucide-react/icons/trash-2';
+import Bell from 'lucide-react/icons/bell';
 import Calendar from 'lucide-react/icons/calendar';
-import Clock from 'lucide-react/icons/clock';
-import Flag from 'lucide-react/icons/flag';
-import Plus from 'lucide-react/icons/plus';
 import Check from 'lucide-react/icons/check';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
-import Tag from 'lucide-react/icons/tag';
+import Clock from 'lucide-react/icons/clock';
+import Flag from 'lucide-react/icons/flag';
 import FolderSync from 'lucide-react/icons/folder-sync';
-import Bell from 'lucide-react/icons/bell';
-import Pencil from 'lucide-react/icons/pencil';
 import Link from 'lucide-react/icons/link';
+import Pencil from 'lucide-react/icons/pencil';
+import Plus from 'lucide-react/icons/plus';
+import Tag from 'lucide-react/icons/tag';
+import Trash2 from 'lucide-react/icons/trash-2';
+import X from 'lucide-react/icons/x';
+import { useEffect, useRef, useState } from 'react';
 import {
-  useUpdateTask,
+  useAccounts,
+  useAddReminder,
+  useAddTagToTask,
+  useCreateTask,
+  useDeleteSubtask,
+  useRemoveReminder,
+  useRemoveTagFromTask,
   useSetEditorOpen,
   useTags,
-  useCreateTask,
-  useAccounts,
-  useAddTagToTask,
-  useRemoveTagFromTask,
-  useAddReminder,
-  useRemoveReminder,
+  useToggleSubtaskComplete,
   useUpdateReminder,
   useUpdateSubtask,
-  useDeleteSubtask,
-  useToggleSubtaskComplete,
+  useUpdateTask,
 } from '@/hooks/queries';
+import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import * as taskData from '@/lib/taskData';
 import { useSettingsStore } from '@/store/settingsStore';
-import { Task, Priority } from '@/types';
-import { getContrastTextColor } from '../utils/color';
+import type { Priority, Task } from '@/types';
 import { filterCalDavDescription } from '@/utils/ical';
-import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { getContrastTextColor } from '../utils/color';
 import { getIconByName } from './IconPicker';
-import { SubtaskTreeItem } from './SubtaskTreeItem';
 import { DatePickerModal } from './modals/DatePickerModal';
 import { ReminderPickerModal } from './modals/ReminderPickerModal';
 import { TagPickerModal } from './modals/TagPickerModal';
-import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
+import { SubtaskTreeItem } from './SubtaskTreeItem';
 
 interface TaskEditorProps {
   task: Task;

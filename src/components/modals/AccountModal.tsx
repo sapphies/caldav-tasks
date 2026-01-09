@@ -1,15 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
-import X from 'lucide-react/icons/x';
+import { useQueryClient } from '@tanstack/react-query';
 import Info from 'lucide-react/icons/info';
 import Loader2 from 'lucide-react/icons/loader-2';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCreateAccount, useUpdateAccount, useAddCalendar } from '@/hooks/queries';
+import X from 'lucide-react/icons/x';
+import { useEffect, useRef, useState } from 'react';
+import { useAddCalendar, useCreateAccount, useUpdateAccount } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
-import { Account, ServerType, Calendar } from '@/types';
 import { caldavService } from '@/lib/caldav';
-import * as taskData from '@/lib/taskData';
-import { generateTagColor } from '@/utils/color';
 import { createLogger } from '@/lib/logger';
+import * as taskData from '@/lib/taskData';
+import type { Account, Calendar, ServerType } from '@/types';
+import { generateTagColor } from '@/utils/color';
 
 const log = createLogger('Account', '#f97316');
 

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import X from 'lucide-react/icons/x';
 import Loader2 from 'lucide-react/icons/loader-2';
+import X from 'lucide-react/icons/x';
+import { useState } from 'react';
 import { useAccounts, useUpdateAccount } from '@/hooks/queries';
-import { Calendar } from '@/types';
-import { caldavService } from '@/lib/caldav';
-import { IconPicker } from '../IconPicker';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
+import { caldavService } from '@/lib/caldav';
+import type { Calendar } from '@/types';
 import { COLOR_PRESETS } from '@/utils/constants';
+import { IconPicker } from '../IconPicker';
 
 interface CalendarModalProps {
   calendar: Calendar;

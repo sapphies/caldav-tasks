@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import X from 'lucide-react/icons/x';
+import { useEffect } from 'react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;

@@ -3,16 +3,16 @@
  * Handles syncing CalDAV data using mutations
  */
 
-import { useCallback, useState, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { caldavService } from '@/lib/caldav';
+import { createLogger } from '@/lib/logger';
 import { queryKeys } from '@/lib/queryClient';
 import * as taskData from '@/lib/taskData';
 import { useSettingsStore } from '@/store/settingsStore';
-import { caldavService } from '@/lib/caldav';
-import { Task, Calendar } from '@/types';
-import { useOffline } from '../useOffline';
+import type { Calendar, Task } from '@/types';
 import { generateTagColor } from '@/utils/color';
-import { createLogger } from '@/lib/logger';
+import { useOffline } from '../useOffline';
 
 const log = createLogger('Sync', '#06b6d4');
 

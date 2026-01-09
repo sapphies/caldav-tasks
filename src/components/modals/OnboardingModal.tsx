@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import FolderKanban from 'lucide-react/icons/folder-kanban';
-import User from 'lucide-react/icons/user';
+import ArrowRight from 'lucide-react/icons/arrow-right';
 import Calendar from 'lucide-react/icons/calendar';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
-import ArrowRight from 'lucide-react/icons/arrow-right';
+import FolderKanban from 'lucide-react/icons/folder-kanban';
 import Sparkles from 'lucide-react/icons/sparkles';
-import { ModalWrapper } from '../ModalWrapper';
-import { useSettingsStore } from '@/store/settingsStore';
+import User from 'lucide-react/icons/user';
+import { useEffect, useState } from 'react';
 import { useAccounts } from '@/hooks/queries';
+import { useSettingsStore } from '@/store/settingsStore';
+import { ModalWrapper } from '../ModalWrapper';
 
 interface OnboardingModalProps {
   onComplete: () => void;

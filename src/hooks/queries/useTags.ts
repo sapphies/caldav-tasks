@@ -2,11 +2,11 @@
  * TanStack Query hooks for tags
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { queryKeys } from '@/lib/queryClient';
 import * as taskData from '@/lib/taskData';
-import { Tag } from '@/types';
-import { useEffect } from 'react';
+import type { Tag } from '@/types';
 
 // ============================================================================
 // Query Hooks

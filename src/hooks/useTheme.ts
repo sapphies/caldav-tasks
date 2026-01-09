@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSettingsStore, applyTheme, applyAccentColor } from '@/store/settingsStore';
+import { applyAccentColor, applyTheme, useSettingsStore } from '@/store/settingsStore';
 
 /**
  * hook that applies the theme and accent color, and listens for system preference changes

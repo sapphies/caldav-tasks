@@ -2,10 +2,10 @@
  * TanStack Query hooks for UI state
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as taskData from '@/lib/taskData';
-import { SortConfig } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import * as taskData from '@/lib/taskData';
+import type { SortConfig } from '@/types';
 
 // ============================================================================
 // Query Hooks

@@ -2,7 +2,7 @@
  * Global context menu management
  * Provides a way to dismiss all context menus when clicking anywhere in the app
  */
-import { useEffect, useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // global registry of context menu close handlers
 const closeHandlers = new Set<() => void>();

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useTasks, useUIState, useAccounts } from '@/hooks/queries';
-import { useSettingsStore } from '@/store/settingsStore';
-import { updateMenuState, rebuildAppMenu } from '@/utils/menu';
+import { useAccounts, useTasks, useUIState } from '@/hooks/queries';
 import { loggers } from '@/lib/logger';
+import { useSettingsStore } from '@/store/settingsStore';
+import { rebuildAppMenu, updateMenuState } from '@/utils/menu';
 
 const log = loggers.app;
 

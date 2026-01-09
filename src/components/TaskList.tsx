@@ -1,32 +1,33 @@
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
+  type DragMoveEvent,
+  DragOverlay,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragMoveEvent,
-  DragOverlay,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import {
-  useFilteredTasks,
-  useUIState,
-  useCreateTask,
-  useSetSelectedTask,
-  useReorderTasks,
-} from '@/hooks/queries';
-import * as taskData from '@/lib/taskData';
-import { TaskItem } from './TaskItem';
 import ListTodo from 'lucide-react/icons/list-todo';
 import Plus from 'lucide-react/icons/plus';
-import { flattenTasks, FlattenedTask } from '../utils/tree';
-import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCreateTask,
+  useFilteredTasks,
+  useReorderTasks,
+  useSetSelectedTask,
+  useUIState,
+} from '@/hooks/queries';
 import { createLogger } from '@/lib/logger';
+import * as taskData from '@/lib/taskData';
+import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
+import { type FlattenedTask, flattenTasks } from '../utils/tree';
+import { TaskItem } from './TaskItem';
 
 const log = createLogger('TaskList', '#14b8a6');
+
 import { setIsKeyboardDragging } from '@/lib/dragState';
 
 // pixels of horizontal drag per indent level

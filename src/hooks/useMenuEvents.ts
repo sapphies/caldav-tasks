@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { MENU_EVENTS } from '@/utils/menu';
+import { useEffect } from 'react';
 import { useSyncQuery, useUIState } from '@/hooks/queries';
-import type { SortMode } from '@/types';
 import { createLogger } from '@/lib/logger';
+import type { SortMode } from '@/types';
+import { MENU_EVENTS } from '@/utils/menu';
 
 const log = createLogger('Menu', '#0ea5e9');
 

@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import X from 'lucide-react/icons/x';
 import RotateCcw from 'lucide-react/icons/rotate-ccw';
-import { type KeyboardShortcut } from '@/store/settingsStore';
-import { getMetaKeyLabel, getAltKeyLabel, getShiftKeyLabel } from '../../utils/keyboard';
+import X from 'lucide-react/icons/x';
+import { useEffect, useRef, useState } from 'react';
+import type { KeyboardShortcut } from '@/store/settingsStore';
+import { getAltKeyLabel, getMetaKeyLabel, getShiftKeyLabel } from '../../utils/keyboard';
 
 interface KeyboardShortcutModalProps {
   isOpen: boolean;

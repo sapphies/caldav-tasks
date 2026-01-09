@@ -1,10 +1,10 @@
-import { initializeDataStore } from '@/lib/taskData';
-import { getUIState } from '@/lib/database';
-import { initAppMenu } from '@/utils/menu';
-import { useSettingsStore } from '@/store/settingsStore';
-import { createLogger } from '@/lib/logger';
-import { remove, BaseDirectory } from '@tauri-apps/plugin-fs';
+import { BaseDirectory, remove } from '@tauri-apps/plugin-fs';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { getUIState } from '@/lib/database';
+import { createLogger } from '@/lib/logger';
+import { initializeDataStore } from '@/lib/taskData';
+import { useSettingsStore } from '@/store/settingsStore';
+import { initAppMenu } from '@/utils/menu';
 
 const log = createLogger('Bootstrap', '#a855f7');
 

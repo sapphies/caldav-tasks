@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
 import X from 'lucide-react/icons/x';
-import { useTags, useCreateTag, useUpdateTag } from '@/hooks/queries';
+import { useEffect, useRef, useState } from 'react';
+import { useCreateTag, useTags, useUpdateTag } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
-import { IconPicker, getIconByName } from '../IconPicker';
 import { COLOR_PRESETS, DEFAULT_COLOR } from '@/utils/constants';
+import { getIconByName, IconPicker } from '../IconPicker';
 
 interface TagModalProps {
   tagId: string | null;

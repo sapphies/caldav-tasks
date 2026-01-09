@@ -1,27 +1,27 @@
-import { useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useModalState } from '@/context/modalStateContext';
 import {
-  useUIState,
   useCreateTask,
-  useSetSearchQuery,
-  useToggleTaskComplete,
-  useSetSelectedTask,
-  useSetEditorOpen,
   useFilteredTasks,
+  useSetEditorOpen,
+  useSetSearchQuery,
+  useSetSelectedTask,
   useSetShowCompletedTasks,
+  useToggleTaskComplete,
+  useUIState,
 } from '@/hooks/queries';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { getIsKeyboardDragging } from '@/lib/dragState';
 import * as taskData from '@/lib/taskData';
-import { useSettingsStore, KeyboardShortcut } from '@/store/settingsStore';
+import { type KeyboardShortcut, useSettingsStore } from '@/store/settingsStore';
+import { flattenTasks } from '@/utils/tree';
 import {
   getAltKeyLabel,
   getMetaKeyLabel,
   getModifierJoiner,
   getShiftKeyLabel,
 } from '../utils/keyboard';
-import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
-import { useConfirmDialog } from '@/hooks/useConfirmDialog';
-import { useModalState } from '@/context/modalStateContext';
-import { getIsKeyboardDragging } from '@/lib/dragState';
-import { flattenTasks } from '@/utils/tree';
 
 interface UseKeyboardShortcutsOptions {
   onOpenSettings?: () => void;

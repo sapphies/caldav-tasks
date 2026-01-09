@@ -1,12 +1,12 @@
+import { emit } from '@tauri-apps/api/event';
 import {
+  CheckMenuItem,
+  IconMenuItem,
   Menu,
-  Submenu,
   MenuItem,
   PredefinedMenuItem,
-  IconMenuItem,
-  CheckMenuItem,
+  Submenu,
 } from '@tauri-apps/api/menu';
-import { emit } from '@tauri-apps/api/event';
 import { loggers } from '@/lib/logger';
 import type { KeyboardShortcut } from '@/store/settingsStore';
 
@@ -34,7 +34,7 @@ export const MENU_EVENTS = {
 } as const;
 
 // store menu item references for updates
-let menuItemRefs: {
+const menuItemRefs: {
   sync?: IconMenuItem;
   export?: IconMenuItem;
   addCalendar?: MenuItem;

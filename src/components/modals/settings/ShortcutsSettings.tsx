@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import RotateCcw from 'lucide-react/icons/rotate-ccw';
 import Pencil from 'lucide-react/icons/pencil';
-import { useSettingsStore, type KeyboardShortcut } from '@/store/settingsStore';
-import { getMetaKeyLabel, getAltKeyLabel, getShiftKeyLabel } from '@/utils/keyboard';
+import RotateCcw from 'lucide-react/icons/rotate-ccw';
+import { useState } from 'react';
+import { type KeyboardShortcut, useSettingsStore } from '@/store/settingsStore';
+import { getAltKeyLabel, getMetaKeyLabel, getShiftKeyLabel } from '@/utils/keyboard';
 import { KeyboardShortcutModal } from '../KeyboardShortcutModal';
 
 const metaKeyLabel = getMetaKeyLabel();

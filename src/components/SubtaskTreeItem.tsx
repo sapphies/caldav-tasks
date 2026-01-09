@@ -1,8 +1,8 @@
 import Check from 'lucide-react/icons/check';
-import ChevronRight from 'lucide-react/icons/chevron-right';
 import ChevronDown from 'lucide-react/icons/chevron-down';
+import ChevronRight from 'lucide-react/icons/chevron-right';
 import X from 'lucide-react/icons/x';
-import { Priority, Task } from '@/types';
+import type { Priority, Task } from '@/types';
 
 const priorityDots: Record<Priority, string> = {
   high: 'bg-red-500',

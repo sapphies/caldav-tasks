@@ -1,4 +1,11 @@
-import { useState, useRef, useEffect, useCallback, ReactNode, type CSSProperties } from 'react';
+import {
+  type CSSProperties,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useModalState } from '@/context/modalStateContext';
 

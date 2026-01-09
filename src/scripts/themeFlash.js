@@ -1,5 +1,5 @@
 // prevent flash of light mode - runs before page render
-(function () {
+(() => {
   try {
     const stored = localStorage.getItem('caldav-tasks-settings');
     let effectiveTheme = 'system';

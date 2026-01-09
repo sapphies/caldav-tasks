@@ -1,6 +1,6 @@
-import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import X from 'lucide-react/icons/x';
-import { Tag } from '@/types';
+import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
+import type { Tag } from '@/types';
 import { getIconByName } from '../IconPicker';
 
 interface TagPickerModalProps {

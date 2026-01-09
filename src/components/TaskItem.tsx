@@ -1,36 +1,36 @@
-import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable';
 import type { AnimateLayoutChanges } from '@dnd-kit/sortable';
+import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import Calendar from 'lucide-react/icons/calendar';
-import Clock from 'lucide-react/icons/clock';
 import Check from 'lucide-react/icons/check';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
-import ChevronRight from 'lucide-react/icons/chevron-right';
 import ChevronDown from 'lucide-react/icons/chevron-down';
-import Trash2 from 'lucide-react/icons/trash-2';
+import ChevronRight from 'lucide-react/icons/chevron-right';
+import Clock from 'lucide-react/icons/clock';
 import Edit2 from 'lucide-react/icons/edit-2';
-import Share2 from 'lucide-react/icons/share-2';
 import Link from 'lucide-react/icons/link';
+import Share2 from 'lucide-react/icons/share-2';
+import Trash2 from 'lucide-react/icons/trash-2';
 import { useState } from 'react';
 import {
-  useToggleTaskComplete,
-  useSetSelectedTask,
-  useUIState,
   useAccounts,
-  useSetActiveTag,
-  useSetActiveCalendar,
   useSetActiveAccount,
+  useSetActiveCalendar,
+  useSetActiveTag,
+  useSetSelectedTask,
+  useToggleTaskComplete,
+  useUIState,
 } from '@/hooks/queries';
+import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { useContextMenu } from '@/hooks/useContextMenu';
 import * as taskData from '@/lib/taskData';
 import { useSettingsStore } from '@/store/settingsStore';
-import { Task, Priority } from '@/types';
-import { ExportModal } from './modals/ExportModal';
-import { getContrastTextColor } from '../utils/color';
-import { useContextMenu } from '@/hooks/useContextMenu';
-import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
-import { pluralize } from '../utils/format';
-import { getIconByName } from './IconPicker';
+import type { Priority, Task } from '@/types';
 import { formatDueDate } from '@/utils/date';
 import { filterCalDavDescription } from '@/utils/ical';
+import { getContrastTextColor } from '../utils/color';
+import { pluralize } from '../utils/format';
+import { getIconByName } from './IconPicker';
+import { ExportModal } from './modals/ExportModal';
 
 interface TaskItemProps {
   task: Task;

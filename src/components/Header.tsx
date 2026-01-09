@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import Search from 'lucide-react/icons/search';
-import Plus from 'lucide-react/icons/plus';
-import SortAsc from 'lucide-react/icons/arrow-up-narrow-wide';
 import SortDesc from 'lucide-react/icons/arrow-down-wide-narrow';
-import RefreshCw from 'lucide-react/icons/refresh-cw';
+import SortAsc from 'lucide-react/icons/arrow-up-narrow-wide';
 import Eye from 'lucide-react/icons/eye';
 import EyeOff from 'lucide-react/icons/eye-off';
+import Plus from 'lucide-react/icons/plus';
+import RefreshCw from 'lucide-react/icons/refresh-cw';
+import Search from 'lucide-react/icons/search';
 import WifiOff from 'lucide-react/icons/wifi-off';
-import {
-  useUIState,
-  useSetSearchQuery,
-  useSetSortConfig,
-  useSetShowCompletedTasks,
-  useCreateTask,
-  useSetSelectedTask,
-} from '@/hooks/queries';
+import { useEffect, useState } from 'react';
 import { useModalState } from '@/context/modalStateContext';
-import { SortMode } from '@/types';
-import { Tooltip } from './Tooltip';
+import {
+  useCreateTask,
+  useSetSearchQuery,
+  useSetSelectedTask,
+  useSetShowCompletedTasks,
+  useSetSortConfig,
+  useUIState,
+} from '@/hooks/queries';
+import type { SortMode } from '@/types';
 import { getMetaKeyLabel, getModifierJoiner } from '../utils/keyboard';
+import { Tooltip } from './Tooltip';
 
 const sortOptions: { value: SortMode; label: string }[] = [
   { value: 'manual', label: 'Manual' },

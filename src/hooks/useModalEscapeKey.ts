@@ -1,4 +1,4 @@
-import { useEffect, useContext, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { ConfirmDialogContext } from '@/context/confirmDialogContext';
 
 // track all active modal escape handlers in order of registration

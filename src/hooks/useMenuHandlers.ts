@@ -1,13 +1,13 @@
-import { useState, useCallback, useRef } from 'react';
-import { useMenuEvents } from './useMenuEvents';
+import { useCallback, useRef, useState } from 'react';
+import type { SortMode } from '@/types';
 import {
+  useAccounts,
   useCreateTask,
   useSetSelectedTask,
-  useAccounts,
   useSetShowCompletedTasks,
   useSetSortConfig,
 } from './queries';
-import type { SortMode } from '@/types';
+import { useMenuEvents } from './useMenuEvents';
 
 export function useMenuHandlers() {
   const [showSettings, setShowSettings] = useState(false);

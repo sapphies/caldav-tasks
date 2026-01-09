@@ -4,7 +4,7 @@
  */
 
 import Database from '@tauri-apps/plugin-sql';
-import type { Task, Tag, Account, Calendar, SortConfig, Priority } from '@/types';
+import type { Account, Calendar, Priority, SortConfig, Tag, Task } from '@/types';
 import { createLogger } from './logger';
 
 const log = createLogger('Database', '#8b5cf6');

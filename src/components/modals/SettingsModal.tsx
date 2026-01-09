@@ -1,26 +1,26 @@
-import { useState } from 'react';
-import X from 'lucide-react/icons/x';
-import Keyboard from 'lucide-react/icons/keyboard';
-import RefreshCw from 'lucide-react/icons/refresh-cw';
-import Palette from 'lucide-react/icons/palette';
-import Info from 'lucide-react/icons/info';
 import Bell from 'lucide-react/icons/bell';
 import Database from 'lucide-react/icons/database';
+import Info from 'lucide-react/icons/info';
+import Keyboard from 'lucide-react/icons/keyboard';
+import ListTodo from 'lucide-react/icons/list-todo';
+import Palette from 'lucide-react/icons/palette';
+import RefreshCw from 'lucide-react/icons/refresh-cw';
 import Settings from 'lucide-react/icons/settings';
 import User from 'lucide-react/icons/user';
-import ListTodo from 'lucide-react/icons/list-todo';
+import X from 'lucide-react/icons/x';
+import { useState } from 'react';
 import { useAccounts } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import {
+  AboutSettings,
   AppearanceSettings,
   BehaviorSettings,
-  TaskDefaultsSettings,
-  NotificationSettings,
-  DataSettings,
   ConnectionsSettings,
-  SyncSettings,
+  DataSettings,
+  NotificationSettings,
   ShortcutsSettings,
-  AboutSettings,
+  SyncSettings,
+  TaskDefaultsSettings,
 } from './settings';
 
 interface SettingsModalProps {

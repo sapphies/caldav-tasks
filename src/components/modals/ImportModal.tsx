@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
-import X from 'lucide-react/icons/x';
-import Upload from 'lucide-react/icons/upload';
-import FileText from 'lucide-react/icons/file-text';
 import AlertCircle from 'lucide-react/icons/alert-circle';
 import Check from 'lucide-react/icons/check';
-import { useAccounts, useCreateTask } from '@/hooks/queries';
-import { parseIcsFile, parseJsonTasksFile } from '../../utils/ical';
-import { pluralize } from '../../utils/format';
-import type { Task, Calendar } from '@/types';
+import FileText from 'lucide-react/icons/file-text';
+import Upload from 'lucide-react/icons/upload';
+import X from 'lucide-react/icons/x';
+import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useAccounts, useCreateTask } from '@/hooks/queries';
 import { createLogger } from '@/lib/logger';
+import type { Calendar, Task } from '@/types';
+import { pluralize } from '../../utils/format';
+import { parseIcsFile, parseJsonTasksFile } from '../../utils/ical';
 
 const log = createLogger('Import', '#84cc16');
 

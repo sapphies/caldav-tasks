@@ -5,9 +5,18 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { Task, Tag, Account, Calendar, SortConfig, Priority, Subtask, Reminder } from '@/types';
-import { toAppleEpoch } from '@/utils/ical';
 import { useSettingsStore } from '@/store/settingsStore';
+import type {
+  Account,
+  Calendar,
+  Priority,
+  Reminder,
+  SortConfig,
+  Subtask,
+  Tag,
+  Task,
+} from '@/types';
+import { toAppleEpoch } from '@/utils/ical';
 import * as db from './database';
 import { loggers } from './logger';
 
@@ -641,10 +650,10 @@ export function reorderTasks(
   const effectiveIndent = targetIndent ?? overItem.depth;
 
   // Find the new parent based on the target indent
-  let newParentUid: string | undefined = undefined;
+  let newParentUid: string | undefined;
 
   if (effectiveIndent > 0) {
-    let searchStart =
+    const searchStart =
       activeIndex === overIndex
         ? activeIndex - 1
         : activeIndex < overIndex

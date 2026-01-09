@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import X from 'lucide-react/icons/x';
 import Loader2 from 'lucide-react/icons/loader-2';
+import X from 'lucide-react/icons/x';
+import { useEffect, useRef, useState } from 'react';
 import { useAddCalendar } from '@/hooks/queries';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { caldavService } from '@/lib/caldav';
-import { IconPicker } from '../IconPicker';
+import { useSettingsStore } from '@/store/settingsStore';
 import { COLOR_PRESETS } from '@/utils/constants';
+import { IconPicker } from '../IconPicker';
 
 interface CreateCalendarModalProps {
   accountId: string;

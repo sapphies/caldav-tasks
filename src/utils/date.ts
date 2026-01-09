@@ -1,10 +1,10 @@
 import {
+  differenceInCalendarDays,
   format,
+  isSameYear,
+  isThisWeek,
   isToday,
   isTomorrow,
-  isThisWeek,
-  isSameYear,
-  differenceInCalendarDays,
 } from 'date-fns';
 
 /**

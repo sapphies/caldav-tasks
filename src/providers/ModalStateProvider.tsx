@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useMemo } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { ModalStateContext } from '@/context/modalStateContext';
 
 // This provider tracks modal state and manages hover state resets

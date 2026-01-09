@@ -1,9 +1,9 @@
-import { ReactNode, useCallback, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import {
   ConfirmDialogContext,
-  ConfirmOptions,
-  ConfirmResult,
+  type ConfirmOptions,
+  type ConfirmResult,
   defaultConfirmOptions,
 } from '@/context/confirmDialogContext';
 

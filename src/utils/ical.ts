@@ -3,10 +3,10 @@
  * Replaces ical.js (~266KB) with minimal implementation for VTODO support
  */
 
-import { Task, Priority, Subtask, Reminder } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import * as taskData from '@/lib/taskData';
 import { createLogger } from '@/lib/logger';
+import * as taskData from '@/lib/taskData';
+import type { Priority, Reminder, Subtask, Task } from '@/types';
 
 const log = createLogger('iCal', '#22c55e');
 
@@ -415,13 +415,14 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
       case 'X-APPLE-COLLAPSED':
         result.isCollapsed = prop.value === '1';
         break;
-      case 'RELATED-TO':
+      case 'RELATED-TO': {
         // Only use PARENT relationship
         const relType = prop.params['RELTYPE'];
         if (!relType || relType.toUpperCase() === 'PARENT') {
           result.parentUid = prop.value;
         }
         break;
+      }
       case 'URL':
         result.url = prop.value;
         break;

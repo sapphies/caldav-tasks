@@ -1,6 +1,6 @@
+import { getIconByName } from '@/components/IconPicker';
 import { useTags } from '@/hooks/queries';
 import { useSettingsStore } from '@/store/settingsStore';
-import { getIconByName } from '@/components/IconPicker';
 import type { Priority } from '@/types';
 
 export function TaskDefaultsSettings() {

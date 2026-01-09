@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useSettingsStore } from '@/store/settingsStore';
-import { useTasks, useDeleteTask } from '@/hooks/queries';
+import { useDeleteTask, useTasks } from '@/hooks/queries';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { useSettingsStore } from '@/store/settingsStore';
 import { pluralize } from '../utils/format';
 
 export function useConfirmTaskDelete() {

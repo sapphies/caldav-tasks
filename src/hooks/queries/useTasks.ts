@@ -2,12 +2,12 @@
  * TanStack Query hooks for tasks
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { queryKeys } from '@/lib/queryClient';
 import * as taskData from '@/lib/taskData';
-import { Task, Subtask, SortConfig } from '@/types';
-import { useEffect } from 'react';
-import { FlattenedTask } from '@/utils/tree';
+import type { SortConfig, Subtask, Task } from '@/types';
+import type { FlattenedTask } from '@/utils/tree';
 
 // ============================================================================
 // Query Hooks

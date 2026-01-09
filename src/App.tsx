@@ -1,25 +1,23 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useSyncQuery } from '@/hooks/queries';
-import { useTheme } from '@/hooks/useTheme';
-import { useNotifications } from '@/hooks/useNotifications';
-import { useFileDrop } from '@/hooks/useFileDrop';
-import { useMenuHandlers } from '@/hooks/useMenuHandlers';
-import { useAppMenu } from '@/hooks/useAppMenu';
-import { useTray } from '@/hooks/useTray';
-import { useTasks, useUIState, useAccounts } from '@/hooks/queries';
-import { useSettingsStore } from '@/store/settingsStore';
-import { Sidebar } from '@/components/Sidebar';
-
-import { TaskList } from '@/components/TaskList';
-import { TaskEditor } from '@/components/TaskEditor';
+import { useCallback, useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
-import { SettingsModal } from '@/components/modals/SettingsModal';
-import { ImportModal } from '@/components/modals/ImportModal';
-import { ExportModal } from '@/components/modals/ExportModal';
 import { AccountModal } from '@/components/modals/AccountModal';
 import { CreateCalendarModal } from '@/components/modals/CreateCalendarModal';
+import { ExportModal } from '@/components/modals/ExportModal';
+import { ImportModal } from '@/components/modals/ImportModal';
 import { OnboardingModal } from '@/components/modals/OnboardingModal';
+import { SettingsModal } from '@/components/modals/SettingsModal';
+import { Sidebar } from '@/components/Sidebar';
+import { TaskEditor } from '@/components/TaskEditor';
+import { TaskList } from '@/components/TaskList';
+import { useAccounts, useSyncQuery, useTasks, useUIState } from '@/hooks/queries';
+import { useAppMenu } from '@/hooks/useAppMenu';
+import { useFileDrop } from '@/hooks/useFileDrop';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useMenuHandlers } from '@/hooks/useMenuHandlers';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useTheme } from '@/hooks/useTheme';
+import { useTray } from '@/hooks/useTray';
+import { useSettingsStore } from '@/store/settingsStore';
 import { initWebKitDragFix } from './utils/webkit';
 
 function App() {
