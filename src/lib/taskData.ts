@@ -1043,10 +1043,7 @@ export function addCalendar(accountId: string, calendarData: Partial<Calendar>):
         : acc
     ),
     tasks: updatedTasks,
-    ui: {
-      ...data.ui,
-      activeCalendarId: data.ui.activeCalendarId || calendar.id,
-    },
+    ui: data.ui,
   });
 }
 
