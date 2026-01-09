@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import X from 'lucide-react/icons/x';
+import Info from 'lucide-react/icons/info';
 import Loader2 from 'lucide-react/icons/loader-2';
 import { useCreateAccount, useUpdateAccount, useAddCalendar } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
@@ -176,9 +177,12 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
               required
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
             />
-            <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
-              Enter your server URL, e.g. https://caldav.example.com
-            </p>
+            {serverType === 'generic' && (
+              <p className="mt-2 text-xs flex flex-row text-surface-500 dark:text-surface-400">
+                <Info className="inline w-3.5 h-3.5 mr-1 text-surface-400" />
+                The app will attempt to auto-discover for base URLs.
+              </p>
+            )}
           </div>
 
           <div>

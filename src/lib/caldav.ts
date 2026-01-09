@@ -34,8 +34,27 @@ class CalDAVService {
   ): Promise<{ principalUrl: string; displayName: string }> {
     const credentials: CalDAVCredentials = { username, password };
     
-    // normalize server URL
-    const baseUrl = serverUrl.replace(/\/$/, '');
+    // normalize server URL - strip trailing slashes and common CalDAV paths
+    // This allows users to paste full URLs like https://example.org/remote.php/dav/
+    let baseUrl = serverUrl.replace(/\/$/, '');
+
+    // For generic type, extract base URL from common CalDAV path patterns
+    // This helps when users paste full DAV URLs instead of just the base URL
+    if (serverType === 'generic') {
+      const caldavPathPatterns = [
+        /\/remote\.php\/dav.*$/i, // Nextcloud
+        /\/dav\.php.*$/i, // Baikal
+        /\/caldav.*$/i, // Various servers
+        /\/\.well-known\/caldav.*$/i, // Well-known
+      ];
+
+      for (const pattern of caldavPathPatterns) {
+        if (pattern.test(baseUrl)) {
+          baseUrl = baseUrl.replace(pattern, '');
+          break;
+        }
+      }
+    }
     
     // construct principal URL based on server type
     let principalUrl: string;
