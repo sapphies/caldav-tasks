@@ -1,14 +1,8 @@
 import { useSettingsStore } from '@/store/settingsStore';
 
 export function SyncSettings() {
-  const { 
-    autoSync, 
-    setAutoSync, 
-    syncInterval, 
-    setSyncInterval,
-    syncOnStartup,
-    setSyncOnStartup,
-  } = useSettingsStore();
+  const { autoSync, setAutoSync, syncInterval, setSyncInterval, syncOnStartup, setSyncOnStartup } =
+    useSettingsStore();
 
   return (
     <div className="space-y-4">
@@ -17,19 +11,23 @@ export function SyncSettings() {
         <label className="flex items-center justify-between">
           <div>
             <span className="text-sm text-surface-700 dark:text-surface-300">Auto-sync</span>
-            <p className="text-xs text-surface-500 dark:text-surface-400">Automatically sync with CalDAV servers</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Automatically sync with CalDAV servers
+            </p>
           </div>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={autoSync}
             onChange={(e) => setAutoSync(e.target.checked)}
-            className="rounded border-surface-300 dark:border-surface-600" 
+            className="rounded border-surface-300 dark:border-surface-600"
           />
         </label>
 
         {autoSync && (
           <div>
-            <label className="block text-sm text-surface-600 dark:text-surface-400 mb-2">Sync interval</label>
+            <label className="block text-sm text-surface-600 dark:text-surface-400 mb-2">
+              Sync interval
+            </label>
             <select
               value={syncInterval.toString()}
               onChange={(e) => setSyncInterval(Number(e.target.value))}
@@ -47,13 +45,15 @@ export function SyncSettings() {
         <label className="flex items-center justify-between">
           <div>
             <span className="text-sm text-surface-700 dark:text-surface-300">Sync on startup</span>
-            <p className="text-xs text-surface-500 dark:text-surface-400">Sync immediately when app launches</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Sync immediately when app launches
+            </p>
           </div>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={syncOnStartup}
             onChange={(e) => setSyncOnStartup(e.target.checked)}
-            className="rounded border-surface-300 dark:border-surface-600" 
+            className="rounded border-surface-300 dark:border-surface-600"
           />
         </label>
       </div>

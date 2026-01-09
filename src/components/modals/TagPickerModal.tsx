@@ -32,7 +32,7 @@ export function TagPickerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-xs animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >

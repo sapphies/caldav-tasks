@@ -3,9 +3,18 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   safelist: [
     // Priority colors
-    'border-red-400', 'bg-red-50', 'dark:bg-red-900/30', 'text-red-500',
-    'border-amber-400', 'bg-amber-50', 'dark:bg-amber-900/30', 'text-amber-500',
-    'border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/30', 'text-blue-500',
+    'border-red-400',
+    'bg-red-50',
+    'dark:bg-red-900/30',
+    'text-red-500',
+    'border-amber-400',
+    'bg-amber-50',
+    'dark:bg-amber-900/30',
+    'text-amber-500',
+    'border-blue-400',
+    'bg-blue-50',
+    'dark:bg-blue-900/30',
+    'text-blue-500',
   ],
   theme: {
     extend: {

@@ -28,18 +28,18 @@ export interface Task {
   uid: string; // CalDAV UID
   etag?: string; // CalDAV ETag for sync
   href?: string; // CalDAV href
-  
+
   // core fields
   title: string;
   description: string;
   completed: boolean;
   completedAt?: Date;
-  
+
   // categorization
   tags?: string[]; // Array of tag IDs (maps to iCal CATEGORIES)
   categoryId?: string; // Raw CATEGORIES string from CalDAV (used during sync, mapped to tags)
   priority: Priority;
-  
+
   // dates
   startDate?: Date;
   startDateAllDay?: boolean; // if true, startDate is all-day (no time component)
@@ -47,20 +47,20 @@ export interface Task {
   dueDateAllDay?: boolean; // if true, dueDate is all-day (no time component)
   createdAt: Date;
   modifiedAt: Date;
-  
+
   // reminders
   reminders?: Reminder[];
-  
+
   // subtasks / checklist (deprecated - use parentUid instead)
   subtasks: Subtask[];
-  
+
   // parent-child relationship (RELATED-TO in CalDAV)
   parentUid?: string; // UID of parent task
   isCollapsed?: boolean; // Whether subtasks are collapsed in UI
-  
+
   // sorting
   sortOrder: number; // x-apple-sort-order
-  
+
   // URL (RFC 7986)
   url?: string;
 

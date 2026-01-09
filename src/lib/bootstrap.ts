@@ -67,7 +67,7 @@ export async function deleteDatabase(): Promise<void> {
     log.warn('Deleting database file...');
     await remove('caldav-tasks.db', { baseDir: BaseDirectory.AppLocalData });
     log.info('Database file deleted successfully');
-        
+
     // Relaunch the app so migrations run on the fresh database
     log.info('Relaunching app to reinitialize database...');
     await relaunch();
@@ -143,7 +143,7 @@ export function showBootstrapError(error: unknown): void {
         </div>
       </div>
     `;
-    
+
     // Add click handlers for reset button
     const resetBtn = document.getElementById('resetBtn');
     const resetConfirmSection = document.getElementById('resetConfirmSection');

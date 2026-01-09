@@ -14,10 +14,8 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
   const { data: tags = [] } = useTags();
   const createTagMutation = useCreateTag();
   const updateTagMutation = useUpdateTag();
-  
-  const existingTag = tagId 
-    ? tags.find((t) => t.id === tagId) 
-    : null;
+
+  const existingTag = tagId ? tags.find((t) => t.id === tagId) : null;
 
   const [name, setName] = useState(existingTag?.name || '');
   const [color, setColor] = useState(existingTag?.color || DEFAULT_COLOR);
@@ -52,7 +50,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-sm animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -105,7 +103,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
                 />
               ))}
             </div>
-            
+
             <div className="mt-3 flex items-center gap-2">
               <input
                 type="color"
@@ -129,7 +127,7 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
             </label>
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
-              style={{ 
+              style={{
                 backgroundColor: `${color}20`,
                 color: color,
               }}

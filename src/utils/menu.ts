@@ -1,5 +1,11 @@
-
-import { Menu, Submenu, MenuItem, PredefinedMenuItem, IconMenuItem, CheckMenuItem } from '@tauri-apps/api/menu';
+import {
+  Menu,
+  Submenu,
+  MenuItem,
+  PredefinedMenuItem,
+  IconMenuItem,
+  CheckMenuItem,
+} from '@tauri-apps/api/menu';
 import { emit } from '@tauri-apps/api/event';
 import { loggers } from '@/lib/logger';
 import type { KeyboardShortcut } from '@/store/settingsStore';
@@ -47,36 +53,39 @@ let menuItemRefs: {
  */
 function shortcutToAccelerator(shortcut?: KeyboardShortcut): string | undefined {
   if (!shortcut) return undefined;
-  
+
   const parts: string[] = [];
-  
+
   if (shortcut.meta) parts.push('CmdOrCtrl');
   if (shortcut.ctrl && !shortcut.meta) parts.push('Ctrl');
   if (shortcut.shift) parts.push('Shift');
   if (shortcut.alt) parts.push('Alt');
-  
+
   if (shortcut.key) {
     // map special keys
     const keyMap: Record<string, string> = {
-      'ArrowUp': 'Up',
-      'ArrowDown': 'Down',
-      'ArrowLeft': 'Left',
-      'ArrowRight': 'Right',
+      ArrowUp: 'Up',
+      ArrowDown: 'Down',
+      ArrowLeft: 'Left',
+      ArrowRight: 'Right',
       ' ': 'Space',
     };
     const key = keyMap[shortcut.key] || shortcut.key.toUpperCase();
     parts.push(key);
   }
-  
+
   return parts.length > 0 ? parts.join('+') : undefined;
 }
 
 /**
  * gets the accelerator for a specific shortcut ID from the shortcuts array
  */
-function getAcceleratorById(shortcuts: KeyboardShortcut[] | undefined, id: string): string | undefined {
+function getAcceleratorById(
+  shortcuts: KeyboardShortcut[] | undefined,
+  id: string,
+): string | undefined {
   if (!shortcuts) return undefined;
-  const shortcut = shortcuts.find(s => s.id === id);
+  const shortcut = shortcuts.find((s) => s.id === id);
   return shortcutToAccelerator(shortcut);
 }
 
@@ -151,7 +160,7 @@ export async function createMacMenu(options?: {
         },
       }),
       await PredefinedMenuItem.new({ item: 'Separator' }),
-      menuItemRefs.sync = await IconMenuItem.new({
+      (menuItemRefs.sync = await IconMenuItem.new({
         id: 'sync',
         text: 'Sync',
         icon: 'Refresh',
@@ -160,7 +169,7 @@ export async function createMacMenu(options?: {
         action: () => {
           emit(MENU_EVENTS.SYNC);
         },
-      }),
+      })),
       await PredefinedMenuItem.new({ item: 'Separator' }),
       await IconMenuItem.new({
         id: 'import',
@@ -171,7 +180,7 @@ export async function createMacMenu(options?: {
           emit(MENU_EVENTS.IMPORT_TASKS);
         },
       }),
-      menuItemRefs.export = await IconMenuItem.new({
+      (menuItemRefs.export = await IconMenuItem.new({
         id: 'export',
         text: 'Export...',
         icon: 'Share',
@@ -180,7 +189,7 @@ export async function createMacMenu(options?: {
         action: () => {
           emit(MENU_EVENTS.EXPORT_TASKS);
         },
-      }),
+      })),
       await PredefinedMenuItem.new({ item: 'Separator' }),
       await PredefinedMenuItem.new({
         text: 'Close Window',
@@ -233,7 +242,7 @@ export async function createMacMenu(options?: {
   const viewSubmenu = await Submenu.new({
     text: 'View',
     items: [
-      menuItemRefs.toggleCompleted = await CheckMenuItem.new({
+      (menuItemRefs.toggleCompleted = await CheckMenuItem.new({
         id: 'toggle-completed',
         text: 'Show Completed Tasks',
         accelerator: getAcceleratorById(shortcuts, 'toggle-show-completed') || 'CmdOrCtrl+Shift+H',
@@ -241,68 +250,68 @@ export async function createMacMenu(options?: {
         action: () => {
           emit(MENU_EVENTS.TOGGLE_COMPLETED);
         },
-      }),
+      })),
       await PredefinedMenuItem.new({ item: 'Separator' }),
       await Submenu.new({
         icon: 'ListView',
         text: 'Sort By',
         items: [
-          menuItemRefs.sortManual = await MenuItem.new({
+          (menuItemRefs.sortManual = await MenuItem.new({
             id: 'sort-manual',
             text: sortMode === 'manual' ? '✓ Manual' : 'Manual',
             action: () => {
               emit(MENU_EVENTS.SORT_MANUAL);
             },
-          }),
-          menuItemRefs.sortSmart = await MenuItem.new({
+          })),
+          (menuItemRefs.sortSmart = await MenuItem.new({
             id: 'sort-smart',
             text: sortMode === 'smart' ? '✓ Smart Sort' : 'Smart Sort',
             action: () => {
               emit(MENU_EVENTS.SORT_SMART);
             },
-          }),
-          menuItemRefs.sortDueDate = await MenuItem.new({
+          })),
+          (menuItemRefs.sortDueDate = await MenuItem.new({
             id: 'sort-due-date',
             text: sortMode === 'due-date' ? '✓ Due Date' : 'Due Date',
             action: () => {
               emit(MENU_EVENTS.SORT_DUE_DATE);
             },
-          }),
-          menuItemRefs.sortPriority = await MenuItem.new({
+          })),
+          (menuItemRefs.sortPriority = await MenuItem.new({
             id: 'sort-priority',
             text: sortMode === 'priority' ? '✓ Priority' : 'Priority',
             action: () => {
               emit(MENU_EVENTS.SORT_PRIORITY);
             },
-          }),
-          menuItemRefs.sortTitle = await MenuItem.new({
+          })),
+          (menuItemRefs.sortTitle = await MenuItem.new({
             id: 'sort-title',
             text: sortMode === 'title' ? '✓ Title' : 'Title',
             action: () => {
               emit(MENU_EVENTS.SORT_TITLE);
             },
-          }),
-          menuItemRefs.sortCreated = await MenuItem.new({
+          })),
+          (menuItemRefs.sortCreated = await MenuItem.new({
             id: 'sort-created',
             text: sortMode === 'created' ? '✓ Date Created' : 'Date Created',
             action: () => {
               emit(MENU_EVENTS.SORT_CREATED);
             },
-          }),
-          menuItemRefs.sortModified = await MenuItem.new({
+          })),
+          (menuItemRefs.sortModified = await MenuItem.new({
             id: 'sort-modified',
             text: sortMode === 'modified' ? '✓ Date Modified' : 'Date Modified',
             action: () => {
               emit(MENU_EVENTS.SORT_MODIFIED);
             },
-          }),
+          })),
         ],
       }),
       await PredefinedMenuItem.new({ item: 'Separator' }),
       await PredefinedMenuItem.new({
         text: 'Enter Full Screen',
         item: 'Fullscreen',
-      })
+      }),
     ],
   });
 
@@ -317,14 +326,14 @@ export async function createMacMenu(options?: {
           emit(MENU_EVENTS.ADD_ACCOUNT);
         },
       }),
-      menuItemRefs.addCalendar = await MenuItem.new({
+      (menuItemRefs.addCalendar = await MenuItem.new({
         id: 'add-calendar',
         text: 'Add Calendar...',
         enabled: false,
         action: () => {
           emit(MENU_EVENTS.ADD_CALENDAR);
         },
-      }),
+      })),
     ],
   });
 
@@ -423,26 +432,48 @@ export async function updateMenuItem(
     text?: string;
     enabled?: boolean;
     checked?: boolean;
-  }
+  },
 ): Promise<void> {
   try {
     // Use stored references instead of searching the menu
     let item: MenuItem | IconMenuItem | CheckMenuItem | undefined;
-    
+
     switch (menuId) {
-      case 'sync': item = menuItemRefs.sync; break;
-      case 'export': item = menuItemRefs.export; break;
-      case 'add-calendar': item = menuItemRefs.addCalendar; break;
-      case 'toggle-completed': item = menuItemRefs.toggleCompleted; break;
-      case 'sort-manual': item = menuItemRefs.sortManual; break;
-      case 'sort-smart': item = menuItemRefs.sortSmart; break;
-      case 'sort-due-date': item = menuItemRefs.sortDueDate; break;
-      case 'sort-priority': item = menuItemRefs.sortPriority; break;
-      case 'sort-title': item = menuItemRefs.sortTitle; break;
-      case 'sort-created': item = menuItemRefs.sortCreated; break;
-      case 'sort-modified': item = menuItemRefs.sortModified; break;
+      case 'sync':
+        item = menuItemRefs.sync;
+        break;
+      case 'export':
+        item = menuItemRefs.export;
+        break;
+      case 'add-calendar':
+        item = menuItemRefs.addCalendar;
+        break;
+      case 'toggle-completed':
+        item = menuItemRefs.toggleCompleted;
+        break;
+      case 'sort-manual':
+        item = menuItemRefs.sortManual;
+        break;
+      case 'sort-smart':
+        item = menuItemRefs.sortSmart;
+        break;
+      case 'sort-due-date':
+        item = menuItemRefs.sortDueDate;
+        break;
+      case 'sort-priority':
+        item = menuItemRefs.sortPriority;
+        break;
+      case 'sort-title':
+        item = menuItemRefs.sortTitle;
+        break;
+      case 'sort-created':
+        item = menuItemRefs.sortCreated;
+        break;
+      case 'sort-modified':
+        item = menuItemRefs.sortModified;
+        break;
     }
-    
+
     if (!item) {
       log.warn(`Item with id "${menuId}" not found in refs`);
       return;
@@ -486,21 +517,21 @@ export async function updateMenuState(options: {
   if (options.sortMode !== undefined) {
     // update sort menu items with checkmarks in text (radio button behavior)
     const sortOptions: Record<string, string> = {
-      'manual': 'Manual',
-      'smart': 'Smart Sort',
+      manual: 'Manual',
+      smart: 'Smart Sort',
       'due-date': 'Due Date',
-      'priority': 'Priority',
-      'title': 'Title',
-      'created': 'Date Created',
-      'modified': 'Date Modified',
+      priority: 'Priority',
+      title: 'Title',
+      created: 'Date Created',
+      modified: 'Date Modified',
     };
-    
+
     log.debug('Updating sort menu checkmarks, active mode:', options.sortMode);
     for (const [mode, label] of Object.entries(sortOptions)) {
       const hasCheck = mode === options.sortMode;
       log.debug(`Setting sort-${mode} to: ${hasCheck ? '✓ ' : ''}${label}`);
-      await updateMenuItem(`sort-${mode}`, { 
-        text: hasCheck ? `✓ ${label}` : label 
+      await updateMenuItem(`sort-${mode}`, {
+        text: hasCheck ? `✓ ${label}` : label,
       });
     }
   }

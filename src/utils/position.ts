@@ -1,4 +1,10 @@
-export function clampToViewport(x: number, y: number, menuWidth = 240, menuHeight = 260, padding = 8) {
+export function clampToViewport(
+  x: number,
+  y: number,
+  menuWidth = 240,
+  menuHeight = 260,
+  padding = 8,
+) {
   const maxX = Math.max(padding, window.innerWidth - menuWidth - padding);
   const maxY = Math.max(padding, window.innerHeight - menuHeight - padding);
 

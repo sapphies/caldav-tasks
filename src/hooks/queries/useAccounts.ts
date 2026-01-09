@@ -17,13 +17,13 @@ import { useEffect } from 'react';
  */
 export function useAccounts() {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       queryClient.invalidateQueries({ queryKey: queryKeys.accounts.all });
     });
   }, [queryClient]);
-  
+
   return useQuery({
     queryKey: queryKeys.accounts.all,
     queryFn: () => taskData.getAllAccounts(),
@@ -36,7 +36,7 @@ export function useAccounts() {
  */
 export function useAccount(id: string | null) {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       if (id) {
@@ -44,10 +44,10 @@ export function useAccount(id: string | null) {
       }
     });
   }, [queryClient, id]);
-  
+
   return useQuery({
     queryKey: queryKeys.accounts.byId(id || ''),
-    queryFn: () => id ? taskData.getAccountById(id) : undefined,
+    queryFn: () => (id ? taskData.getAccountById(id) : undefined),
     enabled: !!id,
     staleTime: Infinity,
   });
@@ -62,7 +62,7 @@ export function useAccount(id: string | null) {
  */
 export function useCreateAccount() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (accountInput: Partial<Account>) => {
       return Promise.resolve(taskData.createAccount(accountInput));
@@ -78,7 +78,7 @@ export function useCreateAccount() {
  */
 export function useUpdateAccount() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Account> }) => {
       return Promise.resolve(taskData.updateAccount(id, updates));
@@ -95,7 +95,7 @@ export function useUpdateAccount() {
  */
 export function useDeleteAccount() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => {
       taskData.deleteAccount(id);
@@ -113,9 +113,15 @@ export function useDeleteAccount() {
  */
 export function useAddCalendar() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ accountId, calendarData }: { accountId: string; calendarData: Partial<Calendar> }) => {
+    mutationFn: ({
+      accountId,
+      calendarData,
+    }: {
+      accountId: string;
+      calendarData: Partial<Calendar>;
+    }) => {
       taskData.addCalendar(accountId, calendarData);
       return Promise.resolve();
     },

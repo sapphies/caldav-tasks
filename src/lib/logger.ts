@@ -23,10 +23,11 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 const getDefaultMinLevel = (): LogLevel => {
   // In development (Vite), show debug logs. In production, show info+
   // Check for common development indicators
-  const isDev = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || 
-     window.location.hostname === '127.0.0.1' ||
-     window.location.port !== '');
+  const isDev =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port !== '');
   return isDev ? 'debug' : 'info';
 };
 
@@ -50,32 +51,32 @@ class Logger {
 
   private formatPrefix(_level: LogLevel): string[] {
     const parts: string[] = [];
-    
+
     if (this.options.timestamps) {
       const now = new Date();
-      const time = now.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit', 
+      const time = now.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
         second: '2-digit',
       } as Intl.DateTimeFormatOptions);
       parts.push(`%c${time}`);
     }
-    
+
     parts.push(`%c[${this.category}]`);
-    
+
     return parts;
   }
 
   private getStyles(_level: LogLevel): string[] {
     const styles: string[] = [];
-    
+
     if (this.options.timestamps) {
       styles.push('color: #9ca3af; font-weight: normal;'); // timestamp in gray
     }
-    
+
     styles.push(`color: ${this.color}; font-weight: bold;`); // category
-    
+
     return styles;
   }
 
@@ -84,11 +85,15 @@ class Logger {
 
     const prefix = this.formatPrefix(level);
     const styles = this.getStyles(level);
-    
-    const logMethod = level === 'error' ? console.error 
-      : level === 'warn' ? console.warn 
-      : level === 'debug' ? console.debug
-      : console.log;
+
+    const logMethod =
+      level === 'error'
+        ? console.error
+        : level === 'warn'
+          ? console.warn
+          : level === 'debug'
+            ? console.debug
+            : console.log;
 
     if (args.length > 0) {
       logMethod(prefix.join(' ') + ' ' + message, ...styles, ...args);
@@ -129,11 +134,11 @@ class Logger {
   /** Log with timing information */
   time<T>(label: string, fn: () => T): T {
     if (!this.shouldLog('debug')) return fn();
-    
+
     const start = performance.now();
     const result = fn();
     const duration = performance.now() - start;
-    
+
     this.debug(`${label} completed in ${duration.toFixed(2)}ms`);
     return result;
   }
@@ -141,11 +146,11 @@ class Logger {
   /** Async version of time */
   async timeAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
     if (!this.shouldLog('debug')) return fn();
-    
+
     const start = performance.now();
     const result = await fn();
     const duration = performance.now() - start;
-    
+
     this.debug(`${label} completed in ${duration.toFixed(2)}ms`);
     return result;
   }
@@ -153,7 +158,7 @@ class Logger {
 
 /**
  * Create a logger for a specific category
- * 
+ *
  * @example
  * const log = createLogger('TaskData', '#10b981');
  * log.info('Task created:', task.id);
@@ -177,12 +182,18 @@ export const loggers = {
 // Enable debug mode helper
 export function enableDebugMode(): void {
   localStorage.setItem('caldav-tasks-debug', 'true');
-  console.log('%c[Logger] Debug mode enabled. Reload to see all debug logs.', 'color: #10b981; font-weight: bold;');
+  console.log(
+    '%c[Logger] Debug mode enabled. Reload to see all debug logs.',
+    'color: #10b981; font-weight: bold;',
+  );
 }
 
 export function disableDebugMode(): void {
   localStorage.removeItem('caldav-tasks-debug');
-  console.log('%c[Logger] Debug mode disabled. Reload to hide debug logs.', 'color: #f59e0b; font-weight: bold;');
+  console.log(
+    '%c[Logger] Debug mode disabled. Reload to hide debug logs.',
+    'color: #f59e0b; font-weight: bold;',
+  );
 }
 
 // Expose to window for debugging

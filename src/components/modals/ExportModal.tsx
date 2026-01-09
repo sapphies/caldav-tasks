@@ -7,8 +7,8 @@ import ChevronDown from 'lucide-react/icons/chevron-down';
 import X from 'lucide-react/icons/x';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeTextFile } from '@tauri-apps/plugin-fs';
-import { 
-  exportTasksAsIcs, 
+import {
+  exportTasksAsIcs,
   exportTasksAsJson,
   exportTasksAsMarkdown,
   exportTasksAsCsv,
@@ -33,7 +33,14 @@ interface ExportModalProps {
   onClose: () => void;
 }
 
-export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calendars = [], calendarName, onClose }: ExportModalProps) {
+export function ExportModal({
+  tasks,
+  fileName = 'export',
+  type = 'tasks',
+  calendars = [],
+  calendarName,
+  onClose,
+}: ExportModalProps) {
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('ics');
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -45,7 +52,7 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
   // calculate subtask count based on array length (for flattened task hierarchies)
   // when tasks are passed with descendants, count all items after the first one
   const descendantCount = tasks.length > 1 ? tasks.length - 1 : 0;
-  
+
   // also count subtasks from the first task's subtasks array (for non-flattened case)
   const firstTaskSubtasks = tasks[0]?.subtasks?.length || 0;
   const totalSubtasks = descendantCount > 0 ? descendantCount : firstTaskSubtasks;
@@ -68,10 +75,10 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
     switch (type) {
       case 'all-calendars':
         return `${calendars.length} ${pluralize(calendars.length, 'calendar')}, ${tasks.length} ${pluralize(tasks.length, 'task')}`;
-      
+
       case 'single-calendar':
         return `${tasks.length} ${pluralize(tasks.length, 'task')} in ${calendarName || 'Calendar'}`;
-      
+
       case 'tasks':
       default:
         if (totalSubtasks > 0) {
@@ -141,7 +148,7 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
       setError(null);
 
       const content = getExportContent();
-      const format = formats.find(f => f.id === selectedFormat);
+      const format = formats.find((f) => f.id === selectedFormat);
       const fullFileName = `${fileName}.${format?.ext}`;
 
       try {
@@ -168,7 +175,7 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
           setExporting(false);
           return;
         }
-        
+
         // for any other error, try browser fallback
         downloadFile(content, fullFileName, `text/plain;charset=utf-8`);
         onClose();
@@ -208,7 +215,7 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
               Export Format
             </label>
             <div className="grid grid-cols-1 gap-2">
-              {formats.map(format => (
+              {formats.map((format) => (
                 <button
                   key={format.id}
                   onClick={() => setSelectedFormat(format.id)}
@@ -219,11 +226,13 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
                   }`}
                 >
                   <div className="flex-1">
-                    <div className={`font-medium ${
-                      selectedFormat === format.id
-                        ? 'text-primary-700 dark:text-primary-300'
-                        : 'text-surface-700 dark:text-surface-300'
-                    }`}>
+                    <div
+                      className={`font-medium ${
+                        selectedFormat === format.id
+                          ? 'text-primary-700 dark:text-primary-300'
+                          : 'text-surface-700 dark:text-surface-300'
+                      }`}
+                    >
                       {format.label}
                     </div>
                     <div className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
@@ -251,8 +260,12 @@ export function ExportModal({ tasks, fileName = 'export', type = 'tasks', calend
             onClick={() => setShowPreview(!showPreview)}
             className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors text-left"
           >
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Preview</span>
-            <ChevronDown className={`w-4 h-4 text-surface-500 dark:text-surface-400 transition-transform ${showPreview ? 'rotate-180' : ''}`} />
+            <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
+              Preview
+            </span>
+            <ChevronDown
+              className={`w-4 h-4 text-surface-500 dark:text-surface-400 transition-transform ${showPreview ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {showPreview && (

@@ -44,7 +44,9 @@ type SettingsSubtab =
 type SettingsSubtabInfo = { id: SettingsSubtab; label: string; icon: React.ReactNode };
 
 export function SettingsModal({ onClose, initialCategory, initialSubtab }: SettingsModalProps) {
-  const [activeCategory, setActiveCategory] = useState<SettingsCategory>(initialCategory || 'general');
+  const [activeCategory, setActiveCategory] = useState<SettingsCategory>(
+    initialCategory || 'general',
+  );
   const [activeSubtabs, setActiveSubtabs] = useState<Record<SettingsCategory, SettingsSubtab>>({
     general: initialCategory === 'general' && initialSubtab ? initialSubtab : 'behavior',
     account: initialCategory === 'account' && initialSubtab ? initialSubtab : 'connections',
@@ -104,7 +106,7 @@ export function SettingsModal({ onClose, initialCategory, initialSubtab }: Setti
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-3xl h-[80vh] flex flex-col animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -171,7 +173,9 @@ export function SettingsModal({ onClose, initialCategory, initialSubtab }: Setti
                 {currentSubtab === 'defaults' && <TaskDefaultsSettings />}
                 {currentSubtab === 'appearance' && <AppearanceSettings />}
                 {currentSubtab === 'notifications' && <NotificationSettings />}
-                {currentSubtab === 'shortcuts' && <ShortcutsSettings onEditingShortcutChange={setIsChildModalOpen} />}
+                {currentSubtab === 'shortcuts' && (
+                  <ShortcutsSettings onEditingShortcutChange={setIsChildModalOpen} />
+                )}
               </div>
             )}
 

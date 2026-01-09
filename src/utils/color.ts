@@ -39,13 +39,13 @@ export const generateTagColor = (name: string) => {
     '#8b5cf6', // violet
     '#ec4899', // pink
   ];
-  
+
   // simple hash function
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash = (hash << 5) - hash + name.charCodeAt(i);
     hash = hash & hash;
   }
-  
+
   return colors[Math.abs(hash) % colors.length];
-}
+};

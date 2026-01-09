@@ -1,16 +1,11 @@
-import Sun from 'lucide-react/icons/sun';
-import Moon from 'lucide-react/icons/moon';
 import Monitor from 'lucide-react/icons/monitor';
-import { useSettingsStore, type Theme } from '@/store/settingsStore';
+import Moon from 'lucide-react/icons/moon';
+import Sun from 'lucide-react/icons/sun';
+import { type Theme, useSettingsStore } from '@/store/settingsStore';
 import { ACCENT_COLORS } from '@/utils/constants';
 
 export function AppearanceSettings() {
-  const { 
-    theme, 
-    setTheme, 
-    accentColor, 
-    setAccentColor,
-  } = useSettingsStore();
+  const { theme, setTheme, accentColor, setAccentColor } = useSettingsStore();
 
   return (
     <div className="space-y-4">
@@ -41,7 +36,9 @@ export function AppearanceSettings() {
         </div>
 
         <div>
-          <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Accent Color</h4>
+          <h4 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">
+            Accent Color
+          </h4>
           <div className="flex gap-2">
             {ACCENT_COLORS.map((color) => (
               <button

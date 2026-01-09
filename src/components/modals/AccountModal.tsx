@@ -50,14 +50,12 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
    */
   const ensureTagExists = (tagName: string): string => {
     const currentTags = taskData.getAllTags();
-    const existing = currentTags.find(
-      t => t.name.toLowerCase() === tagName.toLowerCase()
-    );
-    
+    const existing = currentTags.find((t) => t.name.toLowerCase() === tagName.toLowerCase());
+
     if (existing) {
       return existing.id;
     }
-    
+
     const newTag = taskData.createTag({
       name: tagName,
       color: generateTagColor(tagName),
@@ -72,15 +70,18 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
     try {
       const remoteTasks = await caldavService.fetchTasks(accountId, calendar);
       log.info(`Fetched ${remoteTasks.length} tasks from ${calendar.displayName}`);
-      
+
       for (const remoteTask of remoteTasks) {
         // Extract category/tag from the task and create if needed
         let tagIds: string[] = [];
         if (remoteTask.categoryId) {
-          const categoryNames = remoteTask.categoryId.split(',').map((s: string) => s.trim()).filter(Boolean);
+          const categoryNames = remoteTask.categoryId
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
           tagIds = categoryNames.map((name: string) => ensureTagExists(name));
         }
-        
+
         // Add the task with tags
         taskData.createTask({
           ...remoteTask,
@@ -99,64 +100,76 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
 
     try {
       const effectivePassword = password || account?.password;
-      
+
       if (account) {
         // update existing account
         if (effectivePassword) {
           // test connection with new credentials before saving
           log.debug(`Testing connection to ${serverUrl}...`);
-          await caldavService.connect(account.id, serverUrl, username, effectivePassword, serverType);
+          await caldavService.connect(
+            account.id,
+            serverUrl,
+            username,
+            effectivePassword,
+            serverType,
+          );
         }
-        
-        updateAccountMutation.mutate({ id: account.id, updates: { 
-          name, 
-          serverUrl, 
-          username,
-          password: effectivePassword || account.password,
-          serverType,
-        } });
+
+        updateAccountMutation.mutate({
+          id: account.id,
+          updates: {
+            name,
+            serverUrl,
+            username,
+            password: effectivePassword || account.password,
+            serverType,
+          },
+        });
       } else {
         // for new accounts, first test connection before adding to store
         if (!effectivePassword) {
           throw new Error('Password is required');
         }
-        
+
         // create a temporary ID to test the connection
         const tempId = crypto.randomUUID();
-        
+
         log.debug(`Connecting to ${serverUrl}...`);
         await caldavService.connect(tempId, serverUrl, username, effectivePassword, serverType);
 
         log.debug(`Fetching calendars...`);
         const calendars = await caldavService.fetchCalendars(tempId);
         log.info(`Found ${calendars.length} calendars:`, calendars);
-        
+
         // connection successful - now add the account with the same ID we used for connection
-        createAccountMutation.mutate({ 
-          id: tempId,  // use the same ID so the caldavService connection maps correctly
-          name, 
-          serverUrl, 
-          username, 
-          password: effectivePassword,
-          serverType,
-        }, {
-          onSuccess: async (newAccount) => {
-            // add the fetched calendars
-            for (const calendar of calendars) {
-              addCalendarMutation.mutate({ accountId: newAccount.id, calendarData: calendar });
-            }
-            
-            // fetch tasks for each calendar
-            log.debug('Fetching tasks for all calendars...');
-            for (const calendar of calendars) {
-              await fetchTasksForCalendar(newAccount.id, calendar);
-            }
-            
-            // Invalidate task queries to refresh the UI
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-            queryClient.invalidateQueries({ queryKey: ['tags'] });
-          }
-        });
+        createAccountMutation.mutate(
+          {
+            id: tempId, // use the same ID so the caldavService connection maps correctly
+            name,
+            serverUrl,
+            username,
+            password: effectivePassword,
+            serverType,
+          },
+          {
+            onSuccess: async (newAccount) => {
+              // add the fetched calendars
+              for (const calendar of calendars) {
+                addCalendarMutation.mutate({ accountId: newAccount.id, calendarData: calendar });
+              }
+
+              // fetch tasks for each calendar
+              log.debug('Fetching tasks for all calendars...');
+              for (const calendar of calendars) {
+                await fetchTasksForCalendar(newAccount.id, calendar);
+              }
+
+              // Invalidate task queries to refresh the UI
+              queryClient.invalidateQueries({ queryKey: ['tasks'] });
+              queryClient.invalidateQueries({ queryKey: ['tags'] });
+            },
+          },
+        );
       }
 
       onClose();
@@ -170,7 +183,7 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-md animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -290,7 +303,13 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             </button>
             <button
               type="submit"
-              disabled={isLoading || !name.trim() || !serverUrl.trim() || !username.trim() || (!account && !password.trim())}
+              disabled={
+                isLoading ||
+                !name.trim() ||
+                !serverUrl.trim() ||
+                !username.trim() ||
+                (!account && !password.trim())
+              }
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}

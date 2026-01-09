@@ -17,7 +17,7 @@ export function useModalEscapeKey(onClose: () => void, options?: { isPanel?: boo
   const confirmDialogContext = useContext(ConfirmDialogContext);
   const handlerIdRef = useRef<symbol | null>(null);
   const isPanelRef = useRef(options?.isPanel ?? false);
-  
+
   useEffect(() => {
     // create a unique identifier for this handler
     const handlerId = Symbol('modal-escape-handler');

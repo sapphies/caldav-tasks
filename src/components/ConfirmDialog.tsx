@@ -46,7 +46,10 @@ export function ConfirmDialog({
     };
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true } as EventListenerOptions);
+    return () =>
+      window.removeEventListener('keydown', handleKeyDown, {
+        capture: true,
+      } as EventListenerOptions);
   }, [isOpen, onCancel, onConfirm]);
 
   if (!isOpen) return null;
@@ -76,11 +79,17 @@ export function ConfirmDialog({
       >
         <div className="flex items-start justify-between p-4 border-b border-surface-200 dark:border-surface-700 rounded-t-xl">
           <div className="flex-1 min-w-0">
-            <h2 id="confirm-dialog-title" className="text-lg font-semibold text-surface-900 dark:text-surface-100">
+            <h2
+              id="confirm-dialog-title"
+              className="text-lg font-semibold text-surface-900 dark:text-surface-100"
+            >
               {title}
             </h2>
             {subtitle && (
-              <p id="confirm-dialog-subtitle" className="text-sm text-surface-700 dark:text-surface-300 mt-1 truncate">
+              <p
+                id="confirm-dialog-subtitle"
+                className="text-sm text-surface-700 dark:text-surface-300 mt-1 truncate"
+              >
                 {subtitle}
               </p>
             )}
@@ -95,7 +104,10 @@ export function ConfirmDialog({
         </div>
 
         <div className="p-4">
-          <p id="confirm-dialog-description" className="text-sm text-surface-600 dark:text-surface-400">
+          <p
+            id="confirm-dialog-description"
+            className="text-sm text-surface-600 dark:text-surface-400"
+          >
             {message}
           </p>
         </div>

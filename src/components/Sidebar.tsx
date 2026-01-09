@@ -15,7 +15,7 @@ import Share2 from 'lucide-react/icons/share-2';
 import Upload from 'lucide-react/icons/upload';
 import PanelLeftClose from 'lucide-react/icons/panel-left-close';
 import PanelLeftOpen from 'lucide-react/icons/panel-left-open';
-import { 
+import {
   useAccounts,
   useTags,
   useUIState,
@@ -60,13 +60,20 @@ interface SidebarProps {
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 400;
 
-export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onToggleCollapse, onWidthChange }: SidebarProps) {
+export function Sidebar({
+  onOpenSettings,
+  onOpenImport,
+  isCollapsed,
+  width,
+  onToggleCollapse,
+  onWidthChange,
+}: SidebarProps) {
   const queryClient = useQueryClient();
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
   const { data: uiState } = useUIState();
   const { data: tasks = [] } = useTasks();
-  
+
   const setActiveAccountMutation = useSetActiveAccount();
   const setActiveCalendarMutation = useSetActiveCalendar();
   const setActiveTagMutation = useSetActiveTag();
@@ -79,35 +86,37 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
 
   const { isAnyModalOpen } = useModalState();
   const { confirm } = useConfirmDialog();
-  const { 
-    confirmBeforeDeleteCalendar, 
-    confirmBeforeDeleteAccount, 
+  const {
+    confirmBeforeDeleteCalendar,
+    confirmBeforeDeleteAccount,
     confirmBeforeDeleteTag,
     expandedAccountIds,
     defaultAccountsExpanded,
     toggleAccountExpanded,
     setExpandedAccountIds,
   } = useSettingsStore();
-    
+
   // Track which account IDs we've already initialized (to avoid re-processing)
   const initializedAccountIdsRef = useRef<Set<string>>(new Set(expandedAccountIds));
-      
+
   // Initialize expanded accounts: new accounts should follow defaultAccountsExpanded setting
   useEffect(() => {
-    const currentAccountIds = accounts.map(a => a.id);
-    const newAccountIds = currentAccountIds.filter(id => !initializedAccountIdsRef.current.has(id));
-    
+    const currentAccountIds = accounts.map((a) => a.id);
+    const newAccountIds = currentAccountIds.filter(
+      (id) => !initializedAccountIdsRef.current.has(id),
+    );
+
     if (newAccountIds.length > 0) {
       // Mark these accounts as initialized
-      newAccountIds.forEach(id => initializedAccountIdsRef.current.add(id));
-      
+      newAccountIds.forEach((id) => initializedAccountIdsRef.current.add(id));
+
       // If they should be expanded by default, add them to the expanded list
       if (defaultAccountsExpanded) {
         setExpandedAccountIds([...expandedAccountIds, ...newAccountIds]);
       }
     }
   }, [accounts, defaultAccountsExpanded, setExpandedAccountIds, expandedAccountIds]);
-    
+
   // Convert expandedAccountIds array to a Set for efficient lookups
   const expandedAccounts = useMemo(() => new Set(expandedAccountIds), [expandedAccountIds]);
   const [showAccountModal, setShowAccountModal] = useState(false);
@@ -119,7 +128,10 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   const [exportAccountId, setExportAccountId] = useState<string | null>(null);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
-  const [editingCalendar, setEditingCalendar] = useState<{ calendar: CalendarType; accountId: string } | null>(null);
+  const [editingCalendar, setEditingCalendar] = useState<{
+    calendar: CalendarType;
+    accountId: string;
+  } | null>(null);
   const [contextMenu, setContextMenu] = useState<{
     type: 'account' | 'calendar' | 'tag';
     id: string;
@@ -134,12 +146,12 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   // Resizing logic
   const [isResizing, setIsResizing] = useState(false);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
-  
+
   // Track transition state for smoother animations
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showExpandedContent, setShowExpandedContent] = useState(!isCollapsed);
   const [showCollapsedContent, setShowCollapsedContent] = useState(isCollapsed);
-  
+
   // Handle content visibility during transitions
   useEffect(() => {
     if (isCollapsed) {
@@ -166,7 +178,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      
+
       const newWidth = Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, e.clientX));
       onWidthChange(newWidth);
     };
@@ -203,10 +215,10 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
     e: React.MouseEvent,
     type: 'account' | 'calendar' | 'tag',
     id: string,
-    accountId?: string
+    accountId?: string,
   ) => {
     e.preventDefault();
-      // dispatch event to close other context menus first
+    // dispatch event to close other context menus first
     document.dispatchEvent(new CustomEvent('closeAllContextMenus'));
     const { x, y } = clampToViewport(e.clientX, e.clientY);
     setContextMenu({ type, id, accountId, x, y });
@@ -233,7 +245,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
 
   return (
     <>
-      <div 
+      <div
         className={`bg-surface-100 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 flex flex-col h-full relative overflow-hidden ${!isResizing ? 'transition-[width] duration-200 ease-in-out' : ''}`}
         style={{ width: isCollapsed ? 48 : width }}
         onClick={handleCloseContextMenu}
@@ -257,7 +269,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               <PanelLeftOpen className="w-5 h-5" />
             </button>
           ) : (
-            <div 
+            <div
               className={`flex items-center flex-1 px-2 transition-opacity duration-150 ${showExpandedContent ? 'opacity-100' : 'opacity-0'}`}
             >
               <h1 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2 flex-1 min-w-0">
@@ -276,226 +288,236 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
         </div>
 
         {!isCollapsed && (
-          <div className={`flex-1 flex flex-col min-h-0 transition-opacity duration-150 ${showExpandedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="flex-1 overflow-y-auto overscroll-contain">
-          <button
-            onClick={() => {
-              setAllTasksViewMutation.mutate();
-              setActiveAccountMutation.mutate(null);
-            }}
-            className={`w-full flex items-center gap-2 px-4 py-2 mb-2 text-sm transition-colors ${
-              activeCalendarId === null && activeTagId === null
-                ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
-            }`}
+          <div
+            className={`flex-1 flex flex-col min-h-0 transition-opacity duration-150 ${showExpandedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
-            <Inbox className="w-4 h-4" />
-            <span className="flex-1 text-left">All Tasks</span>
-            <span className="text-xs">
-              {getTotalActiveTaskCount()}
-            </span>
-          </button>
+            <div className="flex-1 overflow-y-auto overscroll-contain">
+              <button
+                onClick={() => {
+                  setAllTasksViewMutation.mutate();
+                  setActiveAccountMutation.mutate(null);
+                }}
+                className={`w-full flex items-center gap-2 px-4 py-2 mb-2 text-sm transition-colors ${
+                  activeCalendarId === null && activeTagId === null
+                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                    : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
+                }`}
+              >
+                <Inbox className="w-4 h-4" />
+                <span className="flex-1 text-left">All Tasks</span>
+                <span className="text-xs">{getTotalActiveTaskCount()}</span>
+              </button>
 
-          <div className="mb-4">
-            <div className="flex items-center justify-between px-4 py-2">
-              <span className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
-                Accounts
-              </span>
-              <div className="flex items-center gap-1">
-                <Tooltip content="Import tasks" position="top">
-                  <button
-                    onClick={onOpenImport}
-                    className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
-                  >
-                    <Upload className="w-4 h-4" />
-                  </button>
-                </Tooltip>
-                <Tooltip content="Add account" position="top">
-                  <button
-                    onClick={() => {
-                      setEditingAccount(null);
-                      setShowAccountModal(true);
-                    }}
-                    className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
-
-            {accounts.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
-                No accounts yet. Add one to get started.
-              </div>
-            ) : (
-              accounts.map((account) => (
-                <div key={account.id} data-context-menu>
-                  <div 
-                    onClick={() => toggleAccount(account.id)}
-                    onContextMenu={(e) => handleContextMenu(e, 'account', account.id)}
-                    className={`relative w-full flex items-center gap-2 px-4 py-1.5 text-sm ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} transition-colors group cursor-pointer`}
-                  >
-                    {expandedAccounts.has(account.id) ? (
-                      <ChevronDown className="w-4 h-4 text-surface-400 flex-shrink-0" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-surface-400 flex-shrink-0" />
-                    )}
-                    <User className="w-4 h-4 text-surface-500 dark:text-surface-400 flex-shrink-0" />
-                    <span className="flex-1 text-left truncate text-surface-700 dark:text-surface-300">
-                      {account.name}
-                    </span>
-                    <Tooltip content="Add a new calendar" position="top">
+              <div className="mb-4">
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
+                    Accounts
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Tooltip content="Import tasks" position="top">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowCreateCalendarModal(account.id);
+                        onClick={onOpenImport}
+                        className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
+                      >
+                        <Upload className="w-4 h-4" />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Add account" position="top">
+                      <button
+                        onClick={() => {
+                          setEditingAccount(null);
+                          setShowAccountModal(true);
                         }}
-                        onContextMenu={(e) => {
-                          e.stopPropagation();
-                          handleContextMenu(e, 'account', account.id);
-                        }}
-                        className={`p-1.5 rounded bg-transparent ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-600 dark:hover:text-surface-300' : ''} text-surface-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0`}
+                        className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </Tooltip>
-                    <Tooltip content="Account menu" position="top">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContextMenu(e as any, 'account', account.id);
-                        }}
-                        onContextMenu={(e) => {
-                          e.stopPropagation();
-                          handleContextMenu(e, 'account', account.id);
-                        }}
-                        className="p-1.5 rounded bg-transparent hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </Tooltip>
                   </div>
+                </div>
 
-                  {expandedAccounts.has(account.id) && (
-                    <div>
-                      {account.calendars.length === 0 ? (
-                        <div className="px-4 py-2 text-sm text-surface-500 dark:text-surface-400">
-                          No calendars yet.
+                {accounts.length === 0 ? (
+                  <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
+                    No accounts yet. Add one to get started.
+                  </div>
+                ) : (
+                  accounts.map((account) => (
+                    <div key={account.id} data-context-menu>
+                      <div
+                        onClick={() => toggleAccount(account.id)}
+                        onContextMenu={(e) => handleContextMenu(e, 'account', account.id)}
+                        className={`relative w-full flex items-center gap-2 px-4 py-1.5 text-sm ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} transition-colors group cursor-pointer`}
+                      >
+                        {expandedAccounts.has(account.id) ? (
+                          <ChevronDown className="w-4 h-4 text-surface-400 flex-shrink-0" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-surface-400 flex-shrink-0" />
+                        )}
+                        <User className="w-4 h-4 text-surface-500 dark:text-surface-400 flex-shrink-0" />
+                        <span className="flex-1 text-left truncate text-surface-700 dark:text-surface-300">
+                          {account.name}
+                        </span>
+                        <Tooltip content="Add a new calendar" position="top">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowCreateCalendarModal(account.id);
+                            }}
+                            onContextMenu={(e) => {
+                              e.stopPropagation();
+                              handleContextMenu(e, 'account', account.id);
+                            }}
+                            className={`p-1.5 rounded bg-transparent ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-600 dark:hover:text-surface-300' : ''} text-surface-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0`}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Account menu" position="top">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContextMenu(e as any, 'account', account.id);
+                            }}
+                            onContextMenu={(e) => {
+                              e.stopPropagation();
+                              handleContextMenu(e, 'account', account.id);
+                            }}
+                            className="p-1.5 rounded bg-transparent hover:bg-surface-300 dark:hover:bg-surface-600 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </Tooltip>
+                      </div>
+
+                      {expandedAccounts.has(account.id) && (
+                        <div>
+                          {account.calendars.length === 0 ? (
+                            <div className="px-4 py-2 text-sm text-surface-500 dark:text-surface-400">
+                              No calendars yet.
+                            </div>
+                          ) : (
+                            account.calendars.map((calendar) => {
+                              const CalendarIcon = getIconByName(calendar.icon || 'calendar');
+                              const isActive = activeCalendarId === calendar.id;
+                              const calendarColor = calendar.color ?? '#3b82f6';
+                              const textColor = isActive
+                                ? getContrastTextColor(calendarColor)
+                                : undefined;
+                              return (
+                                <button
+                                  key={calendar.id}
+                                  data-context-menu
+                                  onClick={() => {
+                                    setActiveAccountMutation.mutate(account.id);
+                                    setActiveCalendarMutation.mutate(calendar.id);
+                                  }}
+                                  onContextMenu={(e) =>
+                                    handleContextMenu(e, 'calendar', calendar.id, account.id)
+                                  }
+                                  className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                                    isActive
+                                      ? ''
+                                      : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
+                                  }`}
+                                  style={
+                                    isActive
+                                      ? { backgroundColor: calendarColor, color: textColor }
+                                      : undefined
+                                  }
+                                >
+                                  <CalendarIcon
+                                    className="w-4 h-4"
+                                    style={{ color: isActive ? textColor : calendarColor }}
+                                  />
+                                  <span className="flex-1 text-left truncate">
+                                    {calendar.displayName}
+                                  </span>
+                                  <span className="text-xs">{getTaskCount(calendar.id)}</span>
+                                </button>
+                              );
+                            })
+                          )}
                         </div>
-                      ) : (
-                        account.calendars.map((calendar) => {
-                          const CalendarIcon = getIconByName(calendar.icon || 'calendar');
-                          const isActive = activeCalendarId === calendar.id;
-                          const calendarColor = calendar.color ?? '#3b82f6';
-                          const textColor = isActive ? getContrastTextColor(calendarColor) : undefined;
-                          return (
-                            <button
-                              key={calendar.id}
-                              data-context-menu
-                              onClick={() => {
-                                setActiveAccountMutation.mutate(account.id);
-                                setActiveCalendarMutation.mutate(calendar.id);
-                              }}
-                              onContextMenu={(e) => handleContextMenu(e, 'calendar', calendar.id, account.id)}
-                              className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
-                                isActive
-                                  ? ''
-                                  : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
-                              }`}
-                              style={isActive ? { backgroundColor: calendarColor, color: textColor } : undefined}
-                            >
-                              <CalendarIcon 
-                                className="w-4 h-4" 
-                                style={{ color: isActive ? textColor : calendarColor }}
-                              />
-                              <span className="flex-1 text-left truncate">
-                                {calendar.displayName}
-                              </span>
-                              <span className="text-xs">
-                                {getTaskCount(calendar.id)}
-                              </span>
-                            </button>
-                          );
-                        })
                       )}
                     </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+                  ))
+                )}
+              </div>
 
-          <div className="mb-4">
-            <div className="flex items-center justify-between px-4 py-2">
-              <span className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
-                Tags
-              </span>
-              <Tooltip content="Add a new tag" position="top">
-                <button
-                  onClick={() => {
-                    setEditingTagId(null);
-                    setShowTagModal(true);
-                  }}
-                  className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </Tooltip>
+              <div className="mb-4">
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
+                    Tags
+                  </span>
+                  <Tooltip content="Add a new tag" position="top">
+                    <button
+                      onClick={() => {
+                        setEditingTagId(null);
+                        setShowTagModal(true);
+                      }}
+                      className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </Tooltip>
+                </div>
+
+                {tags.length === 0 ? (
+                  <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
+                    No tags yet.
+                  </div>
+                ) : (
+                  tags.map((tag) => {
+                    const TagIcon = getIconByName(tag.icon || 'tag');
+                    const isActive = activeTagId === tag.id;
+                    return (
+                      <button
+                        key={tag.id}
+                        data-context-menu
+                        onClick={() => setActiveTagMutation.mutate(tag.id)}
+                        onContextMenu={(e) => handleContextMenu(e, 'tag', tag.id)}
+                        className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                          isActive
+                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                            : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
+                        }`}
+                        style={
+                          isActive
+                            ? { backgroundColor: tag.color, color: getContrastTextColor(tag.color) }
+                            : undefined
+                        }
+                      >
+                        <TagIcon
+                          className="w-3.5 h-3.5"
+                          style={{ color: isActive ? getContrastTextColor(tag.color) : tag.color }}
+                        />
+                        <span className="flex-1 text-left truncate">{tag.name}</span>
+                        <span className="text-xs">{getTagTaskCount(tag.id)}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
-            {tags.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-surface-500 dark:text-surface-400">
-                No tags yet.
-              </div>
-            ) : (
-              tags.map((tag) => {
-                const TagIcon = getIconByName(tag.icon || 'tag');
-                const isActive = activeTagId === tag.id;
-                return (
-                  <button
-                    key={tag.id}
-                    data-context-menu
-                    onClick={() => setActiveTagMutation.mutate(tag.id)}
-                    onContextMenu={(e) => handleContextMenu(e, 'tag', tag.id)}
-                    className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
-                      isActive
-                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                        : `text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''}`
-                    }`}
-                    style={isActive ? { backgroundColor: tag.color, color: getContrastTextColor(tag.color) } : undefined}
-                  >
-                    <TagIcon
-                      className="w-3.5 h-3.5"
-                      style={{ color: isActive ? getContrastTextColor(tag.color) : tag.color }}
-                    />
-                    <span className="flex-1 text-left truncate">{tag.name}</span>
-                    <span className="text-xs">
-                      {getTagTaskCount(tag.id)}
-                    </span>
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        <div className="border-t border-surface-200 dark:border-surface-700 p-2 shrink-0">
-          <button 
-            onClick={() => onOpenSettings?.()}
-            className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} rounded-md transition-colors`}
-          >
-            <Settings className="w-4 h-4" />
-            Settings
-            <span className="ml-auto text-xs text-surface-400">{settingsShortcut}</span>
-          </button>
-        </div>
+            <div className="border-t border-surface-200 dark:border-surface-700 p-2 shrink-0">
+              <button
+                onClick={() => onOpenSettings?.()}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-200 dark:hover:bg-surface-700' : ''} rounded-md transition-colors`}
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+                <span className="ml-auto text-xs text-surface-400">{settingsShortcut}</span>
+              </button>
+            </div>
           </div>
         )}
 
         {/* Collapsed state - show icons for navigation */}
         {isCollapsed && (
-          <div className={`flex-1 flex flex-col items-center py-2 gap-1 overflow-y-auto transition-opacity duration-150 ${showCollapsedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div
+            className={`flex-1 flex flex-col items-center py-2 gap-1 overflow-y-auto transition-opacity duration-150 ${showCollapsedContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          >
             {/* All Tasks */}
             <Tooltip content="All Tasks" position="right">
               <button
@@ -507,17 +529,17 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                   activeCalendarId === null && activeTagId === null
                     ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
                     : 'text-surface-500 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700'
-                }`}   
+                }`}
               >
                 <Inbox className="w-5 h-5" />
               </button>
             </Tooltip>
-            
+
             {/* Separator */}
             <div className="w-6 h-px bg-surface-200 dark:bg-surface-700 my-1" />
-            
+
             {/* Calendars */}
-            {accounts.flatMap((account) => 
+            {accounts.flatMap((account) =>
               account.calendars.map((calendar) => {
                 const CalendarIcon = getIconByName(calendar.icon || 'calendar');
                 const isActive = activeCalendarId === calendar.id;
@@ -530,29 +552,40 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                         setActiveAccountMutation.mutate(account.id);
                         setActiveCalendarMutation.mutate(calendar.id);
                       }}
-                      onContextMenu={(e) => handleContextMenu(e, 'calendar', calendar.id, account.id)}
+                      onContextMenu={(e) =>
+                        handleContextMenu(e, 'calendar', calendar.id, account.id)
+                      }
                       className={`p-2 rounded-lg transition-colors ${
                         isActive
                           ? 'bg-primary-50 dark:bg-primary-900/30'
                           : 'hover:bg-surface-200 dark:hover:bg-surface-700'
                       }`}
-                      style={isActive ? { backgroundColor: calendarColor, color: getContrastTextColor(calendarColor) } : undefined}
+                      style={
+                        isActive
+                          ? {
+                              backgroundColor: calendarColor,
+                              color: getContrastTextColor(calendarColor),
+                            }
+                          : undefined
+                      }
                     >
-                      <CalendarIcon 
+                      <CalendarIcon
                         className="w-5 h-5"
-                        style={{ color: isActive ? getContrastTextColor(calendarColor) : calendarColor }}
+                        style={{
+                          color: isActive ? getContrastTextColor(calendarColor) : calendarColor,
+                        }}
                       />
                     </button>
                   </Tooltip>
                 );
-              })
+              }),
             )}
-            
+
             {/* Tags section separator */}
             {tags.length > 0 && (
               <div className="w-6 h-px bg-surface-200 dark:bg-surface-700 my-1" />
             )}
-            
+
             {/* Tags */}
             {tags.map((tag) => {
               const isActive = activeTagId === tag.id;
@@ -570,9 +603,13 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                         ? 'bg-primary-50 dark:bg-primary-900/30'
                         : 'hover:bg-surface-200 dark:hover:bg-surface-700'
                     }`}
-                    style={isActive ? { backgroundColor: tag.color, color: getContrastTextColor(tag.color) } : undefined}
+                    style={
+                      isActive
+                        ? { backgroundColor: tag.color, color: getContrastTextColor(tag.color) }
+                        : undefined
+                    }
                   >
-                    <TagIcon 
+                    <TagIcon
                       className="w-5 h-5"
                       style={{ color: isActive ? getContrastTextColor(tag.color) : tag.color }}
                     />
@@ -580,7 +617,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                 </Tooltip>
               );
             })}
-            
+
             {/* Settings at bottom */}
             <div className="mt-auto pt-2 border-t border-surface-200 dark:border-surface-700">
               <Tooltip content="Settings" position="right">
@@ -615,7 +652,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               New Calendar
             </button>
           )}
-          
+
           {contextMenu.type === 'account' && (
             <button
               onClick={() => {
@@ -629,7 +666,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               Export All Calendars
             </button>
           )}
-          
+
           {contextMenu.type === 'calendar' && (
             <button
               onClick={() => {
@@ -646,7 +683,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               Sync
             </button>
           )}
-          
+
           {contextMenu.type === 'calendar' && (
             <button
               onClick={() => {
@@ -660,7 +697,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
               Export
             </button>
           )}
-          
+
           <button
             onClick={async () => {
               if (contextMenu.type === 'account') {
@@ -687,20 +724,21 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
             <Edit2 className="w-4 h-4" />
             Edit
           </button>
-          
+
           <div className="border-t border-surface-200 dark:border-surface-700 my-1" />
           <button
             onClick={async () => {
               // Close context menu immediately before showing confirmation
               handleCloseContextMenu();
-              
+
               if (contextMenu.type === 'account') {
-                const account = accounts.find(a => a.id === contextMenu.id);
+                const account = accounts.find((a) => a.id === contextMenu.id);
                 if (confirmBeforeDeleteAccount) {
                   const confirmed = await confirm({
                     title: 'Remove account',
                     subtitle: account?.name,
-                    message: 'Are you sure? All tasks from this account will be removed from the app. They will remain on the server.',
+                    message:
+                      'Are you sure? All tasks from this account will be removed from the app. They will remain on the server.',
                     confirmLabel: 'Remove',
                     destructive: true,
                   });
@@ -710,7 +748,7 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                 }
                 deleteAccountMutation.mutate(contextMenu.id);
               } else if (contextMenu.type === 'tag') {
-                const tag = tags.find(t => t.id === contextMenu.id);
+                const tag = tags.find((t) => t.id === contextMenu.id);
                 if (confirmBeforeDeleteTag) {
                   const confirmed = await confirm({
                     title: 'Delete tag',
@@ -731,7 +769,8 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                   const confirmed = await confirm({
                     title: 'Delete calendar',
                     subtitle: calendar?.displayName,
-                    message: 'Are you sure? This calendar and all its tasks will be deleted from the server.',
+                    message:
+                      'Are you sure? This calendar and all its tasks will be deleted from the server.',
                     confirmLabel: 'Delete',
                     destructive: true,
                   });
@@ -741,18 +780,18 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
                 }
                 // check if this is the active calendar
                 const isActiveCalendar = uiState?.activeCalendarId === contextMenu.id;
-                
+
                 // delete calendar from server
                 try {
                   await caldavService.deleteCalendar(contextMenu.accountId, contextMenu.id);
                   // delete calendar and its tasks from local state
                   taskData.deleteCalendar(contextMenu.accountId, contextMenu.id);
-                  
+
                   // if this was the active calendar, redirect to All Tasks
                   if (isActiveCalendar) {
                     setAllTasksViewMutation.mutate();
                   }
-                  
+
                   // Invalidate queries to refresh UI
                   queryClient.invalidateQueries({ queryKey: ['accounts'] });
                   queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -813,14 +852,14 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
           tasks={taskData.getCalendarTasks(exportCalendarId)}
           type="single-calendar"
           calendarName={
-            accounts
-              .flatMap((a) => a.calendars)
-              .find((c) => c.id === exportCalendarId)?.displayName
+            accounts.flatMap((a) => a.calendars).find((c) => c.id === exportCalendarId)?.displayName
           }
           fileName={
             accounts
               .flatMap((a) => a.calendars)
-              .find((c) => c.id === exportCalendarId)?.displayName.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'export'
+              .find((c) => c.id === exportCalendarId)
+              ?.displayName.replace(/[^a-z0-9]/gi, '-')
+              .toLowerCase() || 'export'
           }
           onClose={() => {
             setShowExportModal(false);
@@ -835,7 +874,10 @@ export function Sidebar({ onOpenSettings, onOpenImport, isCollapsed, width, onTo
           calendars={accounts.find((a) => a.id === exportAccountId)?.calendars || []}
           type="all-calendars"
           fileName={
-            accounts.find((a) => a.id === exportAccountId)?.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'account-export'
+            accounts
+              .find((a) => a.id === exportAccountId)
+              ?.name.replace(/[^a-z0-9]/gi, '-')
+              .toLowerCase() || 'account-export'
           }
           onClose={() => {
             setShowExportModal(false);

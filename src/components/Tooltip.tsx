@@ -10,12 +10,12 @@ interface TooltipProps {
   className?: string;
 }
 
-export function Tooltip({ 
-  content, 
-  children, 
-  delay = 0, 
+export function Tooltip({
+  content,
+  children,
+  delay = 0,
   position = 'top',
-  className = '' 
+  className = '',
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -67,7 +67,10 @@ export function Tooltip({
     // keep tooltip within viewport
     const padding = 8;
     if (position === 'top' || position === 'bottom') {
-      x = Math.max(padding + tooltipWidth / 2, Math.min(x, window.innerWidth - padding - tooltipWidth / 2));
+      x = Math.max(
+        padding + tooltipWidth / 2,
+        Math.min(x, window.innerWidth - padding - tooltipWidth / 2),
+      );
     }
 
     setCoords({ x, y });
@@ -76,7 +79,7 @@ export function Tooltip({
   const showTooltip = () => {
     // Don't show tooltip when a modal or context menu is open
     if (isAnyModalOpen || isContextMenuOpen) return;
-    
+
     const show = () => {
       updatePosition();
       setIsVisible(true);
@@ -122,19 +125,27 @@ export function Tooltip({
 
   const getTransformOrigin = () => {
     switch (position) {
-      case 'top': return 'bottom center';
-      case 'bottom': return 'top center';
-      case 'left': return 'right center';
-      case 'right': return 'left center';
+      case 'top':
+        return 'bottom center';
+      case 'bottom':
+        return 'top center';
+      case 'left':
+        return 'right center';
+      case 'right':
+        return 'left center';
     }
   };
 
   const getTransform = () => {
     switch (position) {
-      case 'top': return 'translate(-50%, -100%)';
-      case 'bottom': return 'translate(-50%, 0)';
-      case 'left': return 'translate(-100%, -50%)';
-      case 'right': return 'translate(0, -50%)';
+      case 'top':
+        return 'translate(-50%, -100%)';
+      case 'bottom':
+        return 'translate(-50%, 0)';
+      case 'left':
+        return 'translate(-100%, -50%)';
+      case 'right':
+        return 'translate(0, -50%)';
     }
   };
 
@@ -150,29 +161,36 @@ export function Tooltip({
       >
         {children}
       </div>
-      {isVisible && content && createPortal(
-        <div
-          ref={tooltipRef}
-          className={`fixed z-[100] px-2 py-1 text-xs font-medium text-white bg-surface-900 dark:bg-surface-700 rounded shadow-lg pointer-events-none tooltip-anim animate-tooltip-in ${className}`}
-          style={{
-            left: coords.x,
-            top: coords.y,
-            transformOrigin: getTransformOrigin(),
-            '--tooltip-transform': getTransform(),
-          } as CSSProperties}
-        >
-          {content}
+      {isVisible &&
+        content &&
+        createPortal(
           <div
-            className={`absolute w-2 h-2 bg-surface-900 dark:bg-surface-700 rotate-45 ${
-              position === 'top' ? 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2' :
-              position === 'bottom' ? 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2' :
-              position === 'left' ? 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2' :
-              'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2'
-            }`}
-          />
-        </div>,
-        document.body
-      )}
+            ref={tooltipRef}
+            className={`fixed z-[100] px-2 py-1 text-xs font-medium text-white bg-surface-900 dark:bg-surface-700 rounded shadow-lg pointer-events-none tooltip-anim animate-tooltip-in ${className}`}
+            style={
+              {
+                left: coords.x,
+                top: coords.y,
+                transformOrigin: getTransformOrigin(),
+                '--tooltip-transform': getTransform(),
+              } as CSSProperties
+            }
+          >
+            {content}
+            <div
+              className={`absolute w-2 h-2 bg-surface-900 dark:bg-surface-700 rotate-45 ${
+                position === 'top'
+                  ? 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2'
+                  : position === 'bottom'
+                    ? 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                    : position === 'left'
+                      ? 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2'
+                      : 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2'
+              }`}
+            />
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

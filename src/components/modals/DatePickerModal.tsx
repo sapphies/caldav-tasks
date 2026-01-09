@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, addDays } from 'date-fns';
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  isToday,
+  addDays,
+} from 'date-fns';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import ChevronLeft from 'lucide-react/icons/chevron-left';
@@ -65,9 +76,8 @@ export function DatePickerModal({
 
   // Generate days of week labels based on setting
   const daysOfWeekLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-  const daysOfWeek = weekStartsOn === 1 
-    ? [...daysOfWeekLabels.slice(1), daysOfWeekLabels[0]] 
-    : daysOfWeekLabels;
+  const daysOfWeek =
+    weekStartsOn === 1 ? [...daysOfWeekLabels.slice(1), daysOfWeekLabels[0]] : daysOfWeekLabels;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -75,9 +85,8 @@ export function DatePickerModal({
 
   // Pad start of month based on week start setting
   const firstDayOfMonth = monthStart.getDay();
-  const startPadding = weekStartsOn === 1 
-    ? (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1)
-    : firstDayOfMonth;
+  const startPadding =
+    weekStartsOn === 1 ? (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1) : firstDayOfMonth;
   const paddedDays = Array(startPadding).fill(null).concat(days);
 
   const handleDayClick = (day: Date) => {
@@ -136,7 +145,7 @@ export function DatePickerModal({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-xs animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -200,7 +209,10 @@ export function DatePickerModal({
           {/* Days of week header */}
           <div className="grid grid-cols-7 gap-1 mb-2">
             {daysOfWeek.map((day) => (
-              <div key={day} className="text-center text-xs font-medium text-surface-500 dark:text-surface-400">
+              <div
+                key={day}
+                className="text-center text-xs font-medium text-surface-500 dark:text-surface-400"
+              >
                 {day}
               </div>
             ))}
@@ -224,13 +236,14 @@ export function DatePickerModal({
                   onClick={() => handleDayClick(day)}
                   className={`
                     w-8 h-8 rounded-full text-sm flex items-center justify-center transition-colors
-                    ${isSelected
-                      ? 'bg-primary-600 text-white'
-                      : isTodayDate
-                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
-                        : isCurrentMonth
-                          ? 'text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700'
-                          : 'text-surface-400 dark:text-surface-600'
+                    ${
+                      isSelected
+                        ? 'bg-primary-600 text-white'
+                        : isTodayDate
+                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
+                          : isCurrentMonth
+                            ? 'text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700'
+                            : 'text-surface-400 dark:text-surface-600'
                     }
                   `}
                 >

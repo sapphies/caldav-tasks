@@ -36,11 +36,11 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
     try {
       // only send properties that have actually changed (to server)
       const serverUpdates: { displayName?: string; color?: string } = {};
-      
+
       if (displayName !== calendar.displayName) {
         serverUpdates.displayName = displayName;
       }
-      
+
       if (color !== calendar.color) {
         serverUpdates.color = color;
       }
@@ -55,7 +55,7 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
       }
 
       let result = { failedProperties: [] as string[] };
-      
+
       // only call server if server properties changed
       if (Object.keys(serverUpdates).length > 0) {
         // update calendar on server via PROPPATCH
@@ -63,9 +63,9 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
       }
 
       // update local state (only update what succeeded + local-only fields)
-      const account = accounts.find(a => a.id === accountId);
+      const account = accounts.find((a) => a.id === accountId);
       if (account) {
-        const updatedCalendars = account.calendars.map(c => {
+        const updatedCalendars = account.calendars.map((c) => {
           if (c.id === calendar.id) {
             const updates: Partial<Calendar> = {};
             // only update displayName locally if server accepted it
@@ -87,9 +87,9 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
 
       // show warning if some properties failed
       if (result.failedProperties.length > 0) {
-        const failedNames = result.failedProperties.map(p => 
-          p === 'displayname' ? 'calendar name' : 'color'
-        ).join(' and ');
+        const failedNames = result.failedProperties
+          .map((p) => (p === 'displayname' ? 'calendar name' : 'color'))
+          .join(' and ');
         setWarning(`Server doesn't support updating ${failedNames}. Other changes were saved.`);
         return; // don't close modal so user can see the warning
       }
@@ -104,7 +104,7 @@ export function CalendarModal({ calendar, accountId, onClose }: CalendarModalPro
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-md animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >

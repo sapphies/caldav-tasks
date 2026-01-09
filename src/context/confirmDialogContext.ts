@@ -22,7 +22,10 @@ export interface ConfirmDialogContextValue {
 
 export const ConfirmDialogContext = createContext<ConfirmDialogContextValue | null>(null);
 
-export const defaultConfirmOptions: Required<Omit<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'>> & Pick<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'> = {
+export const defaultConfirmOptions: Required<
+  Omit<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'>
+> &
+  Pick<ConfirmOptions, 'alternateLabel' | 'alternateDestructive' | 'subtitle'> = {
   title: 'Confirm action',
   subtitle: undefined,
   message: 'Are you sure you want to proceed?',

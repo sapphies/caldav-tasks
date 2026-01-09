@@ -13,7 +13,12 @@ interface KeyboardShortcutModalProps {
 
 const metaKeyLabel = getMetaKeyLabel();
 
-export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: KeyboardShortcutModalProps) {
+export function KeyboardShortcutModal({
+  isOpen,
+  shortcut,
+  onClose,
+  onSave,
+}: KeyboardShortcutModalProps) {
   const [pendingShortcut, setPendingShortcut] = useState<Partial<KeyboardShortcut> | null>(null);
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -29,13 +34,13 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
   // Handle ESC key - need to use capture phase to intercept before useModalEscapeKey
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         // Use stopImmediatePropagation to prevent SettingsModal's useModalEscapeKey from also running
         e.stopImmediatePropagation();
-        
+
         if (pendingShortcut) {
           // If recording, just cancel the recording (don't close anything)
           setPendingShortcut(null);
@@ -48,7 +53,10 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
 
     // Use capture phase to intercept before SettingsModal's useModalEscapeKey
     window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true } as EventListenerOptions);
+    return () =>
+      window.removeEventListener('keydown', handleKeyDown, {
+        capture: true,
+      } as EventListenerOptions);
   }, [isOpen, pendingShortcut, onClose]);
 
   const handleKeyCapture = (e: React.KeyboardEvent) => {
@@ -103,8 +111,7 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
     if (s.shift) parts.push(getShiftKeyLabel());
     if (s.alt) parts.push(getAltKeyLabel());
     if (s.key) {
-      const keyDisplay = s.key === ' ' ? 'Space' : 
-                        s.key.length === 1 ? s.key.toUpperCase() : s.key;
+      const keyDisplay = s.key === ' ' ? 'Space' : s.key.length === 1 ? s.key.toUpperCase() : s.key;
       parts.push(keyDisplay);
     }
     return parts.join(' + ') || 'Press keys...';
@@ -145,8 +152,8 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
             <p className="text-sm text-surface-600 dark:text-surface-400">
               Press the key combination you want to use
             </p>
-            
-            <div 
+
+            <div
               ref={inputRef}
               tabIndex={0}
               onKeyDown={handleKeyCapture}
@@ -154,20 +161,24 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
             >
               {displayShortcut ? (
                 <div className="flex items-center">
-                  {formatShortcut(displayShortcut).split(' + ').map((key, idx, arr) => (
-                    <span key={idx} className="flex items-center">
-                      <kbd className={`px-3 py-2 rounded-lg text-sm font-mono shadow-sm ${
-                        pendingShortcut 
-                          ? 'bg-primary-100 dark:bg-primary-900/50 border-2 border-primary-400 dark:border-primary-600 text-primary-700 dark:text-primary-300'
-                          : 'bg-surface-100 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300'
-                      }`}>
-                        {key}
-                      </kbd>
-                      {idx < arr.length - 1 && (
-                        <span className="text-surface-400 mx-1 text-lg">+</span>
-                      )}
-                    </span>
-                  ))}
+                  {formatShortcut(displayShortcut)
+                    .split(' + ')
+                    .map((key, idx, arr) => (
+                      <span key={idx} className="flex items-center">
+                        <kbd
+                          className={`px-3 py-2 rounded-lg text-sm font-mono shadow-sm ${
+                            pendingShortcut
+                              ? 'bg-primary-100 dark:bg-primary-900/50 border-2 border-primary-400 dark:border-primary-600 text-primary-700 dark:text-primary-300'
+                              : 'bg-surface-100 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300'
+                          }`}
+                        >
+                          {key}
+                        </kbd>
+                        {idx < arr.length - 1 && (
+                          <span className="text-surface-400 mx-1 text-lg">+</span>
+                        )}
+                      </span>
+                    ))}
                 </div>
               ) : (
                 <span className="text-surface-400 dark:text-surface-500 text-sm">
@@ -188,8 +199,20 @@ export function KeyboardShortcutModal({ isOpen, shortcut, onClose, onSave }: Key
           </div>
 
           <div className="text-xs text-surface-500 dark:text-surface-400 text-center space-y-1">
-            <p>Press <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">Enter</kbd> to save</p>
-            <p>Press <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">Esc</kbd> to cancel recording</p>
+            <p>
+              Press{' '}
+              <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">
+                Enter
+              </kbd>{' '}
+              to save
+            </p>
+            <p>
+              Press{' '}
+              <kbd className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-400">
+                Esc
+              </kbd>{' '}
+              to cancel recording
+            </p>
           </div>
         </div>
 

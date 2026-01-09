@@ -1,8 +1,12 @@
 import { useAccounts } from '@/hooks/queries';
-import { useSettingsStore, type StartOfWeek, type SubtaskDeletionBehavior } from '@/store/settingsStore';
+import {
+  type StartOfWeek,
+  type SubtaskDeletionBehavior,
+  useSettingsStore,
+} from '@/store/settingsStore';
 
 export function BehaviorSettings() {
-  const { 
+  const {
     confirmBeforeDelete,
     setConfirmBeforeDelete,
     confirmBeforeDeleteCalendar,
@@ -21,13 +25,13 @@ export function BehaviorSettings() {
     setDefaultAccountsExpanded,
   } = useSettingsStore();
   const { data: accounts = [] } = useAccounts();
-  
+
   // Get all calendars from all accounts
-  const allCalendars = accounts.flatMap(account => 
-    account.calendars.map(cal => ({
+  const allCalendars = accounts.flatMap((account) =>
+    account.calendars.map((cal) => ({
       ...cal,
       accountName: account.name,
-    }))
+    })),
   );
 
   return (
@@ -35,49 +39,61 @@ export function BehaviorSettings() {
       <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Behavior</h3>
       <div className="space-y-4 rounded-lg border border-surface-200 dark:border-surface-700 p-4 bg-white dark:bg-surface-800">
         <label className="flex items-center justify-between">
-          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting tasks</span>
-          <input 
-            type="checkbox" 
+          <span className="text-sm text-surface-600 dark:text-surface-400">
+            Confirm before deleting tasks
+          </span>
+          <input
+            type="checkbox"
             checked={confirmBeforeDelete}
             onChange={(e) => setConfirmBeforeDelete(e.target.checked)}
-            className="rounded border-surface-300" 
+            className="rounded border-surface-300"
           />
         </label>
 
         <label className="flex items-center justify-between">
-          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting calendars</span>
-          <input 
-            type="checkbox" 
+          <span className="text-sm text-surface-600 dark:text-surface-400">
+            Confirm before deleting calendars
+          </span>
+          <input
+            type="checkbox"
             checked={confirmBeforeDeleteCalendar}
             onChange={(e) => setConfirmBeforeDeleteCalendar(e.target.checked)}
-            className="rounded border-surface-300" 
+            className="rounded border-surface-300"
           />
         </label>
 
         <label className="flex items-center justify-between">
-          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting accounts</span>
-          <input 
-            type="checkbox" 
+          <span className="text-sm text-surface-600 dark:text-surface-400">
+            Confirm before deleting accounts
+          </span>
+          <input
+            type="checkbox"
             checked={confirmBeforeDeleteAccount}
             onChange={(e) => setConfirmBeforeDeleteAccount(e.target.checked)}
-            className="rounded border-surface-300" 
+            className="rounded border-surface-300"
           />
         </label>
 
         <label className="flex items-center justify-between">
-          <span className="text-sm text-surface-600 dark:text-surface-400">Confirm before deleting tags</span>
-          <input 
-            type="checkbox" 
+          <span className="text-sm text-surface-600 dark:text-surface-400">
+            Confirm before deleting tags
+          </span>
+          <input
+            type="checkbox"
             checked={confirmBeforeDeleteTag}
             onChange={(e) => setConfirmBeforeDeleteTag(e.target.checked)}
-            className="rounded border-surface-300" 
+            className="rounded border-surface-300"
           />
         </label>
 
         <div>
           <div className="mb-2">
-            <p className="text-sm text-surface-700 dark:text-surface-300">When deleting a task with subtasks</p>
-            <p className="text-xs text-surface-500 dark:text-surface-400">Choose what happens to subtasks</p>
+            <p className="text-sm text-surface-700 dark:text-surface-300">
+              When deleting a task with subtasks
+            </p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Choose what happens to subtasks
+            </p>
           </div>
           <select
             value={deleteSubtasksWithParent}
@@ -92,7 +108,9 @@ export function BehaviorSettings() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-surface-700 dark:text-surface-300">Week starts on</p>
-            <p className="text-xs text-surface-500 dark:text-surface-400">Choose how dates are shown in calendars</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Choose how dates are shown in calendars
+            </p>
           </div>
           <select
             value={startOfWeek}
@@ -106,22 +124,30 @@ export function BehaviorSettings() {
 
         <label className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-surface-700 dark:text-surface-300">Expand new accounts by default</p>
-            <p className="text-xs text-surface-500 dark:text-surface-400">Show calendars when adding a new account</p>
+            <p className="text-sm text-surface-700 dark:text-surface-300">
+              Expand new accounts by default
+            </p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Show calendars when adding a new account
+            </p>
           </div>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={defaultAccountsExpanded}
             onChange={(e) => setDefaultAccountsExpanded(e.target.checked)}
-            className="rounded border-surface-300" 
+            className="rounded border-surface-300"
           />
         </label>
 
         {allCalendars.length > 0 && (
           <div>
             <div className="mb-2">
-              <p className="text-sm text-surface-700 dark:text-surface-300">Default calendar for new tasks</p>
-              <p className="text-xs text-surface-500 dark:text-surface-400">Used when creating tasks from "All Tasks" view</p>
+              <p className="text-sm text-surface-700 dark:text-surface-300">
+                Default calendar for new tasks
+              </p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">
+                Used when creating tasks from "All Tasks" view
+              </p>
             </div>
             <select
               value={defaultCalendarId || ''}

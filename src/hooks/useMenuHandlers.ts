@@ -1,13 +1,19 @@
 import { useState, useCallback, useRef } from 'react';
 import { useMenuEvents } from './useMenuEvents';
-import { useCreateTask, useSetSelectedTask, useAccounts, useSetShowCompletedTasks, useSetSortConfig } from './queries';
+import {
+  useCreateTask,
+  useSetSelectedTask,
+  useAccounts,
+  useSetShowCompletedTasks,
+  useSetSortConfig,
+} from './queries';
 import type { SortMode } from '@/types';
 
 export function useMenuHandlers() {
   const [showSettings, setShowSettings] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<{ 
-    category?: 'general' | 'account' | 'about'; 
-    subtab?: string 
+  const [settingsInitialTab, setSettingsInitialTab] = useState<{
+    category?: 'general' | 'account' | 'about';
+    subtab?: string;
   }>({});
   const [showImport, setShowImport] = useState(false);
   const [showExport, setShowExport] = useState(false);
@@ -31,14 +37,19 @@ export function useMenuHandlers() {
   const onOpenAboutRef = useRef<(() => void) | null>(null);
   const onOpenKeyboardShortcutsRef = useRef<(() => void) | null>(null);
   const onToggleCompletedRef = useRef<((currentValue: boolean) => void) | null>(null);
-  const onSetSortModeRef = useRef<((mode: SortMode, currentMode: SortMode, currentDirection: 'asc' | 'desc') => void) | null>(null);
+  const onSetSortModeRef = useRef<
+    ((mode: SortMode, currentMode: SortMode, currentDirection: 'asc' | 'desc') => void) | null
+  >(null);
 
   const handleNewTask = useCallback(() => {
-    createTaskMutation.mutate({ title: '' }, {
-      onSuccess: (task) => {
-        setSelectedTaskMutation.mutate(task.id);
-      }
-    });
+    createTaskMutation.mutate(
+      { title: '' },
+      {
+        onSuccess: (task) => {
+          setSelectedTaskMutation.mutate(task.id);
+        },
+      },
+    );
   }, [createTaskMutation, setSelectedTaskMutation]);
 
   const handleOpenSettings = useCallback(() => {
@@ -87,13 +98,19 @@ export function useMenuHandlers() {
     setShowSettings(true);
   }, []);
 
-  const handleToggleCompleted = useCallback((currentValue: boolean) => {
-    setShowCompletedMutation.mutate(!currentValue);
-  }, [setShowCompletedMutation]);
+  const handleToggleCompleted = useCallback(
+    (currentValue: boolean) => {
+      setShowCompletedMutation.mutate(!currentValue);
+    },
+    [setShowCompletedMutation],
+  );
 
-  const handleSetSortMode = useCallback((mode: SortMode, _currentMode: SortMode, currentDirection: 'asc' | 'desc') => {
-    setSortConfigMutation.mutate({ mode, direction: currentDirection });
-  }, [setSortConfigMutation]);
+  const handleSetSortMode = useCallback(
+    (mode: SortMode, _currentMode: SortMode, currentDirection: 'asc' | 'desc') => {
+      setSortConfigMutation.mutate({ mode, direction: currentDirection });
+    },
+    [setSortConfigMutation],
+  );
 
   // Update refs with latest callbacks
   onNewTaskRef.current = handleNewTask;
@@ -131,7 +148,7 @@ export function useMenuHandlers() {
     showAccountModal,
     showCreateCalendar,
     settingsInitialTab,
-    
+
     // Modal controls
     setShowSettings,
     setShowImport,
@@ -139,7 +156,7 @@ export function useMenuHandlers() {
     setShowAccountModal,
     setShowCreateCalendar,
     setSettingsInitialTab,
-    
+
     // Handlers
     handleOpenSettings,
   };

@@ -15,15 +15,15 @@ export function useConfirmTaskDelete() {
       if (!taskId) return false;
 
       // Find the task and count its descendants
-      const task = tasks.find(t => t.id === taskId);
+      const task = tasks.find((t) => t.id === taskId);
       if (!task) return false;
 
       // Count all descendants recursively
       const countAllDescendants = (parentUid: string): number => {
-        const children = tasks.filter(t => t.parentUid === parentUid);
+        const children = tasks.filter((t) => t.parentUid === parentUid);
         return children.reduce((acc, child) => acc + 1 + countAllDescendants(child.uid), 0);
       };
-      
+
       const descendantCount = countAllDescendants(task.uid);
       const deleteChildren = deleteSubtasksWithParent === 'delete';
 
@@ -43,7 +43,7 @@ export function useConfirmTaskDelete() {
           message = `This task has ${descendantCount} ${pluralize(descendantCount, 'subtask')} that will be kept. This cannot be undone.`;
         }
       }
-      
+
       const confirmed = await confirm({
         title: 'Delete task',
         subtitle: task.title ?? 'Untitled task',
@@ -52,13 +52,13 @@ export function useConfirmTaskDelete() {
         cancelLabel: 'Cancel',
         destructive: true,
       });
-      
+
       if (!confirmed) return false;
 
       deleteTaskMutation.mutate({ id: taskId, deleteChildren });
       return true;
     },
-    [confirmBeforeDelete, deleteSubtasksWithParent, deleteTaskMutation, confirm, tasks]
+    [confirmBeforeDelete, deleteSubtasksWithParent, deleteTaskMutation, confirm, tasks],
   );
 
   return { confirmAndDelete };

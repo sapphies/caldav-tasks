@@ -17,13 +17,13 @@ import { useEffect } from 'react';
  */
 export function useTags() {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tags.all });
     });
   }, [queryClient]);
-  
+
   return useQuery({
     queryKey: queryKeys.tags.all,
     queryFn: () => taskData.getAllTags(),
@@ -36,7 +36,7 @@ export function useTags() {
  */
 export function useTag(id: string | null) {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       if (id) {
@@ -44,10 +44,10 @@ export function useTag(id: string | null) {
       }
     });
   }, [queryClient, id]);
-  
+
   return useQuery({
     queryKey: queryKeys.tags.byId(id || ''),
-    queryFn: () => id ? taskData.getTagById(id) : undefined,
+    queryFn: () => (id ? taskData.getTagById(id) : undefined),
     enabled: !!id,
     staleTime: Infinity,
   });
@@ -58,7 +58,7 @@ export function useTag(id: string | null) {
  */
 export function useTasksByTag(tagId: string | null) {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       if (tagId) {
@@ -66,10 +66,10 @@ export function useTasksByTag(tagId: string | null) {
       }
     });
   }, [queryClient, tagId]);
-  
+
   return useQuery({
     queryKey: queryKeys.tasks.byTag(tagId || ''),
-    queryFn: () => tagId ? taskData.getTasksByTag(tagId) : [],
+    queryFn: () => (tagId ? taskData.getTasksByTag(tagId) : []),
     enabled: !!tagId,
     staleTime: Infinity,
   });
@@ -84,7 +84,7 @@ export function useTasksByTag(tagId: string | null) {
  */
 export function useCreateTag() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (tagInput: Partial<Tag>) => {
       return Promise.resolve(taskData.createTag(tagInput));
@@ -100,7 +100,7 @@ export function useCreateTag() {
  */
 export function useUpdateTag() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Tag> }) => {
       return Promise.resolve(taskData.updateTag(id, updates));
@@ -117,7 +117,7 @@ export function useUpdateTag() {
  */
 export function useDeleteTag() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => {
       taskData.deleteTag(id);

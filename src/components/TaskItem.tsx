@@ -11,8 +11,8 @@ import Edit2 from 'lucide-react/icons/edit-2';
 import Share2 from 'lucide-react/icons/share-2';
 import Link from 'lucide-react/icons/link';
 import { useState } from 'react';
-import { 
-  useToggleTaskComplete, 
+import {
+  useToggleTaskComplete,
   useSetSelectedTask,
   useUIState,
   useAccounts,
@@ -56,7 +56,8 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
   const setActiveCalendarMutation = useSetActiveCalendar();
   const setActiveAccountMutation = useSetActiveAccount();
   const { accentColor } = useSettingsStore();
-  const { contextMenu, handleContextMenu, handleCloseContextMenu, setContextMenu } = useContextMenu();
+  const { contextMenu, handleContextMenu, handleCloseContextMenu, setContextMenu } =
+    useContextMenu();
   const [showExportModal, setShowExportModal] = useState(false);
   const { confirmAndDelete } = useConfirmTaskDelete();
 
@@ -71,7 +72,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
   const totalSubtasks = task.subtasks.length;
 
   // helper to get tag by id
-  const getTagById = (tagId: string) => taskData.getTags().find(t => t.id === tagId);
+  const getTagById = (tagId: string) => taskData.getTags().find((t) => t.id === tagId);
 
   // Custom animateLayoutChanges: disable animation when the drag ends (wasDragging transitions to false)
   // This prevents the "items crossing each other" animation glitch
@@ -86,13 +87,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
   };
 
   // pass ancestorIds as data so it can be accessed in handleDragEnd
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
     id: task.id,
     disabled: !isDragEnabled,
     data: { ancestorIds },
@@ -111,7 +106,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
   };
 
   const isSelected = selectedTaskId === task.id;
-  const taskTags = (task.tags || []).map(tagId => getTagById(tagId)).filter(Boolean);
+  const taskTags = (task.tags || []).map((tagId) => getTagById(tagId)).filter(Boolean);
   const calendar = accounts.flatMap((a) => a.calendars).find((c) => c.id === task.calendarId);
   const showCalendar = activeCalendarId === null && calendar;
   const calendarColor = calendar?.color ?? '#475569';
@@ -119,8 +114,10 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
 
   const handleClick = (e: React.MouseEvent) => {
     // don't select if clicking the checkbox or collapse button
-    if ((e.target as HTMLElement).closest('.task-checkbox-wrapper') ||
-        (e.target as HTMLElement).closest('.collapse-button')) {
+    if (
+      (e.target as HTMLElement).closest('.task-checkbox-wrapper') ||
+      (e.target as HTMLElement).closest('.collapse-button')
+    ) {
       return;
     }
     setSelectedTaskMutation.mutate(task.id);
@@ -157,7 +154,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
 
   // calculate left margin based on depth
   const marginLeft = depth * 24; // 24px per level
-  const paddingLeft = 12 + (depth * 4);
+  const paddingLeft = 12 + depth * 4;
 
   return (
     <>
@@ -182,28 +179,33 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
           <button
             className={`
               w-5 h-5 rounded border-2 flex items-center justify-center transition-all
-              ${task.completed 
-                ? 'bg-primary-500 border-primary-500' 
-                : 'border-surface-300 dark:border-surface-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30'
+              ${
+                task.completed
+                  ? 'bg-primary-500 border-primary-500'
+                  : 'border-surface-300 dark:border-surface-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30'
               }
             `}
           >
-            {task.completed && <Check className="w-4 h-4" style={{ color: checkmarkColor }} strokeWidth={3} />}
+            {task.completed && (
+              <Check className="w-4 h-4" style={{ color: checkmarkColor }} strokeWidth={3} />
+            )}
           </button>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div className={`text-sm font-medium leading-5 truncate flex-1 min-w-0 ${task.completed ? 'line-through text-surface-400' : 'text-surface-800 dark:text-surface-200'}`}>
+            <div
+              className={`text-sm font-medium leading-5 truncate flex-1 min-w-0 ${task.completed ? 'line-through text-surface-400' : 'text-surface-800 dark:text-surface-200'}`}
+            >
               {task.title || <span className="text-surface-400 italic">Untitled task</span>}
             </div>
 
             {dueDateDisplay && (
-              <span 
+              <span
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0"
-                style={{ 
+                style={{
                   backgroundColor: dueDateDisplay.bgColor,
-                  color: dueDateDisplay.textColor
+                  color: dueDateDisplay.textColor,
                 }}
               >
                 <Clock className="w-3 h-3" />
@@ -213,12 +215,18 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
           </div>
 
           {filterCalDavDescription(task.description) && (
-            <div className={`text-xs mt-1 line-clamp-1 ${task.completed ? 'text-surface-400 dark:text-surface-500' : 'text-surface-500 dark:text-surface-400'}`}>
+            <div
+              className={`text-xs mt-1 line-clamp-1 ${task.completed ? 'text-surface-400 dark:text-surface-500' : 'text-surface-500 dark:text-surface-400'}`}
+            >
               {filterCalDavDescription(task.description)}
             </div>
           )}
 
-          {(taskTags.length > 0 || showCalendar || totalSubtasks > 0 || childCount > 0 || task.url) && (
+          {(taskTags.length > 0 ||
+            showCalendar ||
+            totalSubtasks > 0 ||
+            childCount > 0 ||
+            task.url) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {task.url && (
                 <a
@@ -232,7 +240,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                   URL
                 </a>
               )}
-              
+
               {taskTags.map((tag) => {
                 if (!tag) return null;
                 const TagIcon = getIconByName(tag.icon || 'tag');
@@ -244,7 +252,7 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                       setActiveTagMutation.mutate(tag.id);
                     }}
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium hover:opacity-80 transition-opacity border"
-                    style={{ 
+                    style={{
                       borderColor: tag.color,
                       backgroundColor: `${tag.color}15`,
                       color: tag.color,
@@ -261,8 +269,8 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                   onClick={(e) => {
                     e.stopPropagation();
                     // Find the account that owns this calendar
-                    const account = accounts.find(a => 
-                      a.calendars.some(c => c.id === calendar.id)
+                    const account = accounts.find((a) =>
+                      a.calendars.some((c) => c.id === calendar.id),
                     );
                     if (account) {
                       setActiveAccountMutation.mutate(account.id);
@@ -270,10 +278,10 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                     setActiveCalendarMutation.mutate(calendar.id);
                   }}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border hover:opacity-80 transition-opacity"
-                  style={{ 
+                  style={{
                     borderColor: calendarColor,
                     backgroundColor: `${calendarColor}15`,
-                    color: calendarColor 
+                    color: calendarColor,
                   }}
                 >
                   <Calendar className="w-3 h-3" />
@@ -296,12 +304,16 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                   {task.isCollapsed ? (
                     <>
                       <ChevronRight className="w-3 h-3" />
-                      <span>{childCount} {pluralize(childCount, 'subtask')}</span>
+                      <span>
+                        {childCount} {pluralize(childCount, 'subtask')}
+                      </span>
                     </>
                   ) : (
                     <>
                       <ChevronDown className="w-3 h-3" />
-                      <span>{childCount} {pluralize(childCount, 'subtask')}</span>
+                      <span>
+                        {childCount} {pluralize(childCount, 'subtask')}
+                      </span>
                     </>
                   )}
                 </button>
@@ -315,10 +327,13 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
 
       {contextMenu && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={handleCloseContextMenu}
-            onContextMenu={(e) => { e.preventDefault(); handleCloseContextMenu(); }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleCloseContextMenu();
+            }}
           />
           <div
             data-context-menu-content
@@ -326,7 +341,10 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
             <button
-              onClick={() => { setSelectedTaskMutation.mutate(task.id); setContextMenu(null); }}
+              onClick={() => {
+                setSelectedTaskMutation.mutate(task.id);
+                setContextMenu(null);
+              }}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
             >
               <Edit2 className="w-4 h-4" />
@@ -334,7 +352,10 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
             </button>
             {/* todo: implement duplicate func. low priority rn */}
             <button
-              onClick={() => { toggleTaskCompleteMutation.mutate(task.id); setContextMenu(null); }}
+              onClick={() => {
+                toggleTaskCompleteMutation.mutate(task.id);
+                setContextMenu(null);
+              }}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
             >
               <CheckCircle2 className="w-4 h-4" />

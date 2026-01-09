@@ -1,9 +1,9 @@
+export { AboutSettings } from './AboutSettings';
 export { AppearanceSettings } from './AppearanceSettings';
 export { BehaviorSettings } from './BehaviorSettings';
-export { TaskDefaultsSettings } from './TaskDefaultsSettings';
-export { NotificationSettings } from './NotificationSettings';
-export { DataSettings } from './DataSettings';
 export { ConnectionsSettings } from './ConnectionsSettings';
-export { SyncSettings } from './SyncSettings';
+export { DataSettings } from './DataSettings';
+export { NotificationSettings } from './NotificationSettings';
 export { ShortcutsSettings } from './ShortcutsSettings';
-export { AboutSettings } from './AboutSettings';
+export { SyncSettings } from './SyncSettings';
+export { TaskDefaultsSettings } from './TaskDefaultsSettings';

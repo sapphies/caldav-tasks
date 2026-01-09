@@ -26,7 +26,13 @@ export const defaultShortcuts: KeyboardShortcut[] = [
   { id: 'sync', key: 'r', meta: true, description: 'Sync with server' },
   { id: 'delete', key: 'Backspace', meta: true, description: 'Delete selected task' },
   { id: 'toggle-complete', key: 'z', description: 'Toggle task completion' },
-  { id: 'toggle-show-completed', key: 'h', meta: true, shift: true, description: 'Toggle completed tasks' },
+  {
+    id: 'toggle-show-completed',
+    key: 'h',
+    meta: true,
+    shift: true,
+    description: 'Toggle completed tasks',
+  },
   { id: 'close', key: 'Escape', description: 'Close editor / Clear search' },
   { id: 'nav-up', key: 'ArrowUp', description: 'Navigate to previous task' },
   { id: 'nav-down', key: 'ArrowDown', description: 'Navigate to next task' },
@@ -50,7 +56,7 @@ interface SettingsStore {
   notifications: boolean;
   defaultCalendarId: string | null; // default calendar for new tasks when in "All Tasks" view
   keyboardShortcuts: KeyboardShortcut[];
-  
+
   // Task defaults
   defaultPriority: Priority;
   defaultTags: string[]; // Array of tag IDs
@@ -133,8 +139,10 @@ export const useSettingsStore = create<SettingsStore>()(
       setSyncOnStartup: (syncOnStartup) => set({ syncOnStartup }),
       setShowCompletedByDefault: (showCompletedByDefault) => set({ showCompletedByDefault }),
       setConfirmBeforeDelete: (confirmBeforeDelete) => set({ confirmBeforeDelete }),
-      setConfirmBeforeDeleteCalendar: (confirmBeforeDeleteCalendar) => set({ confirmBeforeDeleteCalendar }),
-      setConfirmBeforeDeleteAccount: (confirmBeforeDeleteAccount) => set({ confirmBeforeDeleteAccount }),
+      setConfirmBeforeDeleteCalendar: (confirmBeforeDeleteCalendar) =>
+        set({ confirmBeforeDeleteCalendar }),
+      setConfirmBeforeDeleteAccount: (confirmBeforeDeleteAccount) =>
+        set({ confirmBeforeDeleteAccount }),
       setConfirmBeforeDeleteTag: (confirmBeforeDeleteTag) => set({ confirmBeforeDeleteTag }),
       setDeleteSubtasksWithParent: (deleteSubtasksWithParent) => set({ deleteSubtasksWithParent }),
       setStartOfWeek: (startOfWeek) => set({ startOfWeek }),
@@ -143,7 +151,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setKeyboardShortcuts: (keyboardShortcuts) => set({ keyboardShortcuts }),
       updateShortcut: (id, updates) => {
         const shortcuts = get().keyboardShortcuts.map((s) =>
-          s.id === id ? { ...s, ...updates } : s
+          s.id === id ? { ...s, ...updates } : s,
         );
         set({ keyboardShortcuts: shortcuts });
       },
@@ -155,13 +163,13 @@ export const useSettingsStore = create<SettingsStore>()(
       toggleAccountExpanded: (accountId) => {
         const current = get().expandedAccountIds;
         if (current.includes(accountId)) {
-          set({ expandedAccountIds: current.filter(id => id !== accountId) });
+          set({ expandedAccountIds: current.filter((id) => id !== accountId) });
         } else {
           set({ expandedAccountIds: [...current, accountId] });
         }
       },
       setDefaultAccountsExpanded: (defaultAccountsExpanded) => set({ defaultAccountsExpanded }),
-      
+
       exportSettings: () => {
         const state = get();
         const exportData = {
@@ -191,7 +199,7 @@ export const useSettingsStore = create<SettingsStore>()(
         };
         return JSON.stringify(exportData, null, 2);
       },
-      
+
       importSettings: (json: string) => {
         try {
           const data = JSON.parse(json);
@@ -232,8 +240,8 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: 'caldav-tasks-settings',
-    }
-  )
+    },
+  ),
 );
 
 /**
@@ -241,7 +249,7 @@ export const useSettingsStore = create<SettingsStore>()(
  */
 export function applyTheme(theme: Theme): void {
   const root = document.documentElement;
-  
+
   if (theme === 'system') {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     root.classList.toggle('dark', prefersDark);
@@ -256,7 +264,7 @@ export function applyTheme(theme: Theme): void {
  */
 export function applyAccentColor(color: string): void {
   const root = document.documentElement;
-  
+
   // parse hex color to RGB
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);

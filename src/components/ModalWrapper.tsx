@@ -37,11 +37,11 @@ export function ModalWrapper({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in cursor-default"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className={`bg-white dark:bg-surface-800 rounded-xl shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] flex flex-col animate-scale-in`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -52,9 +52,7 @@ export function ModalWrapper({
                 {title}
               </h2>
               {description && (
-                <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
-                  {description}
-                </p>
+                <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">{description}</p>
               )}
             </div>
             {!preventClose && (

@@ -16,13 +16,13 @@ import { useEffect } from 'react';
  */
 export function useUIState() {
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     return taskData.subscribeToDataChanges(() => {
       queryClient.invalidateQueries({ queryKey: ['uiState'] });
     });
   }, [queryClient]);
-  
+
   return useQuery({
     queryKey: ['uiState'],
     queryFn: () => taskData.getUIState(),
@@ -103,7 +103,7 @@ export function useShowCompletedTasks() {
  */
 export function useSetActiveAccount() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string | null) => {
       taskData.setActiveAccount(id);
@@ -120,7 +120,7 @@ export function useSetActiveAccount() {
  */
 export function useSetActiveCalendar() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string | null) => {
       taskData.setActiveCalendar(id);
@@ -138,7 +138,7 @@ export function useSetActiveCalendar() {
  */
 export function useSetActiveTag() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string | null) => {
       taskData.setActiveTag(id);
@@ -156,7 +156,7 @@ export function useSetActiveTag() {
  */
 export function useSetAllTasksView() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: () => {
       taskData.setAllTasksView();
@@ -174,7 +174,7 @@ export function useSetAllTasksView() {
  */
 export function useSetSelectedTask() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string | null) => {
       taskData.setSelectedTask(id);
@@ -191,7 +191,7 @@ export function useSetSelectedTask() {
  */
 export function useSetEditorOpen() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (open: boolean) => {
       taskData.setEditorOpen(open);
@@ -208,7 +208,7 @@ export function useSetEditorOpen() {
  */
 export function useSetSearchQuery() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (query: string) => {
       taskData.setSearchQuery(query);
@@ -226,7 +226,7 @@ export function useSetSearchQuery() {
  */
 export function useSetSortConfig() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (config: SortConfig) => {
       taskData.setSortConfig(config);
@@ -243,7 +243,7 @@ export function useSetSortConfig() {
  */
 export function useSetShowCompletedTasks() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (show: boolean) => {
       taskData.setShowCompletedTasks(show);

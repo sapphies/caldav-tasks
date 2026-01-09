@@ -1,4 +1,11 @@
-import { format, isToday, isTomorrow, isThisWeek, isSameYear, differenceInCalendarDays } from 'date-fns';
+import {
+  format,
+  isToday,
+  isTomorrow,
+  isThisWeek,
+  isSameYear,
+  differenceInCalendarDays,
+} from 'date-fns';
 
 /**
  * Standard date format strings for consistent formatting across the app
@@ -11,8 +18,13 @@ export const DATE_FORMATS = {
   dayName: 'EEEE',
 } as const;
 
-
-export function formatDueDate(date: Date): { text: string; className: string; borderColor: string; bgColor: string; textColor: string } {
+export function formatDueDate(date: Date): {
+  text: string;
+  className: string;
+  borderColor: string;
+  bgColor: string;
+  textColor: string;
+} {
   const d = new Date(date);
   const now = new Date();
   const time = format(d, 'HH:mm');
@@ -21,15 +33,15 @@ export function formatDueDate(date: Date): { text: string; className: string; bo
 
   // Helper to create colors - use the color itself for text to match other badges
   const getColors = (color: string) => {
-    return { 
+    return {
       borderColor: color,
       bgColor: `${color}15`, // ~8% opacity for subtle background
-      textColor: color 
+      textColor: color,
     };
   };
 
   if (isToday(d)) {
-    const colors = isOverdue 
+    const colors = isOverdue
       ? getColors('#dc2626') // red for overdue
       : getColors('#d97706'); // amber for today
 

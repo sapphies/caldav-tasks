@@ -2,7 +2,7 @@ import Check from 'lucide-react/icons/check';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import ChevronDown from 'lucide-react/icons/chevron-down';
 import X from 'lucide-react/icons/x';
-import { Priority, Task } from "@/types";
+import { Priority, Task } from '@/types';
 
 const priorityDots: Record<Priority, string> = {
   high: 'bg-red-500',
@@ -37,7 +37,7 @@ export function SubtaskTreeItem({
   const childTasks = getChildTasks(task.uid);
   const childCount = countChildren(task.uid);
   const isExpanded = expandedSubtasks.has(task.id);
-  
+
   // Calculate total descendants recursively
   const getTotalDescendants = (parentUid: string): number => {
     const children = getChildTasks(parentUid);
@@ -90,13 +90,16 @@ export function SubtaskTreeItem({
           onClick={() => updateTask(task.id, { completed: !task.completed })}
           className={`
             w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0
-            ${task.completed
-              ? 'bg-primary-500 border-primary-500'
-              : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
+            ${
+              task.completed
+                ? 'bg-primary-500 border-primary-500'
+                : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
             }
           `}
         >
-          {task.completed && <Check className="w-3 h-3" style={{ color: checkmarkColor }} strokeWidth={3} />}
+          {task.completed && (
+            <Check className="w-3 h-3" style={{ color: checkmarkColor }} strokeWidth={3} />
+          )}
         </button>
 
         {/* Title */}

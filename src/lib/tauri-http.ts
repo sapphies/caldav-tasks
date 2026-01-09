@@ -21,31 +21,36 @@ export async function tauriRequest(
   method: string,
   credentials: CalDAVCredentials,
   body?: string,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<HttpResponse> {
   log.debug(`${method} ${url}`);
-  
+
   // use bearer token if provided, otherwise fall back to Basic auth
   const authHeader = credentials.bearerToken
     ? `Bearer ${credentials.bearerToken}`
     : `Basic ${btoa(`${credentials.username}:${credentials.password}`)}`;
-  
+
   const requestHeaders: Record<string, string> = {
-    'Authorization': authHeader,
+    Authorization: authHeader,
     'Content-Type': 'application/xml; charset=utf-8',
     ...headers,
   };
-  
+
   const response = await tauriFetch(url, {
     method: method,
     headers: requestHeaders,
     body: body,
   });
-  
+
   log.debug(`Response: ${response.status}`);
-  
+
   // handle redirects manually for CalDAV
-  if (response.status === 301 || response.status === 302 || response.status === 307 || response.status === 308) {
+  if (
+    response.status === 301 ||
+    response.status === 302 ||
+    response.status === 307 ||
+    response.status === 308
+  ) {
     const location = response.headers.get('location') || response.headers.get('Location');
     if (location) {
       // resolve relative URLs
@@ -53,16 +58,16 @@ export async function tauriRequest(
       return tauriRequest(redirectUrl, method, credentials, body, headers);
     }
   }
-  
+
   // convert response text
   const responseBody = await response.text();
-  
+
   // convert Headers to plain object
   const headersObj: Record<string, string> = {};
   response.headers.forEach((value, key) => {
     headersObj[key] = value;
   });
-  
+
   return {
     status: response.status,
     headers: headersObj,
@@ -77,10 +82,10 @@ export async function propfind(
   url: string,
   credentials: CalDAVCredentials,
   body: string,
-  depth: '0' | '1' | 'infinity' = '1'
+  depth: '0' | '1' | 'infinity' = '1',
 ): Promise<HttpResponse> {
   return tauriRequest(url, 'PROPFIND', credentials, body, {
-    'Depth': depth,
+    Depth: depth,
     'Content-Type': 'application/xml; charset=utf-8',
   });
 }
@@ -92,10 +97,10 @@ export async function report(
   url: string,
   credentials: CalDAVCredentials,
   body: string,
-  depth: '0' | '1' = '1'
+  depth: '0' | '1' = '1',
 ): Promise<HttpResponse> {
   return tauriRequest(url, 'REPORT', credentials, body, {
-    'Depth': depth,
+    Depth: depth,
     'Content-Type': 'application/xml; charset=utf-8',
   });
 }
@@ -106,7 +111,7 @@ export async function report(
 export async function proppatch(
   url: string,
   credentials: CalDAVCredentials,
-  body: string
+  body: string,
 ): Promise<HttpResponse> {
   return tauriRequest(url, 'PROPPATCH', credentials, body, {
     'Content-Type': 'application/xml; charset=utf-8',
@@ -120,19 +125,19 @@ export async function put(
   url: string,
   credentials: CalDAVCredentials,
   body: string,
-  etag?: string
+  etag?: string,
 ): Promise<HttpResponse> {
   const headers: Record<string, string> = {
     'Content-Type': 'text/calendar; charset=utf-8',
   };
-  
+
   if (etag) {
     // ETags must be quoted in If-Match header per RFC 2616
     headers['If-Match'] = `"${etag}"`;
   } else {
     headers['If-None-Match'] = '*';
   }
-  
+
   return tauriRequest(url, 'PUT', credentials, body, headers);
 }
 
@@ -142,15 +147,15 @@ export async function put(
 export async function del(
   url: string,
   credentials: CalDAVCredentials,
-  etag?: string
+  etag?: string,
 ): Promise<HttpResponse> {
   const headers: Record<string, string> = {};
-  
+
   if (etag) {
     // ETags must be quoted in If-Match header per RFC 2616
     headers['If-Match'] = `"${etag}"`;
   }
-  
+
   return tauriRequest(url, 'DELETE', credentials, undefined, headers);
 }
 
@@ -160,7 +165,7 @@ export async function del(
 export async function mkcalendar(
   url: string,
   credentials: CalDAVCredentials,
-  body: string
+  body: string,
 ): Promise<HttpResponse> {
   return tauriRequest(url, 'MKCALENDAR', credentials, body);
 }
@@ -171,28 +176,28 @@ export async function mkcalendar(
 export function parseMultiStatus(xml: string): MultiStatusResponse[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, 'application/xml');
-  
+
   const responses: MultiStatusResponse[] = [];
   const responseElements = doc.querySelectorAll('response');
-  
+
   for (const resp of responseElements) {
     const href = resp.querySelector('href')?.textContent || '';
     const status = resp.querySelector('status')?.textContent || '';
     const propstat = resp.querySelector('propstat');
-    
+
     const props: Record<string, string | null> = {};
-    
+
     if (propstat) {
       const prop = propstat.querySelector('prop');
       if (prop) {
         for (const child of prop.children) {
           // handle namespaced element names
           const localName = child.localName;
-          
+
           // special handling for resourcetype - check for child elements
           if (localName === 'resourcetype') {
             // get all child element names (like "calendar", "collection", "principal")
-            const childNames = Array.from(child.children).map(c => c.localName);
+            const childNames = Array.from(child.children).map((c) => c.localName);
             props[localName] = childNames.join(',');
           } else if (localName === 'current-user-principal' || localName === 'calendar-home-set') {
             // these properties contain an <href> child element
@@ -207,10 +212,10 @@ export function parseMultiStatus(xml: string): MultiStatusResponse[] {
         }
       }
     }
-    
+
     responses.push({ href, status, props });
   }
-  
+
   return responses;
 }
 

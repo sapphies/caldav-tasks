@@ -53,7 +53,7 @@ export const calendarIcons: { name: string; icon: LucideIcon }[] = [
 ];
 
 export function getIconByName(name: string): LucideIcon {
-  const found = calendarIcons.find(i => i.name === name);
+  const found = calendarIcons.find((i) => i.name === name);
   return found?.icon ?? Calendar;
 }
 
@@ -81,10 +81,7 @@ export function IconPicker({ value, onChange, color = '#3b82f6' }: IconPickerPro
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)} 
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute z-50 mt-1 p-2 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg shadow-lg animate-scale-in grid grid-cols-6 gap-1 w-[200px]">
             {calendarIcons.map(({ name, icon: Icon }) => (
               <button
@@ -96,9 +93,10 @@ export function IconPicker({ value, onChange, color = '#3b82f6' }: IconPickerPro
                 }}
                 className={`
                   w-8 h-8 rounded flex items-center justify-center transition-colors
-                  ${value === name 
-                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
-                    : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+                  ${
+                    value === name
+                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                      : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
                   }
                 `}
                 style={value === name ? { color } : undefined}

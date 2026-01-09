@@ -4,14 +4,7 @@
  */
 
 import Database from '@tauri-apps/plugin-sql';
-import type {
-  Task,
-  Tag,
-  Account,
-  Calendar,
-  SortConfig,
-  Priority,
-} from '@/types';
+import type { Task, Tag, Account, Calendar, SortConfig, Priority } from '@/types';
 import { createLogger } from './logger';
 
 const log = createLogger('Database', '#8b5cf6');
@@ -73,17 +66,17 @@ export function subscribeToDataChanges(listener: DataChangeListener): () => void
 }
 
 function notifyListeners(): void {
-  listeners.forEach(listener => listener());
+  listeners.forEach((listener) => listener());
 }
 
 // Initialize database connection
 export async function initDatabase(): Promise<Database> {
   if (db) return db;
-  
+
   try {
     db = await Database.load(DB_NAME);
     log.info('Connected to SQLite database');
-    
+
     return db;
   } catch (error) {
     log.error('Failed to connect:', error);
@@ -119,10 +112,12 @@ function rowToTask(row: any): Task {
     dueDateAllDay: row.due_date_all_day === 1,
     createdAt: new Date(row.created_at),
     modifiedAt: new Date(row.modified_at),
-    reminders: row.reminders ? JSON.parse(row.reminders).map((r: any) => ({
-      ...r,
-      trigger: new Date(r.trigger),
-    })) : undefined,
+    reminders: row.reminders
+      ? JSON.parse(row.reminders).map((r: any) => ({
+          ...r,
+          trigger: new Date(r.trigger),
+        }))
+      : undefined,
     subtasks: row.subtasks ? JSON.parse(row.subtasks) : [],
     parentUid: row.parent_uid || undefined,
     isCollapsed: row.is_collapsed === 1,
@@ -144,7 +139,7 @@ function rowToAccount(row: any, calendars: Calendar[]): Account {
     username: row.username,
     password: row.password,
     serverType: row.server_type || undefined,
-    calendars: calendars.filter(c => c.accountId === row.id),
+    calendars: calendars.filter((c) => c.accountId === row.id),
     lastSync: row.last_sync ? new Date(row.last_sync) : undefined,
     isActive: row.is_active === 1,
   };
@@ -161,7 +156,9 @@ function rowToCalendar(row: any): Calendar {
     color: row.color || undefined,
     icon: row.icon || undefined,
     accountId: row.account_id,
-    supportedComponents: row.supported_components ? JSON.parse(row.supported_components) : undefined,
+    supportedComponents: row.supported_components
+      ? JSON.parse(row.supported_components)
+      : undefined,
   };
 }
 
@@ -197,25 +194,34 @@ export async function getTaskByUid(uid: string): Promise<Task | undefined> {
 
 export async function getTasksByCalendar(calendarId: string): Promise<Task[]> {
   const database = await getDb();
-  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE calendar_id = $1', [calendarId]);
+  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE calendar_id = $1', [
+    calendarId,
+  ]);
   return rows.map(rowToTask);
 }
 
 export async function getTasksByTag(tagId: string): Promise<Task[]> {
   const database = await getDb();
-  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE tags LIKE $1', [`%"${tagId}"%`]);
+  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE tags LIKE $1', [
+    `%"${tagId}"%`,
+  ]);
   return rows.map(rowToTask);
 }
 
 export async function getChildTasks(parentUid: string): Promise<Task[]> {
   const database = await getDb();
-  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE parent_uid = $1', [parentUid]);
+  const rows = await database.select<any[]>('SELECT * FROM tasks WHERE parent_uid = $1', [
+    parentUid,
+  ]);
   return rows.map(rowToTask);
 }
 
 export async function countChildren(parentUid: string): Promise<number> {
   const database = await getDb();
-  const rows = await database.select<any[]>('SELECT COUNT(*) as count FROM tasks WHERE parent_uid = $1', [parentUid]);
+  const rows = await database.select<any[]>(
+    'SELECT COUNT(*) as count FROM tasks WHERE parent_uid = $1',
+    [parentUid],
+  );
   return rows[0]?.count || 0;
 }
 
@@ -224,17 +230,17 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
   const { v4: uuidv4 } = await import('uuid');
   const { toAppleEpoch } = await import('@/utils/ical');
   const { useSettingsStore } = await import('@/store/settingsStore');
-  
+
   const now = new Date();
   const { defaultCalendarId, defaultPriority, defaultTags } = useSettingsStore.getState();
-  
+
   // Get UI state for active context
   const uiState = await getUIState();
-  
+
   // Determine calendar and account to use
   let calendarId = taskData.calendarId || uiState.activeCalendarId;
   let accountId = taskData.accountId || uiState.activeAccountId;
-  
+
   // Handle tags
   let tags = taskData.tags || [];
   if (uiState.activeTagId && !tags.includes(uiState.activeTagId)) {
@@ -243,13 +249,13 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
   if (tags.length === 0 && defaultTags.length > 0) {
     tags = [...defaultTags];
   }
-  
+
   // If no active calendar, find one
   if (!calendarId) {
     const accounts = await getAllAccounts();
     if (defaultCalendarId) {
       for (const account of accounts) {
-        const calendar = account.calendars.find(c => c.id === defaultCalendarId);
+        const calendar = account.calendars.find((c) => c.id === defaultCalendarId);
         if (calendar) {
           calendarId = calendar.id;
           accountId = account.id;
@@ -257,23 +263,25 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
         }
       }
     }
-    
+
     if (!calendarId) {
-      const firstAccount = accounts.find(a => a.calendars.length > 0);
+      const firstAccount = accounts.find((a) => a.calendars.length > 0);
       if (firstAccount) {
         calendarId = firstAccount.calendars[0].id;
         accountId = firstAccount.id;
       }
     }
   }
-  
+
   // Calculate sort order
-  const maxOrderRows = await database.select<any[]>('SELECT MAX(sort_order) as max_order FROM tasks');
-  const maxSortOrder = maxOrderRows[0]?.max_order ?? (toAppleEpoch(now.getTime()) - 1);
-  
+  const maxOrderRows = await database.select<any[]>(
+    'SELECT MAX(sort_order) as max_order FROM tasks',
+  );
+  const maxSortOrder = maxOrderRows[0]?.max_order ?? toAppleEpoch(now.getTime()) - 1;
+
   // Determine if this is a local-only task
   const isLocalOnly = !calendarId || !accountId;
-  
+
   const task: Task = {
     id: uuidv4(),
     uid: uuidv4(),
@@ -292,7 +300,7 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
     ...taskData,
     tags,
   };
-  
+
   await database.execute(
     `INSERT INTO tasks (
       id, uid, etag, href, title, description, completed, completed_at,
@@ -329,9 +337,9 @@ export async function createTask(taskData: Partial<Task>): Promise<Task> {
       task.synced ? 1 : 0,
       task.localOnly ? 1 : 0,
       task.url || null,
-    ]
+    ],
   );
-  
+
   notifyListeners();
   return task;
 }
@@ -340,14 +348,14 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
   const database = await getDb();
   const existing = await getTaskById(id);
   if (!existing) return undefined;
-  
+
   const updatedTask: Task = {
     ...existing,
     ...updates,
     modifiedAt: updates.modifiedAt !== undefined ? updates.modifiedAt : new Date(),
     synced: updates.synced !== undefined ? updates.synced : false,
   };
-  
+
   await database.execute(
     `UPDATE tasks SET
       uid = $1, etag = $2, href = $3, title = $4, description = $5,
@@ -374,7 +382,9 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
       updatedTask.dueDate ? updatedTask.dueDate.toISOString() : null,
       updatedTask.dueDateAllDay ? 1 : 0,
       updatedTask.modifiedAt.toISOString(),
-      updatedTask.reminders && updatedTask.reminders.length > 0 ? JSON.stringify(updatedTask.reminders) : null,
+      updatedTask.reminders && updatedTask.reminders.length > 0
+        ? JSON.stringify(updatedTask.reminders)
+        : null,
       JSON.stringify(updatedTask.subtasks),
       updatedTask.parentUid || null,
       updatedTask.isCollapsed ? 1 : 0,
@@ -385,9 +395,9 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
       updatedTask.localOnly ? 1 : 0,
       updatedTask.url || null,
       id,
-    ]
+    ],
   );
-  
+
   notifyListeners();
   return updatedTask;
 }
@@ -396,56 +406,56 @@ export async function deleteTask(id: string, deleteChildren: boolean = true): Pr
   const database = await getDb();
   const task = await getTaskById(id);
   if (!task) return;
-  
+
   // Get all descendants recursively
   const getAllDescendantIds = async (parentUid: string): Promise<string[]> => {
     const children = await getChildTasks(parentUid);
-    const childIds = children.map(c => c.id);
-    const descendantIds = await Promise.all(children.map(c => getAllDescendantIds(c.uid)));
+    const childIds = children.map((c) => c.id);
+    const descendantIds = await Promise.all(children.map((c) => getAllDescendantIds(c.uid)));
     return [...childIds, ...descendantIds.flat()];
   };
-  
+
   const descendantIds = await getAllDescendantIds(task.uid);
   const tasksToDeleteIds = deleteChildren ? [id, ...descendantIds] : [id];
-  
+
   // Get tasks with href for pending deletions
   const tasksToDelete = await Promise.all(tasksToDeleteIds.map(getTaskById));
   const tasksWithHref = tasksToDelete.filter((t): t is Task => !!t && !!t.href);
-  
+
   // Add to pending deletions
   for (const t of tasksWithHref) {
     await database.execute(
       `INSERT OR REPLACE INTO pending_deletions (uid, href, account_id, calendar_id)
        VALUES ($1, $2, $3, $4)`,
-      [t.uid, t.href, t.accountId, t.calendarId]
+      [t.uid, t.href, t.accountId, t.calendarId],
     );
   }
-  
+
   // If not deleting children, orphan them
   if (!deleteChildren) {
     await database.execute(
       `UPDATE tasks SET parent_uid = NULL, modified_at = $1, synced = 0 WHERE parent_uid = $2`,
-      [new Date().toISOString(), task.uid]
+      [new Date().toISOString(), task.uid],
     );
   }
-  
+
   // Delete tasks
   const placeholders = tasksToDeleteIds.map((_, i) => `$${i + 1}`).join(', ');
   await database.execute(`DELETE FROM tasks WHERE id IN (${placeholders})`, tasksToDeleteIds);
-  
+
   // Update UI state if selected task was deleted
   const uiState = await getUIState();
   if (tasksToDeleteIds.includes(uiState.selectedTaskId || '')) {
     await setSelectedTask(null);
   }
-  
+
   notifyListeners();
 }
 
 export async function toggleTaskComplete(id: string): Promise<void> {
   const task = await getTaskById(id);
   if (!task) return;
-  
+
   await updateTask(id, {
     completed: !task.completed,
     completedAt: !task.completed ? new Date() : undefined,
@@ -469,19 +479,21 @@ export async function getTagById(id: string): Promise<Tag | undefined> {
 export async function createTag(tagData: Partial<Tag>): Promise<Tag> {
   const database = await getDb();
   const { v4: uuidv4 } = await import('uuid');
-  
+
   const tag: Tag = {
     id: uuidv4(),
     name: tagData.name || 'New Tag',
     color: tagData.color || '#3b82f6',
     icon: tagData.icon,
   };
-  
-  await database.execute(
-    `INSERT INTO tags (id, name, color, icon) VALUES ($1, $2, $3, $4)`,
-    [tag.id, tag.name, tag.color, tag.icon || null]
-  );
-  
+
+  await database.execute(`INSERT INTO tags (id, name, color, icon) VALUES ($1, $2, $3, $4)`, [
+    tag.id,
+    tag.name,
+    tag.color,
+    tag.icon || null,
+  ]);
+
   notifyListeners();
   return tag;
 }
@@ -490,36 +502,38 @@ export async function updateTag(id: string, updates: Partial<Tag>): Promise<Tag 
   const database = await getDb();
   const existing = await getTagById(id);
   if (!existing) return undefined;
-  
+
   const updatedTag: Tag = { ...existing, ...updates };
-  
-  await database.execute(
-    `UPDATE tags SET name = $1, color = $2, icon = $3 WHERE id = $4`,
-    [updatedTag.name, updatedTag.color, updatedTag.icon || null, id]
-  );
-  
+
+  await database.execute(`UPDATE tags SET name = $1, color = $2, icon = $3 WHERE id = $4`, [
+    updatedTag.name,
+    updatedTag.color,
+    updatedTag.icon || null,
+    id,
+  ]);
+
   notifyListeners();
   return updatedTag;
 }
 
 export async function deleteTag(id: string): Promise<void> {
   const database = await getDb();
-  
+
   // Remove tag from all tasks
   const tasks = await getTasksByTag(id);
   for (const task of tasks) {
-    const newTags = (task.tags || []).filter(t => t !== id);
+    const newTags = (task.tags || []).filter((t) => t !== id);
     await updateTask(task.id, { tags: newTags });
   }
-  
+
   await database.execute('DELETE FROM tags WHERE id = $1', [id]);
-  
+
   // Update UI state if this was the active tag
   const uiState = await getUIState();
   if (uiState.activeTagId === id) {
     await setActiveTag(null);
   }
-  
+
   notifyListeners();
 }
 
@@ -527,23 +541,23 @@ export async function deleteTag(id: string): Promise<void> {
 
 export async function getAllAccounts(): Promise<Account[]> {
   const database = await getDb();
-  
+
   const accountRows = await database.select<any[]>('SELECT * FROM accounts');
   const calendarRows = await database.select<any[]>('SELECT * FROM calendars');
   const calendars = calendarRows.map(rowToCalendar);
-  
-  return accountRows.map(row => rowToAccount(row, calendars));
+
+  return accountRows.map((row) => rowToAccount(row, calendars));
 }
 
 export async function getAccountById(id: string): Promise<Account | undefined> {
   const accounts = await getAllAccounts();
-  return accounts.find(a => a.id === id);
+  return accounts.find((a) => a.id === id);
 }
 
 export async function createAccount(accountData: Partial<Account>): Promise<Account> {
   const database = await getDb();
   const { v4: uuidv4 } = await import('uuid');
-  
+
   const account: Account = {
     id: accountData.id || uuidv4(),
     name: accountData.name || 'New Account',
@@ -554,7 +568,7 @@ export async function createAccount(accountData: Partial<Account>): Promise<Acco
     calendars: [],
     isActive: true,
   };
-  
+
   await database.execute(
     `INSERT INTO accounts (id, name, server_url, username, password, server_type, last_sync, is_active)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -567,26 +581,29 @@ export async function createAccount(accountData: Partial<Account>): Promise<Acco
       account.serverType || null,
       account.lastSync ? account.lastSync.toISOString() : null,
       account.isActive ? 1 : 0,
-    ]
+    ],
   );
-  
+
   // Set as active account if none set
   const uiState = await getUIState();
   if (!uiState.activeAccountId) {
     await database.execute(`UPDATE ui_state SET active_account_id = $1 WHERE id = 1`, [account.id]);
   }
-  
+
   notifyListeners();
   return account;
 }
 
-export async function updateAccount(id: string, updates: Partial<Account>): Promise<Account | undefined> {
+export async function updateAccount(
+  id: string,
+  updates: Partial<Account>,
+): Promise<Account | undefined> {
   const database = await getDb();
   const existing = await getAccountById(id);
   if (!existing) return undefined;
-  
+
   const updatedAccount: Account = { ...existing, ...updates };
-  
+
   await database.execute(
     `UPDATE accounts SET name = $1, server_url = $2, username = $3, password = $4, server_type = $5, last_sync = $6, is_active = $7
      WHERE id = $8`,
@@ -599,36 +616,38 @@ export async function updateAccount(id: string, updates: Partial<Account>): Prom
       updatedAccount.lastSync ? updatedAccount.lastSync.toISOString() : null,
       updatedAccount.isActive ? 1 : 0,
       id,
-    ]
+    ],
   );
-  
+
   notifyListeners();
   return updatedAccount;
 }
 
 export async function deleteAccount(id: string): Promise<void> {
   const database = await getDb();
-  
+
   // Delete cascades to calendars and tasks via foreign keys
   await database.execute('DELETE FROM accounts WHERE id = $1', [id]);
-  
+
   // Update UI state
   const accounts = await getAllAccounts();
   const uiState = await getUIState();
   if (uiState.activeAccountId === id) {
-    await database.execute(
-      `UPDATE ui_state SET active_account_id = $1 WHERE id = 1`,
-      [accounts[0]?.id || null]
-    );
+    await database.execute(`UPDATE ui_state SET active_account_id = $1 WHERE id = 1`, [
+      accounts[0]?.id || null,
+    ]);
   }
-  
+
   notifyListeners();
 }
 
-export async function addCalendar(accountId: string, calendarData: Partial<Calendar>): Promise<void> {
+export async function addCalendar(
+  accountId: string,
+  calendarData: Partial<Calendar>,
+): Promise<void> {
   const database = await getDb();
   const { v4: uuidv4 } = await import('uuid');
-  
+
   const calendar: Calendar = {
     ...calendarData,
     id: calendarData.id || uuidv4(),
@@ -636,9 +655,9 @@ export async function addCalendar(accountId: string, calendarData: Partial<Calen
     url: calendarData.url || '',
     accountId,
   };
-  
+
   log.debug(`Adding calendar: ${calendar.displayName} with ID: ${calendar.id}`);
-  
+
   await database.execute(
     `INSERT INTO calendars (id, account_id, display_name, url, ctag, sync_token, color, icon, supported_components)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -652,47 +671,48 @@ export async function addCalendar(accountId: string, calendarData: Partial<Calen
       calendar.color || null,
       calendar.icon || null,
       calendar.supportedComponents ? JSON.stringify(calendar.supportedComponents) : null,
-    ]
+    ],
   );
-  
+
   // Set as active calendar if none set
   const uiState = await getUIState();
   if (!uiState.activeCalendarId) {
-    await database.execute(`UPDATE ui_state SET active_calendar_id = $1 WHERE id = 1`, [calendar.id]);
+    await database.execute(`UPDATE ui_state SET active_calendar_id = $1 WHERE id = 1`, [
+      calendar.id,
+    ]);
   }
-  
+
   notifyListeners();
 }
 
 export async function deleteCalendar(_accountId: string, calendarId: string): Promise<void> {
   const database = await getDb();
-  
+
   // Get tasks to track for server deletion
   const tasks = await getTasksByCalendar(calendarId);
-  const tasksWithHref = tasks.filter(t => t.href);
-  
+  const tasksWithHref = tasks.filter((t) => t.href);
+
   for (const t of tasksWithHref) {
     await database.execute(
       `INSERT OR REPLACE INTO pending_deletions (uid, href, account_id, calendar_id)
        VALUES ($1, $2, $3, $4)`,
-      [t.uid, t.href, t.accountId, t.calendarId]
+      [t.uid, t.href, t.accountId, t.calendarId],
     );
   }
-  
+
   // Delete calendar (tasks cascade)
   await database.execute('DELETE FROM calendars WHERE id = $1', [calendarId]);
-  
+
   // Update UI state
   const uiState = await getUIState();
   if (uiState.activeCalendarId === calendarId) {
     const accounts = await getAllAccounts();
-    const otherCalendars = accounts.flatMap(a => a.calendars).filter(c => c.id !== calendarId);
-    await database.execute(
-      `UPDATE ui_state SET active_calendar_id = $1 WHERE id = 1`,
-      [otherCalendars[0]?.id || null]
-    );
+    const otherCalendars = accounts.flatMap((a) => a.calendars).filter((c) => c.id !== calendarId);
+    await database.execute(`UPDATE ui_state SET active_calendar_id = $1 WHERE id = 1`, [
+      otherCalendars[0]?.id || null,
+    ]);
   }
-  
+
   notifyListeners();
 }
 
@@ -701,7 +721,7 @@ export async function deleteCalendar(_accountId: string, calendarId: string): Pr
 export async function getPendingDeletions(): Promise<PendingDeletion[]> {
   const database = await getDb();
   const rows = await database.select<any[]>('SELECT * FROM pending_deletions');
-  return rows.map(row => ({
+  return rows.map((row) => ({
     uid: row.uid,
     href: row.href,
     accountId: row.account_id,
@@ -720,11 +740,11 @@ export async function clearPendingDeletion(uid: string): Promise<void> {
 export async function getUIState(): Promise<UIState> {
   const database = await getDb();
   const rows = await database.select<any[]>('SELECT * FROM ui_state WHERE id = 1');
-  
+
   if (rows.length === 0) {
     return defaultUIState;
   }
-  
+
   const row = rows[0];
   return {
     activeAccountId: row.active_account_id,
@@ -745,7 +765,7 @@ export async function setActiveAccount(id: string | null): Promise<void> {
   const database = await getDb();
   await database.execute(
     `UPDATE ui_state SET active_account_id = $1, active_calendar_id = NULL WHERE id = 1`,
-    [id]
+    [id],
   );
   notifyListeners();
 }
@@ -754,7 +774,7 @@ export async function setActiveCalendar(id: string | null): Promise<void> {
   const database = await getDb();
   await database.execute(
     `UPDATE ui_state SET active_calendar_id = $1, active_tag_id = NULL, selected_task_id = NULL, is_editor_open = 0 WHERE id = 1`,
-    [id]
+    [id],
   );
   notifyListeners();
 }
@@ -763,7 +783,7 @@ export async function setActiveTag(id: string | null): Promise<void> {
   const database = await getDb();
   await database.execute(
     `UPDATE ui_state SET active_tag_id = $1, active_calendar_id = NULL, selected_task_id = NULL, is_editor_open = 0 WHERE id = 1`,
-    [id]
+    [id],
   );
   notifyListeners();
 }
@@ -772,7 +792,7 @@ export async function setAllTasksView(): Promise<void> {
   const database = await getDb();
   await database.execute(
     `UPDATE ui_state SET active_calendar_id = NULL, active_tag_id = NULL, selected_task_id = NULL, is_editor_open = 0 WHERE id = 1`,
-    []
+    [],
   );
   notifyListeners();
 }
@@ -781,7 +801,7 @@ export async function setSelectedTask(id: string | null): Promise<void> {
   const database = await getDb();
   await database.execute(
     `UPDATE ui_state SET selected_task_id = $1, is_editor_open = $2 WHERE id = 1`,
-    [id, id !== null ? 1 : 0]
+    [id, id !== null ? 1 : 0],
   );
   notifyListeners();
 }
@@ -791,7 +811,7 @@ export async function setEditorOpen(open: boolean): Promise<void> {
   const uiState = await getUIState();
   await database.execute(
     `UPDATE ui_state SET is_editor_open = $1, selected_task_id = $2 WHERE id = 1`,
-    [open ? 1 : 0, open ? uiState.selectedTaskId : null]
+    [open ? 1 : 0, open ? uiState.selectedTaskId : null],
   );
   notifyListeners();
 }
@@ -804,16 +824,18 @@ export async function setSearchQuery(query: string): Promise<void> {
 
 export async function setSortConfig(config: SortConfig): Promise<void> {
   const database = await getDb();
-  await database.execute(
-    `UPDATE ui_state SET sort_mode = $1, sort_direction = $2 WHERE id = 1`,
-    [config.mode, config.direction]
-  );
+  await database.execute(`UPDATE ui_state SET sort_mode = $1, sort_direction = $2 WHERE id = 1`, [
+    config.mode,
+    config.direction,
+  ]);
   notifyListeners();
 }
 
 export async function setShowCompletedTasks(show: boolean): Promise<void> {
   const database = await getDb();
-  await database.execute(`UPDATE ui_state SET show_completed_tasks = $1 WHERE id = 1`, [show ? 1 : 0]);
+  await database.execute(`UPDATE ui_state SET show_completed_tasks = $1 WHERE id = 1`, [
+    show ? 1 : 0,
+  ]);
   notifyListeners();
 }
 
@@ -827,6 +849,6 @@ export async function getDataSnapshot(): Promise<DataStore> {
     getPendingDeletions(),
     getUIState(),
   ]);
-  
+
   return { tasks, tags, accounts, pendingDeletions, ui };
 }

@@ -28,11 +28,19 @@ function App() {
     initWebKitDragFix();
   }, []);
 
-  const [preloadedFile, setPreloadedFile] = useState<{ name: string; content: string } | null>(null);
+  const [preloadedFile, setPreloadedFile] = useState<{ name: string; content: string } | null>(
+    null,
+  );
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { isSyncing, isOffline, lastSyncTime, syncAll } = useSyncQuery();
   const { data: accounts = [] } = useAccounts();
-  const { sidebarCollapsed, sidebarWidth, toggleSidebarCollapsed, setSidebarWidth, onboardingCompleted } = useSettingsStore();
+  const {
+    sidebarCollapsed,
+    sidebarWidth,
+    toggleSidebarCollapsed,
+    setSidebarWidth,
+    onboardingCompleted,
+  } = useSettingsStore();
 
   // show onboarding modal on first launch
   useEffect(() => {
@@ -40,7 +48,7 @@ function App() {
       setShowOnboarding(true);
     }
   }, [onboardingCompleted]);
-  
+
   // system tray integration (sync button, status updates)
   useTray({
     isSyncing,
@@ -110,18 +118,21 @@ function App() {
       onDragLeave={handleDragLeave}
     >
       {isDragOver && (
-        <div className={`pointer-events-none fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm ${isUnsupportedFile
-          ? 'bg-red-600/10'
-          : 'bg-primary-600/10'
-          }`}>
-          <div className={`px-4 py-3 rounded-lg text-sm font-medium shadow-lg border ${isUnsupportedFile
-            ? 'bg-red-50/90 dark:bg-red-900/90 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800'
-            : 'bg-white/90 dark:bg-surface-800/90 text-surface-800 dark:text-surface-200 border-primary-200 dark:border-primary-800'
-            }`}>
+        <div
+          className={`pointer-events-none fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm ${
+            isUnsupportedFile ? 'bg-red-600/10' : 'bg-primary-600/10'
+          }`}
+        >
+          <div
+            className={`px-4 py-3 rounded-lg text-sm font-medium shadow-lg border ${
+              isUnsupportedFile
+                ? 'bg-red-50/90 dark:bg-red-900/90 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800'
+                : 'bg-white/90 dark:bg-surface-800/90 text-surface-800 dark:text-surface-200 border-primary-200 dark:border-primary-800'
+            }`}
+          >
             {isUnsupportedFile
               ? 'Unsupported file format. Only .ics and .json files are supported.'
-              : 'Drop .ics or .json files anywhere to import tasks'
-            }
+              : 'Drop .ics or .json files anywhere to import tasks'}
           </div>
         </div>
       )}
@@ -151,7 +162,9 @@ function App() {
         />
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          <div className={`flex-1 flex flex-col min-w-0 min-h-0 ${isEditorOpen && selectedTask ? 'hidden lg:flex' : ''}`}>
+          <div
+            className={`flex-1 flex flex-col min-w-0 min-h-0 ${isEditorOpen && selectedTask ? 'hidden lg:flex' : ''}`}
+          >
             <TaskList />
           </div>
 
@@ -169,7 +182,9 @@ function App() {
             menuHandlers.setShowSettings(false);
             menuHandlers.setSettingsInitialTab({});
           }}
-          initialCategory={menuHandlers.settingsInitialTab.category as 'general' | 'account' | 'about' | undefined}
+          initialCategory={
+            menuHandlers.settingsInitialTab.category as 'general' | 'account' | 'about' | undefined
+          }
           initialSubtab={menuHandlers.settingsInitialTab.subtab as any}
         />
       )}
@@ -181,18 +196,11 @@ function App() {
       />
 
       {menuHandlers.showExport && (
-        <ExportModal
-          tasks={tasks}
-          type="tasks"
-          onClose={() => menuHandlers.setShowExport(false)}
-        />
+        <ExportModal tasks={tasks} type="tasks" onClose={() => menuHandlers.setShowExport(false)} />
       )}
 
       {menuHandlers.showAccountModal && (
-        <AccountModal
-          account={null}
-          onClose={() => menuHandlers.setShowAccountModal(false)}
-        />
+        <AccountModal account={null} onClose={() => menuHandlers.setShowAccountModal(false)} />
       )}
 
       {menuHandlers.showCreateCalendar && accounts.length > 0 && (
@@ -202,10 +210,12 @@ function App() {
         />
       )}
 
-      {menuHandlers.showCreateCalendar && accounts.length === 0 && (() => {
-        menuHandlers.setShowCreateCalendar(false);
-        return null;
-      })()}
+      {menuHandlers.showCreateCalendar &&
+        accounts.length === 0 &&
+        (() => {
+          menuHandlers.setShowCreateCalendar(false);
+          return null;
+        })()}
 
       {showOnboarding && (
         <OnboardingModal

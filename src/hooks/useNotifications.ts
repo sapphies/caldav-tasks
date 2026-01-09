@@ -21,14 +21,14 @@ async function showNotification(options: NotificationOptions): Promise<void> {
       // dynamic import for Tauri notification plugin
       const notification = await import('@tauri-apps/plugin-notification');
       const { isPermissionGranted, requestPermission, sendNotification } = notification;
-      
+
       let permissionGranted = await isPermissionGranted();
-      
+
       if (!permissionGranted) {
         const permission = await requestPermission();
         permissionGranted = permission === 'granted';
       }
-      
+
       if (permissionGranted) {
         sendNotification({
           title: options.title,
@@ -90,13 +90,13 @@ export function useNotifications() {
         if (task.reminders && task.reminders.length > 0) {
           for (const reminder of task.reminders) {
             const reminderKey = `reminder-${task.id}-${reminder.id}`;
-            
+
             // skip if we already notified about this reminder
             if (notifiedRemindersRef.current.has(reminderKey)) continue;
-            
+
             const reminderDate = new Date(reminder.trigger);
             const secondsUntilReminder = differenceInSeconds(reminderDate, now);
-            
+
             // Fire reminder when the time has arrived (0 or past, within 60 second window to avoid missing)
             // Using seconds for precision - fire when secondsUntilReminder is between 0 and -60
             if (secondsUntilReminder <= 0 && secondsUntilReminder >= -60) {

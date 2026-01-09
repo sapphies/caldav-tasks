@@ -1,5 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  isToday,
+} from 'date-fns';
 import { useSettingsStore } from '@/store/settingsStore';
 import ChevronLeft from 'lucide-react/icons/chevron-left';
 import ChevronRight from 'lucide-react/icons/chevron-right';
@@ -17,7 +27,14 @@ interface DateTimePickerProps {
   onAllDayChange?: (allDay: boolean) => void; // callback for all-day toggle
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Select date...', showTime = true, allDay = false, onAllDayChange }: DateTimePickerProps) {
+export function DateTimePicker({
+  value,
+  onChange,
+  placeholder = 'Select date...',
+  showTime = true,
+  allDay = false,
+  onAllDayChange,
+}: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(value ? new Date(value) : new Date());
   const [selectedTime, setSelectedTime] = useState(() => {
@@ -57,12 +74,11 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
 
   const { startOfWeek: weekStartsSetting } = useSettingsStore();
   const weekStartsOn = weekStartsSetting === 'monday' ? 1 : 0;
-  
+
   // Generate days of week labels based on setting
   const daysOfWeekLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-  const daysOfWeek = weekStartsOn === 1 
-    ? [...daysOfWeekLabels.slice(1), daysOfWeekLabels[0]] 
-    : daysOfWeekLabels;
+  const daysOfWeek =
+    weekStartsOn === 1 ? [...daysOfWeekLabels.slice(1), daysOfWeekLabels[0]] : daysOfWeekLabels;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -70,9 +86,8 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
 
   // pad start of month based on week start setting
   const firstDayOfMonth = monthStart.getDay();
-  const startPadding = weekStartsOn === 1 
-    ? (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1)
-    : firstDayOfMonth;
+  const startPadding =
+    weekStartsOn === 1 ? (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1) : firstDayOfMonth;
   const paddedDays = Array(startPadding).fill(null).concat(days);
 
   const handleDayClick = (day: Date) => {
@@ -89,7 +104,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
   const handleTimeChange = (type: 'hours' | 'minutes', newValue: number) => {
     const newTime = { ...selectedTime, [type]: newValue };
     setSelectedTime(newTime);
-    
+
     if (value !== undefined) {
       const newDate = new Date(value);
       newDate.setHours(newTime.hours, newTime.minutes, 0, 0);
@@ -100,7 +115,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
   const handleAllDayToggle = () => {
     const newAllDay = !allDay;
     onAllDayChange?.(newAllDay);
-    
+
     if (value) {
       const newDate = new Date(value);
       if (newAllDay) {
@@ -144,8 +159,8 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
           {formatDisplayValue()}
         </span>
         {value && (
-          <X 
-            className="w-4 h-4 ml-auto text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 flex-shrink-0" 
+          <X
+            className="w-4 h-4 ml-auto text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 flex-shrink-0"
             onClick={handleClear}
           />
         )}
@@ -175,7 +190,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
 
           <div className="grid grid-cols-7 gap-1 px-2 py-2 border-b border-surface-200 dark:border-surface-700">
             {daysOfWeek.map((day) => (
-              <div key={day} className="text-center text-xs font-medium text-surface-500 dark:text-surface-400">
+              <div
+                key={day}
+                className="text-center text-xs font-medium text-surface-500 dark:text-surface-400"
+              >
                 {day}
               </div>
             ))}
@@ -198,13 +216,14 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
                   onClick={() => handleDayClick(day)}
                   className={`
                     w-8 h-8 rounded-full text-sm flex items-center justify-center transition-colors
-                    ${isSelected
-                      ? 'bg-primary-600 text-white'
-                      : isTodayDate
-                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
-                        : isCurrentMonth
-                          ? 'text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700'
-                          : 'text-surface-400 dark:text-surface-600'
+                    ${
+                      isSelected
+                        ? 'bg-primary-600 text-white'
+                        : isTodayDate
+                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
+                          : isCurrentMonth
+                            ? 'text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700'
+                            : 'text-surface-400 dark:text-surface-600'
                     }
                   `}
                 >
@@ -234,7 +253,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Select date...'
                   />
                 </button>
               </div>
-              
+
               {/* Time Picker - hidden when all day */}
               {!allDay && (
                 <div className="flex items-center gap-2">

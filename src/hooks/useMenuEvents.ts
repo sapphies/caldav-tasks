@@ -22,7 +22,9 @@ export function useMenuEvents(callbacks: {
   onOpenAbout?: React.RefObject<(() => void) | null>;
   onOpenKeyboardShortcuts?: React.RefObject<(() => void) | null>;
   onToggleCompleted?: React.RefObject<((currentValue: boolean) => void) | null>;
-  onSetSortMode?: React.RefObject<((mode: SortMode, currentMode: SortMode, currentDirection: 'asc' | 'desc') => void) | null>;
+  onSetSortMode?: React.RefObject<
+    ((mode: SortMode, currentMode: SortMode, currentDirection: 'asc' | 'desc') => void) | null
+  >;
 }) {
   const { syncAll } = useSyncQuery();
   const { data: uiState } = useUIState();
@@ -37,7 +39,10 @@ export function useMenuEvents(callbacks: {
         log.debug('New Task triggered');
         callbacks.onNewTask?.current?.();
       });
-      if (!isActive) { unlistenNewTask(); return; }
+      if (!isActive) {
+        unlistenNewTask();
+        return;
+      }
       unlistenCallbacks.push(unlistenNewTask);
 
       // Sync
@@ -45,7 +50,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Sync triggered');
         syncAll();
       });
-      if (!isActive) { unlistenSync(); return; }
+      if (!isActive) {
+        unlistenSync();
+        return;
+      }
       unlistenCallbacks.push(unlistenSync);
 
       // Preferences
@@ -53,7 +61,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Preferences triggered');
         callbacks.onOpenSettings?.current?.();
       });
-      if (!isActive) { unlistenPreferences(); return; }
+      if (!isActive) {
+        unlistenPreferences();
+        return;
+      }
       unlistenCallbacks.push(unlistenPreferences);
 
       // Add Account
@@ -61,7 +72,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Add Account triggered');
         callbacks.onOpenAccount?.current?.();
       });
-      if (!isActive) { unlistenAddAccount(); return; }
+      if (!isActive) {
+        unlistenAddAccount();
+        return;
+      }
       unlistenCallbacks.push(unlistenAddAccount);
 
       // Add Calendar
@@ -69,7 +83,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Add Calendar triggered');
         callbacks.onOpenCreateCalendar?.current?.();
       });
-      if (!isActive) { unlistenAddCalendar(); return; }
+      if (!isActive) {
+        unlistenAddCalendar();
+        return;
+      }
       unlistenCallbacks.push(unlistenAddCalendar);
 
       // Import Tasks
@@ -77,7 +94,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Import Tasks triggered');
         callbacks.onOpenImport?.current?.();
       });
-      if (!isActive) { unlistenImport(); return; }
+      if (!isActive) {
+        unlistenImport();
+        return;
+      }
       unlistenCallbacks.push(unlistenImport);
 
       // Export Tasks
@@ -85,7 +105,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Export Tasks triggered');
         callbacks.onOpenExport?.current?.();
       });
-      if (!isActive) { unlistenExport(); return; }
+      if (!isActive) {
+        unlistenExport();
+        return;
+      }
       unlistenCallbacks.push(unlistenExport);
 
       // Search
@@ -93,7 +116,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Search triggered');
         callbacks.onSearch?.current?.();
       });
-      if (!isActive) { unlistenSearch(); return; }
+      if (!isActive) {
+        unlistenSearch();
+        return;
+      }
       unlistenCallbacks.push(unlistenSearch);
 
       // About
@@ -101,7 +127,10 @@ export function useMenuEvents(callbacks: {
         log.debug('About triggered');
         callbacks.onOpenAbout?.current?.();
       });
-      if (!isActive) { unlistenAbout(); return; }
+      if (!isActive) {
+        unlistenAbout();
+        return;
+      }
       unlistenCallbacks.push(unlistenAbout);
 
       // Show Keyboard Shortcuts
@@ -109,7 +138,10 @@ export function useMenuEvents(callbacks: {
         log.debug('Show Keyboard Shortcuts triggered');
         callbacks.onOpenKeyboardShortcuts?.current?.();
       });
-      if (!isActive) { unlistenShortcuts(); return; }
+      if (!isActive) {
+        unlistenShortcuts();
+        return;
+      }
       unlistenCallbacks.push(unlistenShortcuts);
 
       // Toggle Completed Tasks
@@ -118,7 +150,10 @@ export function useMenuEvents(callbacks: {
         const showCompleted = uiState?.showCompletedTasks ?? true;
         callbacks.onToggleCompleted?.current?.(showCompleted);
       });
-      if (!isActive) { unlistenToggleCompleted(); return; }
+      if (!isActive) {
+        unlistenToggleCompleted();
+        return;
+      }
       unlistenCallbacks.push(unlistenToggleCompleted);
 
       // Sort Mode handlers
@@ -139,7 +174,10 @@ export function useMenuEvents(callbacks: {
           const currentDirection = uiState?.sortConfig?.direction ?? 'asc';
           callbacks.onSetSortMode?.current?.(mode, currentMode, currentDirection);
         });
-        if (!isActive) { unlisten(); return; }
+        if (!isActive) {
+          unlisten();
+          return;
+        }
         unlistenCallbacks.push(unlisten);
       }
     };

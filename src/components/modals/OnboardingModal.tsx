@@ -24,7 +24,8 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     title: 'Welcome to caldav-tasks',
-    description: 'A lightweight app that syncs with your CalDAV server. Keep your tasks organized across all your devices.',
+    description:
+      'A lightweight app that syncs with your CalDAV server. Keep your tasks organized across all your devices.',
     icon: <FolderKanban className="w-12 h-12 text-primary-500" />,
     illustration: (
       <div className="flex items-center justify-center gap-4 py-8">
@@ -36,7 +37,8 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'Connect your CalDAV account',
-    description: 'Add your CalDAV server credentials to sync your tasks. We support Nextcloud, Fastmail, and any standard CalDAV server.',
+    description:
+      'Add your CalDAV server credentials to sync your tasks. We support Nextcloud, Fastmail, and any standard CalDAV server.',
     icon: <User className="w-12 h-12 text-primary-500" />,
     illustration: (
       <div className="flex items-center justify-center gap-4 py-8">
@@ -52,7 +54,8 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'Organize With Calendars & Tags',
-    description: 'Create multiple calendars for different projects. Use tags to categorize tasks across calendars. Everything stays in sync.',
+    description:
+      'Create multiple calendars for different projects. Use tags to categorize tasks across calendars. Everything stays in sync.',
     icon: <Calendar className="w-12 h-12 text-primary-500" />,
     illustration: (
       <div className="flex items-center justify-center gap-2 py-8 flex-wrap">
@@ -73,7 +76,8 @@ const steps: OnboardingStep[] = [
   },
   {
     title: "You're All Set!",
-    description: 'Start adding tasks and stay productive. Your tasks will sync automatically in the background.',
+    description:
+      'Start adding tasks and stay productive. Your tasks will sync automatically in the background.',
     icon: <CheckCircle2 className="w-12 h-12 text-primary-500" />,
     illustration: (
       <div className="flex items-center justify-center py-8">
@@ -90,7 +94,7 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
   const [initialAccountCount, setInitialAccountCount] = useState(0);
   const { setOnboardingCompleted } = useSettingsStore();
   const { data: accounts = [] } = useAccounts();
-  
+
   // Track initial account count and advance step when an account is added
   useEffect(() => {
     if (currentStep === 1) {
@@ -104,11 +108,11 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
       }
     }
   }, [accounts, currentStep, initialAccountCount]);
-  
+
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
   const isAccountStep = currentStep === 1;
-  
+
   const handleNext = () => {
     if (isLastStep) {
       setOnboardingCompleted(true);
@@ -117,11 +121,11 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
       setCurrentStep(currentStep + 1);
     }
   };
-  
+
   const handleAddAccount = () => {
     onAddAccount();
   };
-  
+
   const handleSkip = () => {
     setOnboardingCompleted(true);
     onComplete();
@@ -136,29 +140,29 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
             <div
               key={index}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentStep 
-                  ? 'w-8 bg-primary-500' 
-                  : index < currentStep 
+                index === currentStep
+                  ? 'w-8 bg-primary-500'
+                  : index < currentStep
                     ? 'bg-primary-300 dark:bg-primary-700'
                     : 'bg-surface-300 dark:bg-surface-600'
               }`}
             />
           ))}
         </div>
-        
+
         {/* Content */}
         <div className="text-center">
           {step.illustration}
-          
+
           <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100 mb-3">
             {step.title}
           </h2>
-          
+
           <p className="text-surface-600 dark:text-surface-400 mb-8 leading-relaxed">
             {step.description}
           </p>
         </div>
-        
+
         {/* Actions */}
         <div className="flex flex-col gap-3">
           {isAccountStep ? (
@@ -186,7 +190,7 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
               {!isLastStep && <ArrowRight className="w-5 h-5" />}
             </button>
           )}
-          
+
           {currentStep === 0 && (
             <button
               onClick={handleSkip}

@@ -1,4 +1,4 @@
-import { isMacPlatform } from "./misc";
+import { isMacPlatform } from './misc';
 
 export function getMetaKeyLabel(): string {
   return isMacPlatform() ? '⌘' : 'Ctrl';

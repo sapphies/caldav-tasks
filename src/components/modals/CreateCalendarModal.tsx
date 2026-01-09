@@ -44,10 +44,10 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
     try {
       // create calendar on server
       const calendar = await caldavService.createCalendar(accountId, displayName, color);
-      
+
       // add to local store with icon
       addCalendarMutation.mutate({ accountId, calendarData: { ...calendar, icon } });
-      
+
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create calendar');
@@ -58,7 +58,7 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-sm animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -111,7 +111,7 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
                 />
               ))}
             </div>
-            
+
             <div className="mt-3 flex items-center gap-2">
               <input
                 type="color"

@@ -9,14 +9,14 @@ export interface FlattenedTask extends Task {
 }
 
 /**
- * flatten a tree of tasks into a single array suitable for dnd-kit SortableContext  
+ * flatten a tree of tasks into a single array suitable for dnd-kit SortableContext
  * each task gets an `ancestorIds` array to track its position in the hierarchy
  */
 export function flattenTasks(
   tasks: Task[],
   getChildTasks: (parentUid: string) => Task[],
   getSortedTasks: (tasks: Task[]) => Task[],
-  ancestorIds: string[] = []
+  ancestorIds: string[] = [],
 ): FlattenedTask[] {
   const result: FlattenedTask[] = [];
 
@@ -39,7 +39,7 @@ export function flattenTasks(
           sortedChildren,
           getChildTasks,
           getSortedTasks,
-          childAncestorIds
+          childAncestorIds,
         );
         result.push(...flattenedChildren);
       }
@@ -56,34 +56,34 @@ export function flattenTasks(
 export function calculateNewPositions(
   flattenedItems: FlattenedTask[],
   activeId: string,
-  overId: string
+  overId: string,
 ): Map<string, { sortOrder: number; parentUid: string | undefined }> {
   const updates = new Map<string, { sortOrder: number; parentUid: string | undefined }>();
-  
-  const activeIndex = flattenedItems.findIndex(t => t.id === activeId);
-  const overIndex = flattenedItems.findIndex(t => t.id === overId);
-  
+
+  const activeIndex = flattenedItems.findIndex((t) => t.id === activeId);
+  const overIndex = flattenedItems.findIndex((t) => t.id === overId);
+
   if (activeIndex === -1 || overIndex === -1) return updates;
-  
+
   const activeItem = flattenedItems[activeIndex];
   const overItem = flattenedItems[overIndex];
-  
+
   // prevent dropping into own descendants
   if (overItem.ancestorIds.includes(activeId)) {
     return updates;
   }
-  
+
   // determine the new parent for the active item
   // when dropping onto an item, the active item becomes a sibling of the over item
   // (i.e., takes the same parent as the over item)
   let newParentUid: string | undefined;
-  
+
   // check if we're moving into the over item's children
-  // if the next item after overItem is a child of overItem, 
+  // if the next item after overItem is a child of overItem,
   // and we're moving down (activeIndex < overIndex), insert as first child
   const movingDown = activeIndex < overIndex;
   let insertAsFirstChild = false;
-  
+
   if (movingDown && overIndex + 1 < flattenedItems.length) {
     const nextItem = flattenedItems[overIndex + 1];
     if (nextItem.ancestorIds.includes(overItem.id)) {
@@ -92,34 +92,35 @@ export function calculateNewPositions(
       newParentUid = overItem.uid;
     }
   }
-  
+
   if (!insertAsFirstChild) {
     // become a sibling of overItem (same parent)
     newParentUid = overItem.parentUid;
   }
-  
+
   // get all siblings at the target level (excluding the active item)
   const targetParentUid = newParentUid;
   const siblings = flattenedItems.filter(
-    t => t.parentUid === targetParentUid && t.id !== activeId
+    (t) => t.parentUid === targetParentUid && t.id !== activeId,
   );
-  
+
   // find the position of overItem among siblings
-  const overSiblingIndex = siblings.findIndex(t => t.id === overId);
-  
+  const overSiblingIndex = siblings.findIndex((t) => t.id === overId);
+
   // create new sorted order
   const newOrder = [...siblings];
-  
+
   if (insertAsFirstChild) {
     // insert at the beginning of overItem's children
     const childrenOfOver = flattenedItems.filter(
-      t => t.parentUid === overItem.uid && t.id !== activeId
+      (t) => t.parentUid === overItem.uid && t.id !== activeId,
     );
     // active item gets sortOrder before the first child
-    const minChildOrder = childrenOfOver.length > 0
-      ? Math.min(...childrenOfOver.map(t => t.sortOrder))
-      : activeItem.sortOrder;
-    
+    const minChildOrder =
+      childrenOfOver.length > 0
+        ? Math.min(...childrenOfOver.map((t) => t.sortOrder))
+        : activeItem.sortOrder;
+
     updates.set(activeId, {
       sortOrder: minChildOrder - 1,
       parentUid: overItem.uid,
@@ -127,7 +128,7 @@ export function calculateNewPositions(
   } else {
     // insert at the appropriate position among siblings
     let insertIndex: number;
-    
+
     if (overSiblingIndex === -1) {
       // overItem is not a direct sibling, insert at the end
       insertIndex = newOrder.length;
@@ -136,10 +137,10 @@ export function calculateNewPositions(
     } else {
       insertIndex = overSiblingIndex;
     }
-    
+
     // assign new sort orders
     newOrder.splice(insertIndex, 0, activeItem);
-    
+
     // assign sort orders with gaps
     newOrder.forEach((task, index) => {
       const newSortOrder = (index + 1) * 100;
@@ -149,6 +150,6 @@ export function calculateNewPositions(
       });
     });
   }
-  
+
   return updates;
 }

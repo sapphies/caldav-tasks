@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { open, save } from '@tauri-apps/plugin-dialog';
+import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import ChevronDown from 'lucide-react/icons/chevron-down';
 import Download from 'lucide-react/icons/download';
 import Upload from 'lucide-react/icons/upload';
-import ChevronDown from 'lucide-react/icons/chevron-down';
-import { save, open } from '@tauri-apps/plugin-dialog';
-import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
+import { useState } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { downloadFile } from '@/utils/file';
 
@@ -16,7 +16,9 @@ export function DataSettings() {
       <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Data</h3>
       <div className="space-y-4 rounded-lg border border-surface-200 dark:border-surface-700 p-4 bg-white dark:bg-surface-800">
         <div>
-          <h3 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">Settings Backup</h3>
+          <h3 className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-3">
+            Settings Backup
+          </h3>
           <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
             Export your settings to a file for backup or transfer to another device.
           </p>
@@ -32,7 +34,7 @@ export function DataSettings() {
                   if (path) {
                     await writeTextFile(path, json);
                   }
-                } catch (e) {
+                } catch (_e) {
                   // fallback to browser download
                   downloadFile(json, 'caldav-settings.json', 'application/json');
                 }
@@ -56,7 +58,7 @@ export function DataSettings() {
                       alert('Failed to import settings. Invalid format.');
                     }
                   }
-                } catch (e) {
+                } catch (_e) {
                   // fallback to browser file input
                   const input = document.createElement('input');
                   input.type = 'file';
@@ -88,7 +90,9 @@ export function DataSettings() {
             className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
           >
             <span>What's included?</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${showIncluded ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${showIncluded ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {showIncluded && (

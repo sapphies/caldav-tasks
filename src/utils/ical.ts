@@ -96,11 +96,7 @@ function formatICalDate(date: Date): string {
 function formatICalDateOnly(date: Date): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
   // Use local date parts for all-day dates
-  return (
-    date.getFullYear().toString() +
-    pad(date.getMonth() + 1) +
-    pad(date.getDate())
-  );
+  return date.getFullYear().toString() + pad(date.getMonth() + 1) + pad(date.getDate());
 }
 
 /**
@@ -109,26 +105,28 @@ function formatICalDateOnly(date: Date): string {
  */
 function parseICalDate(value: string): Date | undefined {
   if (!value) return undefined;
-  
+
   // Remove any parameters before the value (e.g., TZID=...)
   const cleanValue = value.trim();
-  
+
   // UTC format: 20231225T120000Z
   if (cleanValue.endsWith('Z')) {
     const match = cleanValue.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
     if (match) {
       const [, year, month, day, hour, minute, second] = match;
-      return new Date(Date.UTC(
-        parseInt(year),
-        parseInt(month) - 1,
-        parseInt(day),
-        parseInt(hour),
-        parseInt(minute),
-        parseInt(second)
-      ));
+      return new Date(
+        Date.UTC(
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hour),
+          parseInt(minute),
+          parseInt(second),
+        ),
+      );
     }
   }
-  
+
   // Local datetime: 20231225T120000
   const dtMatch = cleanValue.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
   if (dtMatch) {
@@ -139,17 +137,17 @@ function parseICalDate(value: string): Date | undefined {
       parseInt(day),
       parseInt(hour),
       parseInt(minute),
-      parseInt(second)
+      parseInt(second),
     );
   }
-  
+
   // Date only: 20231225
   const dateMatch = cleanValue.match(/^(\d{4})(\d{2})(\d{2})$/);
   if (dateMatch) {
     const [, year, month, day] = dateMatch;
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   }
-  
+
   return undefined;
 }
 
@@ -182,20 +180,20 @@ function unescapeICalText(text: string): string {
 function foldLine(line: string): string {
   const maxLength = 75;
   if (line.length <= maxLength) return line;
-  
+
   const lines: string[] = [];
   let remaining = line;
-  
+
   // First line can be up to 75 chars
   lines.push(remaining.slice(0, maxLength));
   remaining = remaining.slice(maxLength);
-  
+
   // Continuation lines start with space and can have 74 more chars
   while (remaining.length > 0) {
     lines.push(' ' + remaining.slice(0, maxLength - 1));
     remaining = remaining.slice(maxLength - 1);
   }
-  
+
   return lines.join('\r\n');
 }
 
@@ -223,15 +221,15 @@ interface ICalProperty {
 function parseProperty(line: string): ICalProperty | null {
   const colonIndex = line.indexOf(':');
   if (colonIndex === -1) return null;
-  
+
   const header = line.slice(0, colonIndex);
   const value = line.slice(colonIndex + 1);
-  
+
   // Parse name and parameters
   const parts = header.split(';');
   const name = parts[0].toUpperCase();
   const params: Record<string, string> = {};
-  
+
   for (let i = 1; i < parts.length; i++) {
     const paramPart = parts[i];
     const eqIndex = paramPart.indexOf('=');
@@ -245,7 +243,7 @@ function parseProperty(line: string): ICalProperty | null {
       params[paramName] = paramValue;
     }
   }
-  
+
   return { name, params, value };
 }
 
@@ -283,15 +281,15 @@ interface ParsedVTodo {
 function parseVAlarm(valarmContent: string): ParsedVAlarm {
   const result: ParsedVAlarm = {};
   const lines = unfoldLines(valarmContent).split('\n');
-  
+
   for (const line of lines) {
     if (!line.trim() || line.startsWith('BEGIN:') || line.startsWith('END:')) {
       continue;
     }
-    
+
     const prop = parseProperty(line);
     if (!prop) continue;
-    
+
     switch (prop.name) {
       case 'ACTION':
         result.action = prop.value.toUpperCase();
@@ -313,7 +311,7 @@ function parseVAlarm(valarmContent: string): ParsedVAlarm {
         break;
     }
   }
-  
+
   return result;
 }
 
@@ -324,13 +322,13 @@ function extractVAlarms(vtodoContent: string): string[] {
   const alarms: string[] = [];
   const content = unfoldLines(vtodoContent);
   const lines = content.split('\n');
-  
+
   let inAlarm = false;
   let currentAlarm: string[] = [];
-  
+
   for (const line of lines) {
     const trimmed = line.trim().toUpperCase();
-    
+
     if (trimmed === 'BEGIN:VALARM') {
       inAlarm = true;
       currentAlarm = [];
@@ -344,7 +342,7 @@ function extractVAlarms(vtodoContent: string): string[] {
       currentAlarm.push(line);
     }
   }
-  
+
   return alarms;
 }
 
@@ -358,17 +356,17 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
   // Extract and parse VALARMs first
   const alarmContents = extractVAlarms(vtodoContent);
   if (alarmContents.length > 0) {
-    result.alarms = alarmContents.map(parseVAlarm).filter(a => a.trigger);
+    result.alarms = alarmContents.map(parseVAlarm).filter((a) => a.trigger);
   }
-  
+
   for (const line of lines) {
     if (!line.trim() || line.startsWith('BEGIN:') || line.startsWith('END:')) {
       continue;
     }
-    
+
     const prop = parseProperty(line);
     if (!prop) continue;
-    
+
     switch (prop.name) {
       case 'UID':
         result.uid = prop.value;
@@ -387,7 +385,7 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
         break;
       case 'CATEGORIES':
         // Categories can be comma-separated
-        result.categories = prop.value.split(',').map(c => unescapeICalText(c.trim()));
+        result.categories = prop.value.split(',').map((c) => unescapeICalText(c.trim()));
         break;
       case 'DTSTART':
         result.dtstart = parseICalDate(prop.value);
@@ -429,7 +427,7 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
         break;
     }
   }
-  
+
   return result;
 }
 
@@ -440,13 +438,13 @@ function extractVTodos(icalContent: string): string[] {
   const vtodos: string[] = [];
   const content = unfoldLines(icalContent);
   const lines = content.split('\n');
-  
+
   let inVTodo = false;
   let currentVTodo: string[] = [];
-  
+
   for (const line of lines) {
     const trimmed = line.trim().toUpperCase();
-    
+
     if (trimmed === 'BEGIN:VTODO') {
       inVTodo = true;
       currentVTodo = [];
@@ -460,7 +458,7 @@ function extractVTodos(icalContent: string): string[] {
       currentVTodo.push(line);
     }
   }
-  
+
   return vtodos;
 }
 
@@ -469,12 +467,12 @@ function extractVTodos(icalContent: string): string[] {
  */
 function generateVAlarm(reminder: Reminder): string {
   const lines: string[] = [];
-  
+
   lines.push('BEGIN:VALARM');
   lines.push('ACTION:DISPLAY');
   lines.push(`TRIGGER;VALUE=DATE-TIME:${formatICalDate(new Date(reminder.trigger))}`);
   lines.push('END:VALARM');
-  
+
   return lines.join('\r\n');
 }
 
@@ -483,26 +481,26 @@ function generateVAlarm(reminder: Reminder): string {
  */
 function generateVTodo(task: Task): string {
   const lines: string[] = [];
-  
+
   lines.push('BEGIN:VTODO');
   lines.push(`UID:${task.uid}`);
   lines.push(`DTSTAMP:${formatICalDate(new Date())}`);
   lines.push(`CREATED:${formatICalDate(new Date(task.createdAt))}`);
   lines.push(`LAST-MODIFIED:${formatICalDate(new Date(task.modifiedAt))}`);
   lines.push(`SUMMARY:${escapeICalText(task.title)}`);
-  
+
   if (task.description) {
     lines.push(`DESCRIPTION:${escapeICalText(task.description)}`);
   }
-  
+
   lines.push(`STATUS:${task.completed ? 'COMPLETED' : 'NEEDS-ACTION'}`);
-  
+
   if (task.completed && task.completedAt) {
     lines.push(`COMPLETED:${formatICalDate(new Date(task.completedAt))}`);
   }
-  
+
   lines.push(`PRIORITY:${priorityToIcal[task.priority]}`);
-  
+
   if (task.startDate) {
     if (task.startDateAllDay) {
       lines.push(`DTSTART;VALUE=DATE:${formatICalDateOnly(new Date(task.startDate))}`);
@@ -510,7 +508,7 @@ function generateVTodo(task: Task): string {
       lines.push(`DTSTART:${formatICalDate(new Date(task.startDate))}`);
     }
   }
-  
+
   if (task.dueDate) {
     if (task.dueDateAllDay) {
       lines.push(`DUE;VALUE=DATE:${formatICalDateOnly(new Date(task.dueDate))}`);
@@ -518,32 +516,32 @@ function generateVTodo(task: Task): string {
       lines.push(`DUE:${formatICalDate(new Date(task.dueDate))}`);
     }
   }
-  
+
   lines.push(`X-APPLE-SORT-ORDER:${task.sortOrder}`);
-  
+
   // Tags as CATEGORIES
   if (task.tags && task.tags.length > 0) {
     const tags = taskData.getTags();
     const tagNames = task.tags
-      .map(tagId => tags.find(t => t.id === tagId)?.name)
+      .map((tagId) => tags.find((t) => t.id === tagId)?.name)
       .filter((name): name is string => Boolean(name));
-    
+
     if (tagNames.length > 0) {
-      const escaped = tagNames.map(n => escapeICalText(n));
+      const escaped = tagNames.map((n) => escapeICalText(n));
       lines.push(`CATEGORIES:${escaped.join(',')}`);
     }
   }
-  
+
   // Parent relationship
   if (task.parentUid) {
     lines.push(`RELATED-TO;RELTYPE=PARENT:${task.parentUid}`);
   }
-  
+
   // Collapsed state
   if (task.isCollapsed) {
     lines.push('X-APPLE-COLLAPSED:1');
   }
-  
+
   // Legacy subtasks (app-specific)
   if (task.subtasks.length > 0) {
     const subtasksJson = JSON.stringify(task.subtasks);
@@ -561,9 +559,9 @@ function generateVTodo(task: Task): string {
       lines.push(generateVAlarm(reminder));
     }
   }
-  
+
   lines.push('END:VTODO');
-  
+
   // Fold long lines
   return lines.map(foldLine).join('\r\n');
 }
@@ -576,13 +574,13 @@ function generateVCalendar(vtodos: string[]): string {
   lines.push('BEGIN:VCALENDAR');
   lines.push('VERSION:2.0');
   lines.push('PRODID:-//caldav-tasks//EN');
-  
+
   for (const vtodo of vtodos) {
     lines.push(vtodo);
   }
-  
+
   lines.push('END:VCALENDAR');
-  
+
   return lines.join('\r\n');
 }
 
@@ -606,14 +604,14 @@ export function vtodoToTask(
   accountId: string,
   calendarId: string,
   href?: string,
-  etag?: string
+  etag?: string,
 ): Task | null {
   try {
     const vtodos = extractVTodos(icalString);
     if (vtodos.length === 0) return null;
-    
+
     const parsed = parseVTodo(vtodos[0]);
-    
+
     // Parse subtasks
     let subtasks: Subtask[] = [];
     if (parsed.subtasksJson) {
@@ -628,13 +626,13 @@ export function vtodoToTask(
     let reminders: Reminder[] | undefined;
     if (parsed.alarms && parsed.alarms.length > 0) {
       reminders = parsed.alarms
-        .filter(a => a.trigger)
-        .map(a => ({
+        .filter((a) => a.trigger)
+        .map((a) => ({
           id: uuidv4(),
           trigger: a.trigger!,
         }));
     }
-    
+
     // Calculate sort order
     const createdDate = parsed.created || new Date();
     let sortOrder: number;
@@ -643,7 +641,7 @@ export function vtodoToTask(
     } else {
       sortOrder = toAppleEpoch(createdDate.getTime());
     }
-    
+
     const task: Task = {
       id: uuidv4(),
       uid: parsed.uid || uuidv4(),
@@ -671,7 +669,7 @@ export function vtodoToTask(
       synced: true,
       reminders,
     };
-    
+
     return task;
   } catch (error) {
     log.error('Error parsing VTODO:', error);
@@ -692,11 +690,11 @@ export function generateICalUid(): string {
 export function exportTaskAsIcs(task: Task, childTasks: Task[] = []): string {
   const vtodos: string[] = [];
   vtodos.push(generateVTodo(task));
-  
+
   for (const childTask of childTasks) {
     vtodos.push(generateVTodo(childTask));
   }
-  
+
   return generateVCalendar(vtodos);
 }
 
@@ -704,7 +702,7 @@ export function exportTaskAsIcs(task: Task, childTasks: Task[] = []): string {
  * Export multiple tasks as iCalendar format
  */
 export function exportTasksAsIcs(tasks: Task[]): string {
-  const vtodos = tasks.map(task => generateVTodo(task));
+  const vtodos = tasks.map((task) => generateVTodo(task));
   return generateVCalendar(vtodos);
 }
 
@@ -720,12 +718,12 @@ export function exportTasksAsJson(tasks: Task[]): string {
  */
 export function exportTasksAsMarkdown(tasks: Task[], level: number = 0): string {
   let markdown = '';
-  
+
   for (const task of tasks) {
     const indent = '  '.repeat(level);
     const checkbox = task.completed ? '[x]' : '[ ]';
     let line = `${indent}${checkbox} ${task.title}`;
-    
+
     // Add metadata if present
     const metadata: string[] = [];
     if (task.priority !== 'none') {
@@ -737,18 +735,18 @@ export function exportTasksAsMarkdown(tasks: Task[], level: number = 0): string 
     if (task.categoryId) {
       metadata.push(`Category: ${task.categoryId}`);
     }
-    
+
     if (metadata.length > 0) {
       line += ` (${metadata.join(', ')})`;
     }
-    
+
     if (task.description) {
       line += `\n${indent}  > ${task.description.replace(/\n/g, `\n${indent}  > `)}`;
     }
-    
+
     markdown += line + '\n';
   }
-  
+
   return markdown;
 }
 
@@ -756,8 +754,18 @@ export function exportTasksAsMarkdown(tasks: Task[], level: number = 0): string 
  * Export tasks as CSV format
  */
 export function exportTasksAsCsv(tasks: Task[]): string {
-  const headers = ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Start Date', 'Category', 'Created', 'Modified'];
-  const rows = tasks.map(task => [
+  const headers = [
+    'Title',
+    'Description',
+    'Status',
+    'Priority',
+    'Due Date',
+    'Start Date',
+    'Category',
+    'Created',
+    'Modified',
+  ];
+  const rows = tasks.map((task) => [
     `"${task.title.replace(/"/g, '""')}"`,
     `"${task.description.replace(/"/g, '""')}"`,
     task.completed ? 'Completed' : 'Pending',
@@ -768,8 +776,8 @@ export function exportTasksAsCsv(tasks: Task[]): string {
     new Date(task.createdAt).toLocaleDateString(),
     new Date(task.modifiedAt).toLocaleDateString(),
   ]);
-  
-  return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+  return [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 }
 
 /**
@@ -780,10 +788,10 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
   try {
     const vtodos = extractVTodos(icsContent);
     const tasks: Partial<Task>[] = [];
-    
+
     for (const vtodoContent of vtodos) {
       const parsed = parseVTodo(vtodoContent);
-      
+
       // Parse subtasks
       let subtasks: Subtask[] = [];
       if (parsed.subtasksJson) {
@@ -798,13 +806,13 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
       let reminders: Reminder[] | undefined;
       if (parsed.alarms && parsed.alarms.length > 0) {
         reminders = parsed.alarms
-          .filter(a => a.trigger)
-          .map(a => ({
+          .filter((a) => a.trigger)
+          .map((a) => ({
             id: uuidv4(),
             trigger: a.trigger!,
           }));
       }
-      
+
       // Calculate sort order
       const createdDate = parsed.created || new Date();
       let sortOrder: number;
@@ -813,7 +821,7 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
       } else {
         sortOrder = toAppleEpoch(createdDate.getTime());
       }
-      
+
       tasks.push({
         id: uuidv4(),
         uid: parsed.uid || uuidv4(),
@@ -838,7 +846,7 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
         reminders,
       });
     }
-    
+
     return tasks;
   } catch (error) {
     log.error('Error parsing ICS file:', error);
@@ -852,16 +860,16 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
 export function parseJsonTasksFile(jsonContent: string): Partial<Task>[] {
   try {
     const data = JSON.parse(jsonContent);
-    
+
     // Handle array of tasks directly
     if (Array.isArray(data)) {
-      return data.map(task => ({
+      return data.map((task) => ({
         ...task,
         id: uuidv4(), // Always generate new IDs
         synced: false,
       }));
     }
-    
+
     return [];
   } catch (error) {
     log.error('Error parsing JSON tasks file:', error);

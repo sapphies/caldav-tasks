@@ -36,9 +36,7 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
   const hasAccounts = accounts.length > 0;
 
   // get available calendars for the selected account
-  const availableCalendars = allCalendars.filter(
-    (cal) => cal.accountId === selectedAccountId
-  );
+  const availableCalendars = allCalendars.filter((cal) => cal.accountId === selectedAccountId);
 
   // set default account when modal opens
   useEffect(() => {
@@ -53,11 +51,9 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
   // set default calendar when account changes - only if calendar doesn't belong to account
   useEffect(() => {
     if (selectedAccountId) {
-      const cals = allCalendars.filter(
-        (cal) => cal.accountId === selectedAccountId
-      );
+      const cals = allCalendars.filter((cal) => cal.accountId === selectedAccountId);
       // only reset calendar if current selection doesn't belong to the selected account
-      const currentCalBelongsToAccount = cals.some(c => c.id === selectedCalendarId);
+      const currentCalBelongsToAccount = cals.some((c) => c.id === selectedCalendarId);
       if (!currentCalBelongsToAccount) {
         if (cals.length > 0) {
           setSelectedCalendarId(cals[0].id);
@@ -243,7 +239,7 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
-      <div 
+      <div
         className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-lg mx-4 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -311,10 +307,7 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
               </p>
               <div className="max-h-32 overflow-y-auto space-y-1 overscroll-contain">
                 {parsedTasks.slice(0, 10).map((task, i) => (
-                  <div
-                    key={i}
-                    className="text-sm text-surface-600 dark:text-surface-400 truncate"
-                  >
+                  <div key={i} className="text-sm text-surface-600 dark:text-surface-400 truncate">
                     • {task.title}
                   </div>
                 ))}
@@ -383,12 +376,7 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
           </button>
           <button
             onClick={handleImport}
-            disabled={
-              parsedTasks.length === 0 ||
-              !selectedCalendarId ||
-              importing ||
-              importSuccess
-            }
+            disabled={parsedTasks.length === 0 || !selectedCalendarId || importing || importSuccess}
             className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
             {importSuccess ? (
@@ -401,7 +389,10 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
             ) : (
               <>
                 <Upload className="w-4 h-4" />
-                Import {parsedTasks.length > 0 ? `${parsedTasks.length} ${pluralize(parsedTasks.length, 'Task')}` : ''}
+                Import{' '}
+                {parsedTasks.length > 0
+                  ? `${parsedTasks.length} ${pluralize(parsedTasks.length, 'Task')}`
+                  : ''}
               </>
             )}
           </button>

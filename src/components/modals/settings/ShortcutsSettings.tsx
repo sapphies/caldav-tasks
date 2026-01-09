@@ -7,7 +7,11 @@ import { KeyboardShortcutModal } from '../KeyboardShortcutModal';
 
 const metaKeyLabel = getMetaKeyLabel();
 
-export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortcutChange?: (editing: boolean) => void }) {
+export function ShortcutsSettings({
+  onEditingShortcutChange,
+}: {
+  onEditingShortcutChange?: (editing: boolean) => void;
+}) {
   const { keyboardShortcuts, updateShortcut, resetShortcuts } = useSettingsStore();
   const [editingShortcut, setEditingShortcut] = useState<KeyboardShortcut | null>(null);
 
@@ -18,8 +22,12 @@ export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortc
     if (shortcut.shift) parts.push(getShiftKeyLabel());
     if (shortcut.alt) parts.push(getAltKeyLabel());
     if (shortcut.key) {
-      const keyDisplay = shortcut.key === ' ' ? 'Space' : 
-                        shortcut.key.length === 1 ? shortcut.key.toUpperCase() : shortcut.key;
+      const keyDisplay =
+        shortcut.key === ' '
+          ? 'Space'
+          : shortcut.key.length === 1
+            ? shortcut.key.toUpperCase()
+            : shortcut.key;
       parts.push(keyDisplay);
     }
     return parts.join(' + ') || 'Press keys...';
@@ -45,7 +53,9 @@ export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortc
     <>
       <div className="space-y-4">
         <div className="flex flex-row justify-between">
-          <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Keyboard Shortcuts</h3>
+          <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200">
+            Keyboard Shortcuts
+          </h3>
           <button
             onClick={resetShortcuts}
             className="flex items-center gap-1 px-2 py-1 text-xs text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors"
@@ -55,27 +65,31 @@ export function ShortcutsSettings({ onEditingShortcutChange }: { onEditingShortc
             Reset to Defaults
           </button>
         </div>
-        
+
         <div className="rounded-lg border border-surface-200 dark:border-surface-700 overflow-hidden">
           {keyboardShortcuts.map((shortcut) => (
             <div
               key={shortcut.id}
               className="flex items-center justify-between py-2.5 px-3 bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 last:border-0"
             >
-              <span className="text-sm text-surface-600 dark:text-surface-400">{shortcut.description}</span>
-              
+              <span className="text-sm text-surface-600 dark:text-surface-400">
+                {shortcut.description}
+              </span>
+
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
-                  {formatShortcut(shortcut).split(' + ').map((key, keyIndex, arr) => (
-                    <span key={keyIndex} className="flex items-center">
-                      <kbd className="px-2 py-1 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-xs font-mono text-surface-700 dark:text-surface-300">
-                        {key}
-                      </kbd>
-                      {keyIndex < arr.length - 1 && (
-                        <span className="text-surface-400 mx-0.5">+</span>
-                      )}
-                    </span>
-                  ))}
+                  {formatShortcut(shortcut)
+                    .split(' + ')
+                    .map((key, keyIndex, arr) => (
+                      <span key={keyIndex} className="flex items-center">
+                        <kbd className="px-2 py-1 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-xs font-mono text-surface-700 dark:text-surface-300">
+                          {key}
+                        </kbd>
+                        {keyIndex < arr.length - 1 && (
+                          <span className="text-surface-400 mx-0.5">+</span>
+                        )}
+                      </span>
+                    ))}
                 </div>
                 <button
                   onClick={() => handleOpenEdit(shortcut)}

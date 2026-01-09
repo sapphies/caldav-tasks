@@ -13,8 +13,8 @@ import FolderSync from 'lucide-react/icons/folder-sync';
 import Bell from 'lucide-react/icons/bell';
 import Pencil from 'lucide-react/icons/pencil';
 import Link from 'lucide-react/icons/link';
-import { 
-  useUpdateTask, 
+import {
+  useUpdateTask,
   useSetEditorOpen,
   useTags,
   useCreateTask,
@@ -45,11 +45,41 @@ interface TaskEditorProps {
   task: Task;
 }
 
-const priorities: { value: Priority; label: string; color: string; borderColor: string; bgColor: string }[] = [
-  { value: 'high', label: 'High', color: 'text-red-500', borderColor: 'border-red-400', bgColor: 'bg-red-50 dark:bg-red-900/30' },
-  { value: 'medium', label: 'Medium', color: 'text-amber-500', borderColor: 'border-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-900/30' },
-  { value: 'low', label: 'Low', color: 'text-blue-500', borderColor: 'border-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-900/30' },
-  { value: 'none', label: 'None', color: 'text-surface-400', borderColor: 'border-surface-300', bgColor: 'bg-surface-50 dark:bg-surface-700' },
+const priorities: {
+  value: Priority;
+  label: string;
+  color: string;
+  borderColor: string;
+  bgColor: string;
+}[] = [
+  {
+    value: 'high',
+    label: 'High',
+    color: 'text-red-500',
+    borderColor: 'border-red-400',
+    bgColor: 'bg-red-50 dark:bg-red-900/30',
+  },
+  {
+    value: 'medium',
+    label: 'Medium',
+    color: 'text-amber-500',
+    borderColor: 'border-amber-400',
+    bgColor: 'bg-amber-50 dark:bg-amber-900/30',
+  },
+  {
+    value: 'low',
+    label: 'Low',
+    color: 'text-blue-500',
+    borderColor: 'border-blue-400',
+    bgColor: 'bg-blue-50 dark:bg-blue-900/30',
+  },
+  {
+    value: 'none',
+    label: 'None',
+    color: 'text-surface-400',
+    borderColor: 'border-surface-300',
+    bgColor: 'bg-surface-50 dark:bg-surface-700',
+  },
 ];
 
 export function TaskEditor({ task }: TaskEditorProps) {
@@ -83,20 +113,22 @@ export function TaskEditor({ task }: TaskEditorProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const childTasks = taskData.getChildTasks(task.uid);
   const childCount = taskData.countChildren(task.uid);
-  const taskTags = (task.tags || []).map(tagId => taskData.getTags().find(t => t.id === tagId)).filter(Boolean);
-  const availableTags = tags.filter(t => !(task.tags || []).includes(t.id));
+  const taskTags = (task.tags || [])
+    .map((tagId) => taskData.getTags().find((t) => t.id === tagId))
+    .filter(Boolean);
+  const availableTags = tags.filter((t) => !(task.tags || []).includes(t.id));
 
   // Get current calendar info
-  const currentAccount = accounts.find(a => a.id === task.accountId);
-  const currentCalendar = currentAccount?.calendars.find(c => c.id === task.calendarId);
-  
+  const currentAccount = accounts.find((a) => a.id === task.accountId);
+  const currentCalendar = currentAccount?.calendars.find((c) => c.id === task.calendarId);
+
   // Get all available calendars for moving
-  const allCalendars = accounts.flatMap(account => 
-    account.calendars.map(cal => ({
+  const allCalendars = accounts.flatMap((account) =>
+    account.calendars.map((cal) => ({
       ...cal,
       accountId: account.id,
       accountName: account.name,
-    }))
+    })),
   );
 
   // focus title on open if empty
@@ -127,7 +159,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
   };
 
   const handleCalendarChange = (calendarId: string) => {
-    const targetCalendar = allCalendars.find(c => c.id === calendarId);
+    const targetCalendar = allCalendars.find((c) => c.id === calendarId);
     if (targetCalendar) {
       // If this is a subtask and calendar is being changed, convert it to a regular task
       const updates: any = {
@@ -144,7 +176,10 @@ export function TaskEditor({ task }: TaskEditorProps) {
   };
 
   const handleStartDateChange = (date: Date | undefined, allDay?: boolean) => {
-    updateTaskMutation.mutate({ id: task.id, updates: { startDate: date, startDateAllDay: allDay } });
+    updateTaskMutation.mutate({
+      id: task.id,
+      updates: { startDate: date, startDateAllDay: allDay },
+    });
   };
 
   const handleDueDateChange = (date: Date | undefined, allDay?: boolean) => {
@@ -299,8 +334,12 @@ export function TaskEditor({ task }: TaskEditorProps) {
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg hover:border-surface-300 dark:hover:border-surface-500 focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition-colors"
             >
               <Calendar className="w-4 h-4 text-surface-400 flex-shrink-0" />
-              <span className={task.startDate ? 'text-surface-700 dark:text-surface-300' : 'text-surface-400'}>
-                {task.startDate 
+              <span
+                className={
+                  task.startDate ? 'text-surface-700 dark:text-surface-300' : 'text-surface-400'
+                }
+              >
+                {task.startDate
                   ? task.startDateAllDay
                     ? format(new Date(task.startDate), 'MMM d, yyyy') + ' (All day)'
                     : format(new Date(task.startDate), 'MMM d, yyyy h:mm a')
@@ -318,8 +357,12 @@ export function TaskEditor({ task }: TaskEditorProps) {
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg hover:border-surface-300 dark:hover:border-surface-500 focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition-colors"
             >
               <Calendar className="w-4 h-4 text-surface-400 flex-shrink-0" />
-              <span className={task.dueDate ? 'text-surface-700 dark:text-surface-300' : 'text-surface-400'}>
-                {task.dueDate 
+              <span
+                className={
+                  task.dueDate ? 'text-surface-700 dark:text-surface-300' : 'text-surface-400'
+                }
+              >
+                {task.dueDate
                   ? task.dueDateAllDay
                     ? format(new Date(task.dueDate), 'MMM d, yyyy') + ' (All day)'
                     : format(new Date(task.dueDate), 'MMM d, yyyy h:mm a')
@@ -341,9 +384,10 @@ export function TaskEditor({ task }: TaskEditorProps) {
                 onClick={() => handlePriorityChange(p.value)}
                 className={`
                   flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-colors
-                  ${task.priority === p.value
-                    ? `${p.borderColor} ${p.bgColor}`
-                    : 'border-surface-200 dark:border-surface-600 hover:border-surface-300 text-surface-600 dark:text-surface-400'
+                  ${
+                    task.priority === p.value
+                      ? `${p.borderColor} ${p.bgColor}`
+                      : 'border-surface-200 dark:border-surface-600 hover:border-surface-300 text-surface-600 dark:text-surface-400'
                   }
                 `}
               >
@@ -387,7 +431,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
               )}
             </>
           ) : (
-            <div 
+            <div
               className="w-full px-3 py-2 text-sm border border-surface-200 dark:border-surface-600 bg-surface-100 dark:bg-surface-800 text-surface-400 dark:text-surface-500 rounded-lg cursor-not-allowed"
               title="Add a CalDAV account to assign tasks to calendars"
             >
@@ -409,16 +453,18 @@ export function TaskEditor({ task }: TaskEditorProps) {
                 <span
                   key={tag.id}
                   className="inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded border text-xs font-medium group"
-                    style={{ 
-                      borderColor: tag.color,
-                      backgroundColor: `${tag.color}15`,
-                      color: tag.color,
-                    }}
+                  style={{
+                    borderColor: tag.color,
+                    backgroundColor: `${tag.color}15`,
+                    color: tag.color,
+                  }}
                 >
                   <TagIcon className="w-3 h-3" />
                   {tag.name}
                   <button
-                    onClick={() => removeTagFromTaskMutation.mutate({ taskId: task.id, tagId: tag.id })}
+                    onClick={() =>
+                      removeTagFromTaskMutation.mutate({ taskId: task.id, tagId: tag.id })
+                    }
                     className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                   >
                     <X className="w-3 h-3" />
@@ -426,7 +472,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
                 </span>
               );
             })}
-            
+
             <button
               onClick={() => setShowTagPicker(true)}
               className="inline-flex items-center gap-1 px-2 py-1 text-xs text-surface-500 dark:text-surface-400 border border-dashed border-surface-300 dark:border-surface-600 rounded-full hover:border-surface-400 dark:hover:border-surface-500 transition-colors"
@@ -467,7 +513,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
                 </div>
               </div>
             ))}
-            
+
             <button
               onClick={() => setShowReminderPicker(true)}
               className="inline-flex items-center gap-1 px-2 py-1 text-xs text-surface-500 dark:text-surface-400 border border-dashed border-surface-300 dark:border-surface-600 rounded-full hover:border-surface-400 dark:hover:border-surface-500 transition-colors"
@@ -509,33 +555,50 @@ export function TaskEditor({ task }: TaskEditorProps) {
                   Legacy subtasks (will be migrated)
                 </div>
                 {task.subtasks.map((subtask) => (
-                  <div
-                    key={subtask.id}
-                    className="flex items-center gap-2 group opacity-60"
-                  >
+                  <div key={subtask.id} className="flex items-center gap-2 group opacity-60">
                     <button
-                      onClick={() => toggleSubtaskCompleteMutation.mutate({ taskId: task.id, subtaskId: subtask.id })}
+                      onClick={() =>
+                        toggleSubtaskCompleteMutation.mutate({
+                          taskId: task.id,
+                          subtaskId: subtask.id,
+                        })
+                      }
                       className={`
                         w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0
-                        ${subtask.completed
-                          ? 'bg-primary-500 border-primary-500'
-                          : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
+                        ${
+                          subtask.completed
+                            ? 'bg-primary-500 border-primary-500'
+                            : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
                         }
                       `}
                     >
-                      {subtask.completed && <Check className="w-3 h-3" style={{ color: checkmarkColor }} strokeWidth={3} />}
+                      {subtask.completed && (
+                        <Check
+                          className="w-3 h-3"
+                          style={{ color: checkmarkColor }}
+                          strokeWidth={3}
+                        />
+                      )}
                     </button>
                     <input
                       type="text"
                       value={subtask.title}
-                      onChange={(e) => updateSubtaskMutation.mutate({ taskId: task.id, subtaskId: subtask.id, updates: { title: e.target.value } })}
+                      onChange={(e) =>
+                        updateSubtaskMutation.mutate({
+                          taskId: task.id,
+                          subtaskId: subtask.id,
+                          updates: { title: e.target.value },
+                        })
+                      }
                       className={`
                         flex-1 px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-0
                         ${subtask.completed ? 'line-through text-surface-400' : 'text-surface-700 dark:text-surface-300'}
                       `}
                     />
                     <button
-                      onClick={() => deleteSubtaskMutation.mutate({ taskId: task.id, subtaskId: subtask.id })}
+                      onClick={() =>
+                        deleteSubtaskMutation.mutate({ taskId: task.id, subtaskId: subtask.id })
+                      }
                       className="opacity-0 group-hover:opacity-100 p-1 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
                     >
                       <X className="w-4 h-4" />

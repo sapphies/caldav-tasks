@@ -8,10 +8,10 @@ import RefreshCw from 'lucide-react/icons/refresh-cw';
 import Eye from 'lucide-react/icons/eye';
 import EyeOff from 'lucide-react/icons/eye-off';
 import WifiOff from 'lucide-react/icons/wifi-off';
-import { 
-  useUIState, 
-  useSetSearchQuery, 
-  useSetSortConfig, 
+import {
+  useUIState,
+  useSetSearchQuery,
+  useSetSortConfig,
   useSetShowCompletedTasks,
   useCreateTask,
   useSetSelectedTask,
@@ -40,7 +40,13 @@ interface HeaderProps {
   disableSync?: boolean;
 }
 
-export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onSync, disableSync = false }: HeaderProps) {
+export function Header({
+  isSyncing = false,
+  isOffline = false,
+  lastSyncTime,
+  onSync,
+  disableSync = false,
+}: HeaderProps) {
   const { data: uiState } = useUIState();
   const setSearchQueryMutation = useSetSearchQuery();
   const setSortConfigMutation = useSetSortConfig();
@@ -49,7 +55,10 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
   const setSelectedTaskMutation = useSetSelectedTask();
 
   const searchQuery = uiState?.searchQuery ?? '';
-  const sortConfig = uiState?.sortConfig ?? { mode: 'manual' as SortMode, direction: 'asc' as const };
+  const sortConfig = uiState?.sortConfig ?? {
+    mode: 'manual' as SortMode,
+    direction: 'asc' as const,
+  };
   const showCompletedTasks = uiState?.showCompletedTasks ?? true;
 
   const { isAnyModalOpen } = useModalState();
@@ -71,11 +80,14 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
   }, [showSortMenu]);
 
   const handleNewTask = () => {
-    createTaskMutation.mutate({ title: '' }, {
-      onSuccess: (task) => {
-        setSelectedTaskMutation.mutate(task.id);
-      }
-    });
+    createTaskMutation.mutate(
+      { title: '' },
+      {
+        onSuccess: (task) => {
+          setSelectedTaskMutation.mutate(task.id);
+        },
+      },
+    );
   };
 
   const toggleSortDirection = () => {
@@ -114,14 +126,14 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
           )}
 
           {onSync && (
-            <Tooltip 
+            <Tooltip
               content={
                 disableSync
                   ? 'Add an account to be able to use sync'
-                  : isOffline 
-                    ? 'Cannot sync while offline' 
-                    : lastSyncTime 
-                      ? `Last synced ${formatDistanceToNow(lastSyncTime, { addSuffix: true })}` 
+                  : isOffline
+                    ? 'Cannot sync while offline'
+                    : lastSyncTime
+                      ? `Last synced ${formatDistanceToNow(lastSyncTime, { addSuffix: true })}`
                       : `Sync with server (${syncShortcut})`
               }
               position="bottom"
@@ -142,7 +154,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
             </Tooltip>
           )}
 
-          <Tooltip 
+          <Tooltip
             content={showCompletedTasks ? 'Hide completed tasks' : 'Show completed tasks'}
             position="bottom"
           >
@@ -154,11 +166,7 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
                   : `text-surface-500 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
               }`}
             >
-              {showCompletedTasks ? (
-                <Eye className="w-5 h-5" />
-              ) : (
-                <EyeOff className="w-5 h-5" />
-              )}
+              {showCompletedTasks ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
             </button>
           </Tooltip>
 
@@ -177,19 +185,14 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
                 ) : (
                   <SortDesc className="w-4 h-4" />
                 )}
-                <span>
-                  {sortOptions.find((o) => o.value === sortConfig.mode)?.label}
-                </span>
+                <span>{sortOptions.find((o) => o.value === sortConfig.mode)?.label}</span>
               </button>
             </Tooltip>
 
             {showSortMenu && (
               <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
                 <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowSortMenu(false)}
-                />
-                <div 
                   data-context-menu-content
                   className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-surface-200 dark:border-surface-700 py-1 z-50 min-w-[180px] animate-scale-in"
                 >
@@ -230,7 +233,8 @@ export function Header({ isSyncing = false, isOffline = false, lastSyncTime, onS
 
           <button
             onClick={handleNewTask}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm transition-colors border-primary-400 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 ${!isAnyModalOpen ? 'hover:bg-primary-100 dark:hover:bg-primary-800' : ''} shadow-sm`}>
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm transition-colors border-primary-400 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 ${!isAnyModalOpen ? 'hover:bg-primary-100 dark:hover:bg-primary-800' : ''} shadow-sm`}
+          >
             <Plus className="w-4 h-4" />
             New Task
           </button>

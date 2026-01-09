@@ -19,11 +19,17 @@ export function useAppMenu() {
   useEffect(() => {
     const sortMode = uiState?.sortConfig?.mode ?? 'manual';
     // only use menu-supported sort modes
-    const menuSortMode: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified' = 
-      sortMode === 'start-date' ? 'manual' : sortMode;
-    
+    const menuSortMode:
+      | 'manual'
+      | 'smart'
+      | 'due-date'
+      | 'priority'
+      | 'title'
+      | 'created'
+      | 'modified' = sortMode === 'start-date' ? 'manual' : sortMode;
+
     log.debug('Updating menu state with sortMode:', menuSortMode);
-    updateMenuState({ 
+    updateMenuState({
       hasAccounts: accounts.length > 0,
       hasTasks: tasks.length > 0,
       showCompleted: uiState?.showCompletedTasks ?? true,
@@ -34,9 +40,15 @@ export function useAppMenu() {
   // Rebuild menu when keyboard shortcuts change
   useEffect(() => {
     const sortMode = uiState?.sortConfig?.mode ?? 'manual';
-    const menuSortMode: 'manual' | 'smart' | 'due-date' | 'priority' | 'title' | 'created' | 'modified' = 
-      sortMode === 'start-date' ? 'manual' : sortMode;
-    
+    const menuSortMode:
+      | 'manual'
+      | 'smart'
+      | 'due-date'
+      | 'priority'
+      | 'title'
+      | 'created'
+      | 'modified' = sortMode === 'start-date' ? 'manual' : sortMode;
+
     rebuildAppMenu({
       showCompleted: uiState?.showCompletedTasks ?? true,
       sortMode: menuSortMode,

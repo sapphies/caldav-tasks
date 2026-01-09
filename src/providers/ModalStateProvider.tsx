@@ -10,7 +10,9 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
     // Observer to detect modal elements being added/removed
     const observer = new MutationObserver(() => {
       // Check for modal backdrop elements
-      const modals = document.querySelectorAll('[role="dialog"], .fixed.inset-0.z-50, .fixed.inset-0.z-\\[60\\]');
+      const modals = document.querySelectorAll(
+        '[role="dialog"], .fixed.inset-0.z-50, .fixed.inset-0.z-\\[60\\]',
+      );
       const hasOpenModal = modals.length > 0;
 
       // Check for context menu elements
@@ -22,7 +24,7 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
         if (hasOpenModal && !prev) {
           // Modal opening - set data attribute for CSS
           document.documentElement.setAttribute('data-modal-open', 'true');
-          
+
           // Blur active element to remove focus ring
           if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
@@ -31,7 +33,7 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
           // Modal closing - remove data attribute
           document.documentElement.removeAttribute('data-modal-open');
         }
-        
+
         return hasOpenModal;
       });
     });
@@ -47,11 +49,10 @@ export function ModalStateProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo(() => ({ isAnyModalOpen, isContextMenuOpen }), [isAnyModalOpen, isContextMenuOpen]);
-
-  return (
-    <ModalStateContext.Provider value={value}>
-      {children}
-    </ModalStateContext.Provider>
+  const value = useMemo(
+    () => ({ isAnyModalOpen, isContextMenuOpen }),
+    [isAnyModalOpen, isContextMenuOpen],
   );
+
+  return <ModalStateContext.Provider value={value}>{children}</ModalStateContext.Provider>;
 }

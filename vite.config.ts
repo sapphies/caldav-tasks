@@ -10,7 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       // Tree-shake lucide-react by resolving icons/* to individual ESM files
       'lucide-react/icons': fileURLToPath(
-        new URL('./node_modules/lucide-react/dist/esm/icons', import.meta.url)
+        new URL('./node_modules/lucide-react/dist/esm/icons', import.meta.url),
       ),
     },
   },

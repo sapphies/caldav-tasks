@@ -4,7 +4,11 @@
  * @param fileName - The name of the file to download
  * @param mimeType - The MIME type of the file (default: 'text/plain')
  */
-export const downloadFile = (content: string, fileName: string, mimeType: string = 'text/plain') => {
+export const downloadFile = (
+  content: string,
+  fileName: string,
+  mimeType: string = 'text/plain',
+) => {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const element = document.createElement('a');

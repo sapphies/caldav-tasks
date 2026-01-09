@@ -8,7 +8,7 @@ const SUPPORTED_EXTENSIONS = ['.ics', '.ical', '.json'];
 
 function isSupportedFile(filename: string): boolean {
   const lower = filename.toLowerCase();
-  return SUPPORTED_EXTENSIONS.some(ext => lower.endsWith(ext));
+  return SUPPORTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
 
 export interface FileDropResult {
@@ -57,73 +57,82 @@ export function useFileDrop(options: UseFileDropOptions = {}): UseFileDropReturn
   }, []);
 
   // handle file drop for import
-  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-    setIsUnsupportedFile(false);
+  const handleFileDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+      setIsUnsupportedFile(false);
 
-    const file = e.dataTransfer?.files?.[0];
-    if (!file) return;
+      const file = e.dataTransfer?.files?.[0];
+      if (!file) return;
 
-    // Check if it's a supported file type
-    if (!isSupportedFile(file.name)) {
-      // Unsupported file - don't do anything (already showed feedback during drag)
-      return;
-    }
-
-    // check if it's a calendar or task file
-    const isIcs = file.name.endsWith('.ics') || file.name.endsWith('.ical');
-    const isJson = file.name.endsWith('.json');
-
-    if (isIcs || isJson) {
-      try {
-        const content = await file.text();
-        // check if JSON is a tasks file (not settings)
-        if (isJson) {
-          try {
-            const parsed = JSON.parse(content);
-            // check if it looks like a tasks export (array with task properties)
-            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title) {
-              onFileDrop?.({ name: file.name, content });
-            }
-          } catch {
-            // not valid JSON, ignore
-          }
-        } else {
-          onFileDrop?.({ name: file.name, content });
-        }
-      } catch (err) {
-        log.error('Failed to read dropped file:', err);
+      // Check if it's a supported file type
+      if (!isSupportedFile(file.name)) {
+        // Unsupported file - don't do anything (already showed feedback during drag)
+        return;
       }
-    }
-  }, [onFileDrop]);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+      // check if it's a calendar or task file
+      const isIcs = file.name.endsWith('.ics') || file.name.endsWith('.ical');
+      const isJson = file.name.endsWith('.json');
 
-    // Check if files are supported and update visual feedback
-    const isSupported = checkDraggedFiles(e);
-    setIsUnsupportedFile(!isSupported);
-    
-    // Set the dropEffect to show appropriate cursor
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = isSupported ? 'copy' : 'none';
-    }
+      if (isIcs || isJson) {
+        try {
+          const content = await file.text();
+          // check if JSON is a tasks file (not settings)
+          if (isJson) {
+            try {
+              const parsed = JSON.parse(content);
+              // check if it looks like a tasks export (array with task properties)
+              if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title) {
+                onFileDrop?.({ name: file.name, content });
+              }
+            } catch {
+              // not valid JSON, ignore
+            }
+          } else {
+            onFileDrop?.({ name: file.name, content });
+          }
+        } catch (err) {
+          log.error('Failed to read dropped file:', err);
+        }
+      }
+    },
+    [onFileDrop],
+  );
 
-    setIsDragOver(true);
-  }, [checkDraggedFiles]);
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+      // Check if files are supported and update visual feedback
+      const isSupported = checkDraggedFiles(e);
+      setIsUnsupportedFile(!isSupported);
 
-    const isSupported = checkDraggedFiles(e);
-    setIsUnsupportedFile(!isSupported);
+      // Set the dropEffect to show appropriate cursor
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = isSupported ? 'copy' : 'none';
+      }
 
-    setIsDragOver(true);
-  }, [checkDraggedFiles]);
+      setIsDragOver(true);
+    },
+    [checkDraggedFiles],
+  );
+
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const isSupported = checkDraggedFiles(e);
+      setIsUnsupportedFile(!isSupported);
+
+      setIsDragOver(true);
+    },
+    [checkDraggedFiles],
+  );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
