@@ -3,6 +3,7 @@ import ChevronDown from 'lucide-react/icons/chevron-down';
 import ChevronRight from 'lucide-react/icons/chevron-right';
 import Edit2 from 'lucide-react/icons/edit-2';
 import FolderKanban from 'lucide-react/icons/folder-kanban';
+import Import from 'lucide-react/icons/import';
 import Inbox from 'lucide-react/icons/inbox';
 import MoreVertical from 'lucide-react/icons/more-vertical';
 import PanelLeftClose from 'lucide-react/icons/panel-left-close';
@@ -12,7 +13,6 @@ import RefreshCw from 'lucide-react/icons/refresh-cw';
 import Settings from 'lucide-react/icons/settings';
 import Share2 from 'lucide-react/icons/share-2';
 import Trash2 from 'lucide-react/icons/trash-2';
-import Upload from 'lucide-react/icons/upload';
 import User from 'lucide-react/icons/user';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -320,7 +320,7 @@ export function Sidebar({
                         onClick={onOpenImport}
                         className={`p-1 rounded ${!isAnyModalOpen ? 'hover:bg-surface-300 dark:hover:bg-surface-600 hover:text-surface-700 dark:hover:text-surface-300' : ''} text-surface-500 dark:text-surface-400 transition-colors`}
                       >
-                        <Upload className="w-4 h-4" />
+                        <Import className="w-4 h-4" />
                       </button>
                     </Tooltip>
                     <Tooltip content="Add account" position="top">
