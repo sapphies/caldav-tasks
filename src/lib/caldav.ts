@@ -51,10 +51,10 @@ class CalDAVService {
     // This helps when users paste full DAV URLs instead of just the base URL
     if (serverType === 'generic') {
       const caldavPathPatterns = [
-        /\/remote\.php\/dav.*$/i, // Nextcloud
-        /\/dav\.php.*$/i, // Baikal
-        /\/caldav.*$/i, // Various servers
-        /\/\.well-known\/caldav.*$/i, // Well-known
+        /(?<!:)\/remote\.php\/dav.*$/i, // Nextcloud
+        /(?<!:)\/dav\.php.*$/i, // Baikal
+        /(?<!:)\/caldav(?:\/.*)?$/i, // Various servers
+        /(?<!:)\/\.well-known\/caldav.*$/i, // Well-known
       ];
 
       for (const pattern of caldavPathPatterns) {
