@@ -6,8 +6,113 @@ on:
     branches:
       - release
 
+# ensure only one release workflow runs at a time
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
+  # first job: generate changelog and create the release
+  prepare-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      release_id: ${{ steps.create_release.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for changelog
+
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Get previous tag
+        id: get_prev_tag
+        run: |
+          # Get the most recent tag
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag: $PREV_TAG"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG="${{ steps.get_prev_tag.outputs.prev_tag }}"
+
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag, get all commits
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges HEAD)
+          else
+            # Get commits since last tag
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges ${PREV_TAG}..HEAD)
+          fi
+
+          # Categorize commits by conventional commit type
+          FEATURES=""
+          FIXES=""
+          OTHERS=""
+
+          while IFS= read -r line; do
+            if [[ "$line" == *"feat:"* ]] || [[ "$line" == *"feat("* ]]; then
+              FEATURES="${FEATURES}${line}\n"
+            elif [[ "$line" == *"fix:"* ]] || [[ "$line" == *"fix("* ]]; then
+              FIXES="${FIXES}${line}\n"
+            elif [[ -n "$line" ]]; then
+              OTHERS="${OTHERS}${line}\n"
+            fi
+          done <<< "$COMMITS"
+
+          # Build changelog
+          CHANGELOG=""
+
+          if [ -n "$FEATURES" ]; then
+            CHANGELOG="${CHANGELOG}## ✨ Features\n\n${FEATURES}\n"
+          fi
+
+          if [ -n "$FIXES" ]; then
+            CHANGELOG="${CHANGELOG}## 🐛 Bug Fixes\n\n${FIXES}\n"
+          fi
+
+          if [ -n "$OTHERS" ]; then
+            CHANGELOG="${CHANGELOG}## 📝 Other Changes\n\n${OTHERS}\n"
+          fi
+
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="No notable changes in this release."
+          fi
+
+          # Add download instructions
+          CHANGELOG="${CHANGELOG}\n---\n\n📥 **Download the appropriate installer for your platform from the assets below.**"
+
+          # Escape for GitHub Actions output
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+
+          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: app-v${{ steps.get_version.outputs.version }}
+          release_name: caldav-tasks v${{ steps.get_version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: true
+          prerelease: false
+
+  # second job: Build and upload artifacts for each platform
   publish-tauri:
+    needs: prepare-release
     permissions:
       contents: write
     strategy:
@@ -64,9 +169,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__
-          releaseName: 'caldav-tasks v__VERSION__'
-          releaseBody: 'See the assets to download and install this version.'
-          releaseDraft: true
-          prerelease: false
+          # use existing release created by prepare-release job
+          releaseId: ${{ needs.prepare-release.outputs.release_id }}
           args: ${{ matrix.args }}
