@@ -56,6 +56,7 @@ interface SettingsStore {
   notifications: boolean;
   defaultCalendarId: string | null; // default calendar for new tasks when in "All Tasks" view
   keyboardShortcuts: KeyboardShortcut[];
+  enableSystemTray: boolean; // Whether to show system tray icon (requires restart)
 
   // Task defaults
   defaultPriority: Priority;
@@ -71,6 +72,10 @@ interface SettingsStore {
   // Account expansion state
   expandedAccountIds: string[]; // IDs of accounts that are expanded
   defaultAccountsExpanded: boolean; // Whether newly created accounts should be expanded by default
+
+  // Restart tracking
+  systemTrayRestartNeeded: boolean; // Whether a restart is needed for system tray changes
+  systemTrayAppliedValue: boolean; // The currently applied system tray value (in the running app)
 
   // actions
   setTheme: (theme: Theme) => void;
@@ -99,6 +104,9 @@ interface SettingsStore {
   setExpandedAccountIds: (accountIds: string[]) => void;
   toggleAccountExpanded: (accountId: string) => void;
   setDefaultAccountsExpanded: (expanded: boolean) => void;
+  setEnableSystemTray: (enabled: boolean) => void;
+  setSystemTrayRestartNeeded: (needed: boolean) => void;
+  setSystemTrayAppliedValue: (value: boolean) => void;
   exportSettings: () => string;
   importSettings: (json: string) => boolean;
 }
@@ -128,6 +136,9 @@ export const useSettingsStore = create<SettingsStore>()(
       onboardingCompleted: false,
       expandedAccountIds: [], // Will be populated with account IDs as they're expanded
       defaultAccountsExpanded: true, // New accounts are expanded by default
+      enableSystemTray: true, // System tray is enabled by default
+      systemTrayRestartNeeded: false, // Track if restart is needed for system tray changes
+      systemTrayAppliedValue: true, // The currently applied system tray value
 
       setTheme: (theme) => set({ theme }),
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
@@ -169,6 +180,9 @@ export const useSettingsStore = create<SettingsStore>()(
         }
       },
       setDefaultAccountsExpanded: (defaultAccountsExpanded) => set({ defaultAccountsExpanded }),
+      setEnableSystemTray: (enableSystemTray) => set({ enableSystemTray }),
+      setSystemTrayRestartNeeded: (systemTrayRestartNeeded) => set({ systemTrayRestartNeeded }),
+      setSystemTrayAppliedValue: (systemTrayAppliedValue) => set({ systemTrayAppliedValue }),
 
       exportSettings: () => {
         const state = get();
@@ -196,6 +210,9 @@ export const useSettingsStore = create<SettingsStore>()(
           onboardingCompleted: state.onboardingCompleted,
           expandedAccountIds: state.expandedAccountIds,
           defaultAccountsExpanded: state.defaultAccountsExpanded,
+          enableSystemTray: state.enableSystemTray,
+          systemTrayRestartNeeded: state.systemTrayRestartNeeded,
+          systemTrayAppliedValue: state.systemTrayAppliedValue,
         };
         return JSON.stringify(exportData, null, 2);
       },
@@ -230,6 +247,9 @@ export const useSettingsStore = create<SettingsStore>()(
             onboardingCompleted: data.onboardingCompleted ?? false,
             expandedAccountIds: data.expandedAccountIds ?? [],
             defaultAccountsExpanded: data.defaultAccountsExpanded ?? true,
+            enableSystemTray: data.enableSystemTray ?? true,
+            systemTrayRestartNeeded: data.systemTrayRestartNeeded ?? false,
+            systemTrayAppliedValue: data.systemTrayAppliedValue ?? true,
           });
           return true;
         } catch (e) {

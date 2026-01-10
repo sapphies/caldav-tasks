@@ -1,3 +1,4 @@
+import { relaunch } from '@tauri-apps/plugin-process';
 import { useAccounts } from '@/hooks/queries';
 import {
   type StartOfWeek,
@@ -23,8 +24,27 @@ export function BehaviorSettings() {
     setDefaultCalendarId,
     defaultAccountsExpanded,
     setDefaultAccountsExpanded,
+    enableSystemTray,
+    setEnableSystemTray,
+    systemTrayAppliedValue,
+    setSystemTrayAppliedValue,
   } = useSettingsStore();
   const { data: accounts = [] } = useAccounts();
+
+  const systemTrayChanged = enableSystemTray !== systemTrayAppliedValue;
+
+  const handleSystemTrayChange = (checked: boolean) => {
+    setEnableSystemTray(checked);
+  };
+
+  const handleRestart = async () => {
+    try {
+      setSystemTrayAppliedValue(enableSystemTray);
+      await relaunch();
+    } catch (error) {
+      console.error('Failed to relaunch app:', error);
+    }
+  };
 
   // Get all calendars from all accounts
   const allCalendars = accounts.flatMap((account) =>
@@ -165,6 +185,35 @@ export function BehaviorSettings() {
                 </optgroup>
               ))}
             </select>
+          </div>
+        )}
+
+        <label className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-surface-700 dark:text-surface-300">Enable system tray</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">
+              Show app in system tray. Requires restart.
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={enableSystemTray}
+            onChange={(e) => handleSystemTrayChange(e.target.checked)}
+            className="rounded border-surface-300"
+          />
+        </label>
+
+        {systemTrayChanged && (
+          <div className="flex items-center justify-between rounded-lg bg-blue-50 dark:bg-blue-950 p-3 border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Restart required to apply changes
+            </p>
+            <button
+              onClick={handleRestart}
+              className="px-3 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              Restart Now
+            </button>
           </div>
         )}
       </div>
