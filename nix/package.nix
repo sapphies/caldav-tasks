@@ -1,14 +1,3 @@
-# Package definition for caldav-tasks
-#
-# This file can be used both:
-# 1. From the flake (with local src)
-# 2. For nixpkgs submission (with fetchFromGitHub)
-#
-# For nixpkgs submission:
-# - Copy this file to: pkgs/by-name/ca/caldav-tasks/package.nix
-# - Use fetchFromGitHub for src (see comment below)
-# - Add yourself to maintainers
-# - Update hashes as needed
 {
   lib,
   stdenv,
@@ -125,11 +114,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   meta = {
     description = "A cross-platform CalDAV task management app";
-    longDescription = ''
-      caldav-tasks is a modern, cross-platform task management application
-      that syncs with CalDAV servers. Built with Tauri and React, it provides
-      a native desktop experience with full offline support.
-    '';
     homepage = "https://github.com/sapphies/caldav-tasks";
     changelog = "https://github.com/sapphies/caldav-tasks/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.zlib;
