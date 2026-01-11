@@ -140,7 +140,7 @@ jobs:
         if: startsWith(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libsoup2.4-dev libssl-dev libgtk-3-dev libjavascriptcoregtk-4.0-dev xdg-utils
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libsoup2.4-dev libssl-dev libgtk-3-dev libjavascriptcoregtk-4.0-dev xdg-utils
 
       - name: setup node
         uses: actions/setup-node@v4
@@ -162,45 +162,10 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      # Fix for EGL_BAD_PARAMETER issue on Linux AppImage
-      # This fixes blank screen on launch caused by outdated linuxdeploy bundled with Tauri CLI.
-      # The issue is related to webkitgtk compatibility.
-      # See: https://github.com/tauri-apps/tauri/pull/12491
-      # See: https://github.com/kanriapp/kanri/issues/805
-      # See: https://github.com/kaya-go/kaya/issues/7
-      - name: Pin linuxdeploy version (Linux)
-        if: startsWith(matrix.platform, 'ubuntu')
-        run: |
-          TAURI_TOOLKIT_PATH="${XDG_CACHE_HOME:-$HOME/.cache}/tauri"
-          mkdir -p "$TAURI_TOOLKIT_PATH"
-          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20250213-2/linuxdeploy-x86_64.AppImage -O "$TAURI_TOOLKIT_PATH/linuxdeploy-x86_64.AppImage"
-          chmod +x "$TAURI_TOOLKIT_PATH/linuxdeploy-x86_64.AppImage"
-
-      # - name: Install tauri-cli with new AppImage format (Linux)
-      #   if: startsWith(matrix.platform, 'ubuntu')
-      #   run: cargo install tauri-cli --git https://github.com/tauri-apps/tauri --branch feat/truly-portable-appimage
-
       - name: install frontend dependencies
         run: pnpm install
 
-      - name: Build (Linux with portable AppImage)
-        if: startsWith(matrix.platform, 'ubuntu')
-        env:
-          # TAURI_BUNDLER_NEW_APPIMAGE_FORMAT: 'true'
-          NO_STRIP: 'true'
-        run: cargo tauri build
-
-      - name: Upload Linux artifacts to release
-        if: startsWith(matrix.platform, 'ubuntu')
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          releaseId: ${{ needs.prepare-release.outputs.release_id }}
-          uploadOnly: true
-
       - uses: tauri-apps/tauri-action@v0
-        if: ${{ !startsWith(matrix.platform, 'ubuntu') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
