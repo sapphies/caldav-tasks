@@ -4,7 +4,7 @@
   rustPlatform,
   fetchFromGitHub ? null,
 
-  # Build tools
+  # build tools
   cargo-tauri,
   nodejs_20,
   pnpmConfigHook,
@@ -24,7 +24,7 @@
   libiconv,
   apple-sdk_14,
 
-  # Source override (used by flake for local builds)
+  # source override (used by flake for local builds)
   src ? null,
 }:
 
@@ -32,8 +32,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   pname = "caldav-tasks";
   version = "0.4.45";
 
-  # For local flake builds, src is passed in
-  # For nixpkgs, use fetchFromGitHub
+  # for local flake builds, src is passed in
+  # for nixpkgs, use fetchFromGitHub
   src = if src != null then src else fetchFromGitHub {
     owner = "sapphies";
     repo = "caldav-tasks";
@@ -42,10 +42,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
-  # Cargo dependencies hash - update when Cargo.lock changes
+  # cargo dependencies hash - update when Cargo.lock changes
   cargoHash = "sha256-i5hXlsUzfMop9/Q3IfMfbfk9We2x3SkQPFL9Fl9Oui0=";
 
-  # Pnpm dependencies for the frontend
+  # pnpm dependencies for the frontend
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_9;
@@ -54,10 +54,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   nativeBuildInputs = [
-    # Tauri build hook - handles cargo tauri build
+    # official tauri hook for nix
     cargo-tauri.hook
 
-    # Frontend build tools
+    # frontend
     nodejs_20
     pnpmConfigHook
     pnpm_9
@@ -65,7 +65,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # Rust setup
     rustPlatform.cargoSetupHook
 
-    # Build tools
+    # build tools (linux)
     pkg-config
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
@@ -80,7 +80,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     glib-networking
-    libayatana-appindicator
+    libayatana-appindicator # needed for tauri system tray on linux
     webkitgtk_4_1
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
@@ -88,28 +88,28 @@ rustPlatform.buildRustPackage (finalAttrs: {
     apple-sdk_14
   ];
 
-  # Set Tauri source directory
+  # set Tauri source directory
   cargoRoot = "src-tauri";
   buildAndTestSubdir = "src-tauri";
 
-  # Patch libappindicator path on Linux for tray icon support
+  # patch libappindicator path on Linux for tray icon support
   postPatch = lib.optionalString stdenv.hostPlatform.isLinux ''
     substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
       --replace-fail "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
   '';
 
-  # Build the frontend before Tauri build
+  # build the frontend before Tauri build
   preBuild = ''
     pnpm build
   '';
 
-  # On macOS, create a wrapper script in $out/bin
+  # on macOS, create a wrapper script in $out/bin
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir -p $out/bin
     makeWrapper "$out/Applications/caldav-tasks.app/Contents/MacOS/caldav-tasks" "$out/bin/caldav-tasks"
   '';
 
-  # Tauri apps typically don't have cargo tests
+  # tauri apps typically don't have cargo tests
   doCheck = false;
 
   meta = {
