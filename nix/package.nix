@@ -30,7 +30,7 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "caldav-tasks";
-  version = "0.4.47";
+  version = "0.4.48";
 
   # for local flake builds, src is passed in
   # for nixpkgs, use fetchFromGitHub
