@@ -24,6 +24,9 @@
       "allow": [
         {
           "path": "$APPLOCALDATA/caldav-tasks.db"
+        },
+        {
+          "path": "$APPCONFIG/caldav-tasks.db"
         }
       ]
     },
