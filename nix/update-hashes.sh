@@ -28,7 +28,7 @@ fi
 
 echo "  ✓ Got pnpm hash: $PNPM_HASH"
 
-sed "s/hash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"; # pnpmDeps/hash = \"$PNPM_HASH\"; # pnpmDeps/" "$PACKAGE_FILE" > "$TEMP_FILE"
+sed "s|hash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"; # pnpmDeps|hash = \"$PNPM_HASH\"; # pnpmDeps|" "$PACKAGE_FILE" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$PACKAGE_FILE"
 
 echo ""
@@ -46,7 +46,7 @@ fi
 
 echo "  ✓ Got cargo hash: $CARGO_HASH"
 
-sed "s/cargoHash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\";/cargoHash = \"$CARGO_HASH\";/" "$PACKAGE_FILE" > "$TEMP_FILE"
+sed "s|cargoHash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\";|cargoHash = \"$CARGO_HASH\";|" "$PACKAGE_FILE" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$PACKAGE_FILE"
 
 echo ""
