@@ -162,12 +162,23 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
+      # Fix for EGL_BAD_PARAMETER issue on Linux AppImage
+      # This fixes blank screen on launch caused by outdated linuxdeploy bundled with Tauri CLI.
+      # The issue is related to webkitgtk compatibility.
+      # See: https://github.com/tauri-apps/tauri/pull/12491
+      - name: Install tauri-cli with new AppImage format (Linux)
+        if: startsWith(matrix.platform, 'ubuntu')
+        run: cargo install tauri-cli --git https://github.com/tauri-apps/tauri --branch feat/truly-portable-appimage
+
       - name: install frontend dependencies
         run: pnpm install
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use new truly portable AppImage format for Linux builds
+          # See: https://github.com/tauri-apps/tauri/pull/12491
+          TAURI_BUNDLER_NEW_APPIMAGE_FORMAT: ${{ startsWith(matrix.platform, 'ubuntu') && 'true' || 'false' }}
         with:
           # use existing release created by prepare-release job
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
