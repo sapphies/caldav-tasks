@@ -1,3 +1,4 @@
+import ArrowLeft from 'lucide-react/icons/arrow-left';
 import ArrowRight from 'lucide-react/icons/arrow-right';
 import Calendar from 'lucide-react/icons/calendar';
 import CheckCircle2 from 'lucide-react/icons/check-circle-2';
@@ -111,6 +112,7 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
 
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+  const isFirstStep = currentStep === 0;
   const isAccountStep = currentStep === 1;
 
   const handleNext = () => {
@@ -119,6 +121,12 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
       onComplete();
     } else {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (!isFirstStep) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -134,23 +142,50 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
   return (
     <ModalWrapper onClose={() => {}} preventClose>
       <div className="w-full max-w-md mx-auto">
-        {/* Progress dots */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentStep
-                  ? 'w-8 bg-primary-500'
-                  : index < currentStep
-                    ? 'bg-primary-300 dark:bg-primary-700'
-                    : 'bg-surface-300 dark:bg-surface-600'
-              }`}
-            />
-          ))}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={handlePrevious}
+            disabled={isFirstStep}
+            className={`p-2 rounded-lg transition-colors ${
+              isFirstStep
+                ? 'text-surface-300 dark:text-surface-600 cursor-not-allowed'
+                : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+            }`}
+            title="Previous step"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+
+          {/* Progress dots */}
+          <div className="flex items-center justify-center gap-2">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentStep
+                    ? 'w-8 bg-primary-500'
+                    : index < currentStep
+                      ? 'bg-primary-300 dark:bg-primary-700'
+                      : 'bg-surface-300 dark:bg-surface-600'
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={handleNext}
+            disabled={isLastStep}
+            className={`p-2 rounded-lg transition-colors ${
+              isLastStep
+                ? 'text-surface-300 dark:text-surface-600 cursor-not-allowed'
+                : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700'
+            }`}
+            title="Next step"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Content */}
         <div className="text-center">
           {step.illustration}
 
@@ -163,7 +198,6 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
           </p>
         </div>
 
-        {/* Actions */}
         <div className="flex flex-col gap-3">
           {isAccountStep ? (
             <>
@@ -182,16 +216,17 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
               </button>
             </>
           ) : (
-            <button
-              onClick={handleNext}
-              className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              {isLastStep ? 'Get Started' : 'Continue'}
-              {!isLastStep && <ArrowRight className="w-5 h-5" />}
-            </button>
+            <>
+              <button
+                onClick={handleNext}
+                className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                {isLastStep ? 'Get Started' : 'Continue'}
+              </button>
+            </>
           )}
 
-          {currentStep === 0 && (
+          {isFirstStep && (
             <button
               onClick={handleSkip}
               className="w-full py-2 text-sm text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
