@@ -323,6 +323,12 @@ export function TaskItem({ task, depth, ancestorIds, isDragEnabled, isOverlay }:
                   )}
                 </button>
               )}
+
+              {hiddenChildCount > 0 && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border border-surface-300 dark:border-surface-600 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-400">
+                  {hiddenChildCount} hidden {pluralize(hiddenChildCount, 'subtask')}
+                </span>
+              )}
             </div>
           )}
         </div>
