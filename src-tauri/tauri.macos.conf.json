@@ -17,5 +17,10 @@
     "security": {
       "csp": null
     }
+  },
+  "bundle": {
+    "macOS": {
+      "signingIdentity": null
+    }
   }
 }
