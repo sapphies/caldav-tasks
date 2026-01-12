@@ -111,6 +111,8 @@ export function TaskEditor({ task }: TaskEditorProps) {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showDueDatePicker, setShowDueDatePicker] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const childTasks = taskData.getChildTasks(task.uid);
   const childCount = taskData.countChildren(task.uid);
@@ -170,15 +172,37 @@ export function TaskEditor({ task }: TaskEditorProps) {
   useModalEscapeKey(() => setEditorOpenMutation.mutate(false), { isPanel: true });
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cursorPosition = e.target.selectionStart;
     updateTaskMutation.mutate({ id: task.id, updates: { title: e.target.value } });
+
+    requestAnimationFrame(() => {
+      if (titleRef.current && cursorPosition !== null) {
+        titleRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    });
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const cursorPosition = e.target.selectionStart;
     updateTaskMutation.mutate({ id: task.id, updates: { description: e.target.value } });
+
+    // restore cursor position after React re-renders
+    requestAnimationFrame(() => {
+      if (descriptionRef.current && cursorPosition !== null) {
+        descriptionRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    });
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cursorPosition = e.target.selectionStart;
     updateTaskMutation.mutate({ id: task.id, updates: { url: e.target.value || undefined } });
+
+    requestAnimationFrame(() => {
+      if (urlRef.current && cursorPosition !== null) {
+        urlRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    });
   };
 
   const handlePriorityChange = (priority: Priority) => {
@@ -315,6 +339,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
             Description
           </label>
           <textarea
+            ref={descriptionRef}
             value={filterCalDavDescription(task.description)}
             onChange={handleDescriptionChange}
             placeholder="Add a description..."
@@ -330,6 +355,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           </label>
           <div className="flex items-center gap-2">
             <input
+              ref={urlRef}
               type="url"
               value={task.url || ''}
               onChange={handleUrlChange}
