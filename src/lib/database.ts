@@ -4,7 +4,10 @@
  */
 
 import Database from '@tauri-apps/plugin-sql';
+import { v4 as uuidv4 } from 'uuid';
+import { useSettingsStore } from '@/store/settingsStore';
 import type { Account, Calendar, Priority, SortConfig, Tag, Task } from '@/types';
+import { toAppleEpoch } from '@/utils/ical';
 import { createLogger } from './logger';
 
 const log = createLogger('Database', '#8b5cf6');
@@ -227,9 +230,6 @@ export async function countChildren(parentUid: string): Promise<number> {
 
 export async function createTask(taskData: Partial<Task>): Promise<Task> {
   const database = await getDb();
-  const { v4: uuidv4 } = await import('uuid');
-  const { toAppleEpoch } = await import('@/utils/ical');
-  const { useSettingsStore } = await import('@/store/settingsStore');
 
   const now = new Date();
   const { defaultCalendarId, defaultPriority, defaultTags } = useSettingsStore.getState();
@@ -478,7 +478,6 @@ export async function getTagById(id: string): Promise<Tag | undefined> {
 
 export async function createTag(tagData: Partial<Tag>): Promise<Tag> {
   const database = await getDb();
-  const { v4: uuidv4 } = await import('uuid');
 
   const tag: Tag = {
     id: uuidv4(),
@@ -556,7 +555,6 @@ export async function getAccountById(id: string): Promise<Account | undefined> {
 
 export async function createAccount(accountData: Partial<Account>): Promise<Account> {
   const database = await getDb();
-  const { v4: uuidv4 } = await import('uuid');
 
   const account: Account = {
     id: accountData.id || uuidv4(),
@@ -646,7 +644,6 @@ export async function addCalendar(
   calendarData: Partial<Calendar>,
 ): Promise<void> {
   const database = await getDb();
-  const { v4: uuidv4 } = await import('uuid');
 
   const calendar: Calendar = {
     ...calendarData,

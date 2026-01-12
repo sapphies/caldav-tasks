@@ -1,3 +1,4 @@
+import { relaunch } from '@tauri-apps/plugin-process';
 import { useCallback, useEffect, useState } from 'react';
 import { createLogger } from '@/lib/logger';
 
@@ -81,7 +82,6 @@ export function useUpdateChecker(): UseUpdateCheckerResult {
 
     try {
       const { check } = await import('@tauri-apps/plugin-updater');
-      const { relaunch } = await import('@tauri-apps/plugin-process');
 
       const update = await check();
       if (!update) {
