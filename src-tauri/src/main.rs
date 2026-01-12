@@ -43,25 +43,31 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             tray::update_tray_sync_time,
             tray::update_tray_sync_enabled,
-            tray::set_tray_visible
+            tray::set_tray_visible,
+            tray::get_tray_enabled,
+            tray::initialize_tray
         ])
-        .setup(|app| {
-            tray::setup_tray(app)?;
+        .setup(|_app| {
+            // tray will be initialized from frontend after reading settings
             Ok(())
         })
         .on_window_event(|window, event| {
-            // hide window instead of closing when X is clicked
+            // hide window instead of closing when X is clicked, but only if tray is enabled
             if let WindowEvent::CloseRequested { api, .. } = event {
-                let _ = window.hide();
-                api.prevent_close();
+                // check if tray is enabled
+                if tray::is_tray_enabled() {
+                    let _ = window.hide();
+                    api.prevent_close();
 
-                // on macOS, hide the dock icon when the window is hidden
-                #[cfg(target_os = "macos")]
-                {
-                    let _ = window
-                        .app_handle()
-                        .set_activation_policy(tauri::ActivationPolicy::Accessory);
+                    // on macOS, hide the dock icon when the window is hidden
+                    #[cfg(target_os = "macos")]
+                    {
+                        let _ = window
+                            .app_handle()
+                            .set_activation_policy(tauri::ActivationPolicy::Accessory);
+                    }
                 }
+                // if tray is disabled, let the window close normally
             }
         })
         .build(tauri::generate_context!())

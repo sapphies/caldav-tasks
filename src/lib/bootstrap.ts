@@ -28,6 +28,17 @@ export async function initializeApp(): Promise<void> {
   await initializeDataStore();
   log.debug('Data store initialized');
 
+  // initialize system tray based on settings
+  log.debug('Initializing system tray...');
+  const { invoke } = await import('@tauri-apps/api/core');
+  const enableSystemTray = useSettingsStore.getState().enableSystemTray;
+  try {
+    await invoke('initialize_tray', { enabled: enableSystemTray });
+    log.debug(`System tray initialized (enabled: ${enableSystemTray})`);
+  } catch (error) {
+    log.error('Failed to initialize system tray:', error);
+  }
+
   log.debug('Getting UI state...');
   const uiState = await getUIState();
   const sortMode = uiState.sortConfig?.mode ?? 'manual';
