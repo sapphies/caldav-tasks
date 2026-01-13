@@ -309,7 +309,10 @@ export function ImportModal({ isOpen, onClose, preloadedFile }: ImportModalProps
               </p>
               <div className="max-h-32 overflow-y-auto space-y-1 overscroll-contain">
                 {parsedTasks.slice(0, 10).map((task, i) => (
-                  <div key={i} className="text-sm text-surface-600 dark:text-surface-400 truncate">
+                  <div
+                    key={task.uid || `task-${i}`}
+                    className="text-sm text-surface-600 dark:text-surface-400 truncate"
+                  >
                     • {task.title}
                   </div>
                 ))}

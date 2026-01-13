@@ -13,7 +13,9 @@ export function registerContextMenuClose(handler: () => void): () => void {
 }
 
 export function closeAllContextMenus(): void {
-  closeHandlers.forEach((handler) => handler());
+  closeHandlers.forEach((handler) => {
+    handler();
+  });
 }
 
 // custom event for closing context menus

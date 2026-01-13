@@ -91,7 +91,9 @@ export function subscribeToDataChanges(listener: DataChangeListener): () => void
 }
 
 function notifyListeners(): void {
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => {
+    listener();
+  });
 }
 
 // Initialize the database and load data into cache

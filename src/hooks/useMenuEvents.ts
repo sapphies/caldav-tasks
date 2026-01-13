@@ -189,7 +189,9 @@ export function useMenuEvents(callbacks: {
     // Cleanup
     return () => {
       isActive = false;
-      unlistenCallbacks.forEach((unlisten) => unlisten());
+      unlistenCallbacks.forEach((unlisten) => {
+        unlisten();
+      });
     };
   }, [syncAll, callbacks, uiState]);
 }

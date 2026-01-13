@@ -159,9 +159,9 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
 
           {/* Progress dots */}
           <div className="flex items-center justify-center gap-2">
-            {steps.map((_, index) => (
+            {steps.map((step, index) => (
               <div
-                key={index}
+                key={`step-${index}-${step.title}`}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === currentStep
                     ? 'w-8 bg-primary-500'
@@ -220,15 +220,13 @@ export function OnboardingModal({ onComplete, onAddAccount }: OnboardingModalPro
               </button>
             </>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {isLastStep ? 'Get Started' : 'Continue'}
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              {isLastStep ? 'Get Started' : 'Continue'}
+            </button>
           )}
 
           {isFirstStep && (

@@ -196,7 +196,7 @@ class CalDAVService {
 
     // parse response to get display name
     const results = parseMultiStatus(response.body);
-    const displayName = results[0]?.props['displayname'] || username;
+    const displayName = results[0]?.props.displayname || username;
 
     // store the connection
     this.connections.set(accountId, {
@@ -254,7 +254,7 @@ class CalDAVService {
       }
 
       // check if it's a calendar (must have 'calendar' in resourcetype)
-      const resourceType = result.props['resourcetype'] || '';
+      const resourceType = result.props.resourcetype || '';
       if (!resourceType.includes('calendar')) {
         continue;
       }
@@ -282,9 +282,9 @@ class CalDAVService {
 
       calendars.push({
         id: calendarUrl,
-        displayName: result.props['displayname'] || 'Calendar',
+        displayName: result.props.displayname || 'Calendar',
         url: calendarUrl,
-        ctag: result.props['getctag'] || undefined,
+        ctag: result.props.getctag || undefined,
         syncToken: result.props['sync-token'] || undefined,
         color: result.props['calendar-color'] || undefined,
         accountId,
@@ -329,7 +329,7 @@ class CalDAVService {
 
     for (const result of results) {
       const calendarData = result.props['calendar-data'];
-      const etag = result.props['getetag']?.replace(/"/g, '');
+      const etag = result.props.getetag?.replace(/"/g, '');
 
       if (calendarData) {
         // build absolute URL
@@ -364,7 +364,7 @@ class CalDAVService {
       const response = await put(url, conn.credentials, icalData);
 
       if (response.status === 201 || response.status === 204) {
-        const etag = response.headers['etag']?.replace(/"/g, '') || '';
+        const etag = response.headers.etag?.replace(/"/g, '') || '';
         return { href: url, etag };
       }
 
@@ -390,7 +390,7 @@ class CalDAVService {
       const response = await put(task.href, conn.credentials, icalData, task.etag);
 
       if (response.status === 200 || response.status === 201 || response.status === 204) {
-        const etag = response.headers['etag']?.replace(/"/g, '') || '';
+        const etag = response.headers.etag?.replace(/"/g, '') || '';
         return { etag };
       }
 
@@ -642,7 +642,7 @@ class CalDAVService {
     for (const match of propstatMatches) {
       const propstat = match[1];
       const statusMatch = propstat.match(/<status>HTTP\/[\d.]+ (\d+)/i);
-      const status = statusMatch ? parseInt(statusMatch[1]) : 0;
+      const status = statusMatch ? parseInt(statusMatch[1], 10) : 0;
 
       // check if this propstat contains our property
       if (propstat.toLowerCase().includes(propertyName.toLowerCase())) {

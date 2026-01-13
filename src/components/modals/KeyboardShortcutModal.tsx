@@ -165,7 +165,7 @@ export function KeyboardShortcutModal({
                   {formatShortcut(displayShortcut)
                     .split(' + ')
                     .map((key, idx, arr) => (
-                      <span key={idx} className="flex items-center">
+                      <span key={`${key}-${idx}`} className="flex items-center">
                         <kbd
                           className={`px-3 py-2 rounded-lg text-sm font-mono shadow-sm ${
                             pendingShortcut

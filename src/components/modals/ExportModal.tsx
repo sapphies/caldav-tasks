@@ -65,7 +65,6 @@ export function ExportModal({
       case 'single-calendar':
         return 'Export Calendars';
       case 'tasks':
-      default:
         return 'Export Tasks';
     }
   };
@@ -80,7 +79,6 @@ export function ExportModal({
         return `${tasks.length} ${pluralize(tasks.length, 'task')} in ${calendarName || 'Calendar'}`;
 
       case 'tasks':
-      default:
         if (totalSubtasks > 0) {
           return `${tasks.length} ${pluralize(tasks.length, 'task')} + ${totalSubtasks} ${pluralize(totalSubtasks, 'subtask')}`;
         }

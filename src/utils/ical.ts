@@ -132,12 +132,12 @@ function parseICalDate(value: string): Date | undefined {
   if (dtMatch) {
     const [, year, month, day, hour, minute, second] = dtMatch;
     return new Date(
-      parseInt(year),
-      parseInt(month) - 1,
-      parseInt(day),
-      parseInt(hour),
-      parseInt(minute),
-      parseInt(second),
+      parseInt(year, 10),
+      parseInt(month, 10) - 1,
+      parseInt(day, 10),
+      parseInt(hour, 10),
+      parseInt(minute, 10),
+      parseInt(second, 10),
     );
   }
 
@@ -145,7 +145,7 @@ function parseICalDate(value: string): Date | undefined {
   const dateMatch = cleanValue.match(/^(\d{4})(\d{2})(\d{2})$/);
   if (dateMatch) {
     const [, year, month, day] = dateMatch;
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
   }
 
   return undefined;
@@ -190,7 +190,7 @@ function foldLine(line: string): string {
 
   // Continuation lines start with space and can have 74 more chars
   while (remaining.length > 0) {
-    lines.push(' ' + remaining.slice(0, maxLength - 1));
+    lines.push(` ${remaining.slice(0, maxLength - 1)}`);
     remaining = remaining.slice(maxLength - 1);
   }
 
@@ -299,7 +299,7 @@ function parseVAlarm(valarmContent: string): ParsedVAlarm {
         break;
       case 'TRIGGER':
         // Support both VALUE=DATE-TIME and relative triggers
-        if (prop.params['VALUE'] === 'DATE-TIME') {
+        if (prop.params.VALUE === 'DATE-TIME') {
           result.trigger = parseICalDate(prop.value);
         } else if (prop.value.startsWith('P') || prop.value.startsWith('-P')) {
           // Relative trigger (e.g., -PT15M = 15 minutes before)
@@ -390,12 +390,12 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
       case 'DTSTART':
         result.dtstart = parseICalDate(prop.value);
         // Check if it's an all-day date (VALUE=DATE parameter)
-        result.dtstartAllDay = prop.params['VALUE'] === 'DATE';
+        result.dtstartAllDay = prop.params.VALUE === 'DATE';
         break;
       case 'DUE':
         result.due = parseICalDate(prop.value);
         // Check if it's an all-day date (VALUE=DATE parameter)
-        result.dueAllDay = prop.params['VALUE'] === 'DATE';
+        result.dueAllDay = prop.params.VALUE === 'DATE';
         break;
       case 'COMPLETED':
         result.completed = parseICalDate(prop.value);
@@ -417,7 +417,7 @@ function parseVTodo(vtodoContent: string): ParsedVTodo {
         break;
       case 'RELATED-TO': {
         // Only use PARENT relationship
-        const relType = prop.params['RELTYPE'];
+        const relType = prop.params.RELTYPE;
         if (!relType || relType.toUpperCase() === 'PARENT') {
           result.parentUid = prop.value;
         }
@@ -637,7 +637,7 @@ export function vtodoToTask(
     // Calculate sort order
     const createdDate = parsed.created || new Date();
     let sortOrder: number;
-    if (parsed.sortOrder !== undefined && !isNaN(parsed.sortOrder)) {
+    if (parsed.sortOrder !== undefined && !Number.isNaN(parsed.sortOrder)) {
       sortOrder = parsed.sortOrder;
     } else {
       sortOrder = toAppleEpoch(createdDate.getTime());
@@ -745,7 +745,7 @@ export function exportTasksAsMarkdown(tasks: Task[], level: number = 0): string 
       line += `\n${indent}  > ${task.description.replace(/\n/g, `\n${indent}  > `)}`;
     }
 
-    markdown += line + '\n';
+    markdown += `${line}\n`;
   }
 
   return markdown;
@@ -817,7 +817,7 @@ export function parseIcsFile(icsContent: string): Partial<Task>[] {
       // Calculate sort order
       const createdDate = parsed.created || new Date();
       let sortOrder: number;
-      if (parsed.sortOrder !== undefined && !isNaN(parsed.sortOrder)) {
+      if (parsed.sortOrder !== undefined && !Number.isNaN(parsed.sortOrder)) {
         sortOrder = parsed.sortOrder;
       } else {
         sortOrder = toAppleEpoch(createdDate.getTime());

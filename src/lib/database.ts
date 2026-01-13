@@ -69,7 +69,9 @@ export function subscribeToDataChanges(listener: DataChangeListener): () => void
 }
 
 function notifyListeners(): void {
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => {
+    listener();
+  });
 }
 
 // Initialize database connection

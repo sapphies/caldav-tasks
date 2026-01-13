@@ -143,9 +143,9 @@ class Logger {
     forwardToTauri(level, this.category, fullMessage);
 
     if (args.length > 0) {
-      logMethod(prefix.join(' ') + ' ' + message, ...styles, ...args);
+      logMethod(`${prefix.join(' ')} ${message}`, ...styles, ...args);
     } else {
-      logMethod(prefix.join(' ') + ' ' + message, ...styles);
+      logMethod(`${prefix.join(' ')} ${message}`, ...styles);
     }
   }
 
@@ -245,6 +245,10 @@ export function disableDebugMode(): void {
 
 // Expose to window for debugging
 if (typeof window !== 'undefined') {
-  (window as any).__enableDebugLogs = enableDebugMode;
-  (window as any).__disableDebugLogs = disableDebugMode;
+  (
+    window as Window & { __enableDebugLogs?: () => void; __disableDebugLogs?: () => void }
+  ).__enableDebugLogs = enableDebugMode;
+  (
+    window as Window & { __enableDebugLogs?: () => void; __disableDebugLogs?: () => void }
+  ).__disableDebugLogs = disableDebugMode;
 }

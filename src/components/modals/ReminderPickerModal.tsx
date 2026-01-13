@@ -234,7 +234,7 @@ export function ReminderPickerModal({
             <div className="flex-1 flex items-center justify-end gap-1">
               <select
                 value={selectedTime.hours}
-                onChange={(e) => handleTimeChange('hours', parseInt(e.target.value))}
+                onChange={(e) => handleTimeChange('hours', parseInt(e.target.value, 10))}
                 className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
               >
                 {Array.from({ length: 24 }, (_, i) => (
@@ -246,7 +246,7 @@ export function ReminderPickerModal({
               <span className="text-surface-500">:</span>
               <select
                 value={selectedTime.minutes}
-                onChange={(e) => handleTimeChange('minutes', parseInt(e.target.value))}
+                onChange={(e) => handleTimeChange('minutes', parseInt(e.target.value, 10))}
                 className="px-2 py-1 text-sm bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded text-surface-700 dark:text-surface-300 focus:outline-none focus:border-primary-300"
               >
                 {Array.from({ length: 60 }, (_, i) => (
