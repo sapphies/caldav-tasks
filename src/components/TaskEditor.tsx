@@ -13,6 +13,8 @@ import Tag from 'lucide-react/icons/tag';
 import Trash2 from 'lucide-react/icons/trash-2';
 import X from 'lucide-react/icons/x';
 import { useEffect, useRef, useState } from 'react';
+import { ComposedInput } from '@/components/ComposedInput';
+import { ComposedTextarea } from '@/components/ComposedTextarea';
 import {
   useAccounts,
   useAddReminder,
@@ -171,36 +173,29 @@ export function TaskEditor({ task }: TaskEditorProps) {
   // mark as panel so it yields to modal dialogs (closes on ESC when no input is focused)
   useModalEscapeKey(() => setEditorOpenMutation.mutate(false), { isPanel: true });
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cursorPosition = e.target.selectionStart;
-    updateTaskMutation.mutate({ id: task.id, updates: { title: e.target.value } });
-
+  const handleTitleChange = (value: string, cursorPos?: number | null) => {
+    updateTaskMutation.mutate({ id: task.id, updates: { title: value } });
     requestAnimationFrame(() => {
-      if (titleRef.current && cursorPosition !== null) {
-        titleRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      if (titleRef.current && cursorPos !== null && cursorPos !== undefined) {
+        titleRef.current.setSelectionRange(cursorPos, cursorPos);
       }
     });
   };
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const cursorPosition = e.target.selectionStart;
-    updateTaskMutation.mutate({ id: task.id, updates: { description: e.target.value } });
-
-    // restore cursor position after React re-renders
+  const handleDescriptionChange = (value: string, cursorPos?: number | null) => {
+    updateTaskMutation.mutate({ id: task.id, updates: { description: value } });
     requestAnimationFrame(() => {
-      if (descriptionRef.current && cursorPosition !== null) {
-        descriptionRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      if (descriptionRef.current && cursorPos !== null && cursorPos !== undefined) {
+        descriptionRef.current.setSelectionRange(cursorPos, cursorPos);
       }
     });
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cursorPosition = e.target.selectionStart;
-    updateTaskMutation.mutate({ id: task.id, updates: { url: e.target.value || undefined } });
-
+  const handleUrlChange = (value: string, cursorPos?: number | null) => {
+    updateTaskMutation.mutate({ id: task.id, updates: { url: value || undefined } });
     requestAnimationFrame(() => {
-      if (urlRef.current && cursorPosition !== null) {
-        urlRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      if (urlRef.current && cursorPos !== null && cursorPos !== undefined) {
+        urlRef.current.setSelectionRange(cursorPos, cursorPos);
       }
     });
   };
@@ -326,7 +321,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
             Title
           </label>
-          <input
+          <ComposedInput
             ref={titleRef}
             type="text"
             value={task.title}
@@ -340,7 +335,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-2">
             Description
           </label>
-          <textarea
+          <ComposedTextarea
             ref={descriptionRef}
             value={filterCalDavDescription(task.description)}
             onChange={handleDescriptionChange}
@@ -356,7 +351,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
             URL
           </label>
           <div className="flex items-center gap-2">
-            <input
+            <ComposedInput
               ref={urlRef}
               type="url"
               value={task.url || ''}
@@ -617,68 +612,70 @@ export function TaskEditor({ task }: TaskEditorProps) {
                   <Flag className="w-3 h-3" />
                   Legacy subtasks (will be migrated)
                 </div>
-                {task.subtasks.map((subtask) => (
-                  <div key={subtask.id} className="flex items-center gap-2 group opacity-60">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toggleSubtaskCompleteMutation.mutate({
-                          taskId: task.id,
-                          subtaskId: subtask.id,
-                        })
-                      }
-                      className={`
-                        w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0
-                        ${
-                          subtask.completed
-                            ? 'bg-primary-500 border-primary-500'
-                            : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
+                {task.subtasks.map((subtask) => {
+                  return (
+                    <div key={subtask.id} className="flex items-center gap-2 group opacity-60">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          toggleSubtaskCompleteMutation.mutate({
+                            taskId: task.id,
+                            subtaskId: subtask.id,
+                          })
                         }
-                      `}
-                    >
-                      {subtask.completed && (
-                        <Check
-                          className="w-3 h-3"
-                          style={{ color: checkmarkColor }}
-                          strokeWidth={3}
-                        />
-                      )}
-                    </button>
-                    <input
-                      type="text"
-                      value={subtask.title}
-                      onChange={(e) =>
-                        updateSubtaskMutation.mutate({
-                          taskId: task.id,
-                          subtaskId: subtask.id,
-                          updates: { title: e.target.value },
-                        })
-                      }
-                      className={`
-                        flex-1 px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-0
-                        ${subtask.completed ? 'line-through text-surface-400' : 'text-surface-700 dark:text-surface-300'}
-                      `}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        deleteSubtaskMutation.mutate({ taskId: task.id, subtaskId: subtask.id })
-                      }
-                      className="opacity-0 group-hover:opacity-100 p-1 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                        className={`
+                          w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0
+                          ${
+                            subtask.completed
+                              ? 'bg-primary-500 border-primary-500'
+                              : 'border-surface-300 dark:border-surface-600 hover:border-primary-400'
+                          }
+                        `}
+                      >
+                        {subtask.completed && (
+                          <Check
+                            className="w-3 h-3"
+                            style={{ color: checkmarkColor }}
+                            strokeWidth={3}
+                          />
+                        )}
+                      </button>
+                      <ComposedInput
+                        type="text"
+                        value={subtask.title}
+                        onChange={(value) => {
+                          updateSubtaskMutation.mutate({
+                            taskId: task.id,
+                            subtaskId: subtask.id,
+                            updates: { title: value },
+                          });
+                        }}
+                        className={`
+                          flex-1 px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-0
+                          ${subtask.completed ? 'line-through text-surface-400' : 'text-surface-700 dark:text-surface-300'}
+                        `}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteSubtaskMutation.mutate({ taskId: task.id, subtaskId: subtask.id })
+                        }
+                        className="opacity-0 group-hover:opacity-100 p-1 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
             <div className="flex items-center gap-2 mt-2">
               <Plus className="w-5 h-5 text-surface-400" />
-              <input
+              <ComposedInput
                 type="text"
                 value={newSubtaskTitle}
-                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                onChange={setNewSubtaskTitle}
                 onKeyDown={handleSubtaskKeyDown}
                 placeholder="Add a subtask..."
                 className="flex-1 px-2 py-1 text-sm text-surface-700 dark:text-surface-300 bg-transparent border-0 focus:outline-none focus:ring-0 placeholder:text-surface-400"

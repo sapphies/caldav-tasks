@@ -1,6 +1,7 @@
 import Loader2 from 'lucide-react/icons/loader-2';
 import X from 'lucide-react/icons/x';
 import { useEffect, useRef, useState } from 'react';
+import { ComposedInput } from '@/components/ComposedInput';
 import { useAddCalendar } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { caldavService } from '@/lib/caldav';
@@ -82,11 +83,11 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
             </label>
             <div className="flex items-center gap-2">
               <IconPicker value={icon} onChange={setIcon} color={color} />
-              <input
+              <ComposedInput
                 ref={nameInputRef}
                 type="text"
                 value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                onChange={setDisplayName}
                 placeholder="My Tasks"
                 required
                 className="flex-1 px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
@@ -120,10 +121,10 @@ export function CreateCalendarModal({ accountId, onClose }: CreateCalendarModalP
                 onChange={(e) => setColor(e.target.value)}
                 className="w-8 h-8 rounded cursor-pointer"
               />
-              <input
+              <ComposedInput
                 type="text"
                 value={color}
-                onChange={(e) => setColor(e.target.value)}
+                onChange={setColor}
                 placeholder="#3b82f6"
                 className="flex-1 px-3 py-1.5 text-sm font-mono text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300"
               />

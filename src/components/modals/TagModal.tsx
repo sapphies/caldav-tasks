@@ -1,5 +1,6 @@
 import X from 'lucide-react/icons/x';
 import { useEffect, useRef, useState } from 'react';
+import { ComposedInput } from '@/components/ComposedInput';
 import { useCreateTag, useTags, useUpdateTag } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { COLOR_PRESETS, DEFAULT_COLOR } from '@/utils/constants';
@@ -74,11 +75,11 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
             </label>
             <div className="flex items-center gap-2">
               <IconPicker value={icon} onChange={setIcon} color={color} />
-              <input
+              <ComposedInput
                 ref={nameInputRef}
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={setName}
                 placeholder="Tag name"
                 required
                 className="flex-1 px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
@@ -112,10 +113,10 @@ export function TagModal({ tagId, onClose }: TagModalProps) {
                 onChange={(e) => setColor(e.target.value)}
                 className="w-10 h-10 rounded-lg border border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-700 flex items-center justify-center hover:border-surface-300 dark:hover:border-surface-500 transition-colors cursor-pointer [&::-webkit-color-swatch-wrapper]:p-2 [&::-webkit-color-swatch]:rounded-full"
               />
-              <input
+              <ComposedInput
                 type="text"
                 value={color}
-                onChange={(e) => setColor(e.target.value)}
+                onChange={setColor}
                 placeholder="#3b82f6"
                 className="flex-1 px-3 py-1.5 text-sm font-mono text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300"
               />

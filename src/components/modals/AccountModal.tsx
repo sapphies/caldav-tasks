@@ -3,6 +3,7 @@ import Info from 'lucide-react/icons/info';
 import Loader2 from 'lucide-react/icons/loader-2';
 import X from 'lucide-react/icons/x';
 import { useEffect, useRef, useState } from 'react';
+import { ComposedInput } from '@/components/ComposedInput';
 import { useAddCalendar, useCreateAccount, useUpdateAccount } from '@/hooks/queries';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import { caldavService } from '@/lib/caldav';
@@ -205,11 +206,11 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Account Display Name
             </label>
-            <input
+            <ComposedInput
               ref={nameInputRef}
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={setName}
               placeholder="My CalDAV Account"
               required
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
@@ -244,10 +245,10 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Server URL
             </label>
-            <input
+            <ComposedInput
               type="url"
               value={serverUrl}
-              onChange={(e) => setServerUrl(e.target.value)}
+              onChange={setServerUrl}
               placeholder="https://caldav.example.com"
               required
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
@@ -264,10 +265,10 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Username
             </label>
-            <input
+            <ComposedInput
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={setUsername}
               placeholder="user@example.com"
               required
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
@@ -278,10 +279,10 @@ export function AccountModal({ account, onClose }: AccountModalProps) {
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Password
             </label>
-            <input
+            <ComposedInput
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               placeholder={account ? '(unchanged)' : 'Enter password'}
               required={!account}
               className="w-full px-3 py-2 text-sm text-surface-800 dark:text-surface-200 bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"

@@ -8,6 +8,7 @@ import RefreshCw from 'lucide-react/icons/refresh-cw';
 import Search from 'lucide-react/icons/search';
 import WifiOff from 'lucide-react/icons/wifi-off';
 import { useEffect, useState } from 'react';
+import { ComposedInput } from '@/components/ComposedInput';
 import { useModalState } from '@/context/modalStateContext';
 import {
   useCreateTask,
@@ -107,12 +108,12 @@ export function Header({
       <div className="flex-1 flex items-center justify-between gap-4">
         <div className="flex-1 relative max-w-lg">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
-          <input
+          <ComposedInput
             type="text"
             data-search-input
             placeholder={`Search tasks... (${searchShortcut})`}
             value={searchQuery}
-            onChange={(e) => setSearchQueryMutation.mutate(e.target.value)}
+            onChange={(value) => setSearchQueryMutation.mutate(value)}
             className="w-full pl-9 pr-4 py-2 bg-surface-100 dark:bg-surface-700 border border-transparent rounded-lg text-sm text-surface-800 dark:text-surface-200 placeholder:text-surface-400 focus:outline-none focus:border-primary-300 focus:bg-white dark:focus:bg-surface-600 transition-colors"
           />
         </div>
@@ -144,7 +145,7 @@ export function Header({
                 disabled={isSyncing || isOffline || disableSync}
                 className={`p-2 rounded-lg transition-colors ${
                   isSyncing
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30'
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 cursor-not-allowed'
                     : isOffline || disableSync
                       ? 'text-surface-300 dark:text-surface-600 cursor-not-allowed'
                       : `text-surface-500 dark:text-surface-400 ${!isAnyModalOpen ? 'hover:bg-surface-100 dark:hover:bg-surface-700' : ''}`
