@@ -30,7 +30,7 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "caldav-tasks";
-  version = "0.5.2";
+  version = "0.5.3";
 
   # for local flake builds, src is passed in
   # for nixpkgs, use fetchFromGitHub
@@ -43,14 +43,14 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   # cargo dependencies hash - update when Cargo.lock changes
-  cargoHash = "sha256-dw+mVb+kd0jA2uvF1/wZc5URkq+1GOLab/kJ2arSCEQ=";
+  cargoHash = "sha256-wfmgXuJpvlAhT4Yv0uKO7GCmAEhVIwJo+tVk9p5N6yY=";
 
   # pnpm dependencies for the frontend
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_9;
     fetcherVersion = 3;
-    hash = "sha256-eYkNb+jUUvl06EAEiF4ymNhTIAE2dLH5SvxtpVXOr2Y="; # pnpmDeps
+    hash = "sha256-zFH0CP+2JyE0IsfSkLsBIMX3lGzqnLFPAXESokPcCLc="; # pnpmDeps
   };
 
   nativeBuildInputs = [
