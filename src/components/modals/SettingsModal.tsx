@@ -30,7 +30,7 @@ interface SettingsModalProps {
 }
 
 type SettingsCategory = 'general' | 'account' | 'about';
-type SettingsSubtab =
+export type SettingsSubtab =
   | 'behavior'
   | 'appearance'
   | 'notifications'
