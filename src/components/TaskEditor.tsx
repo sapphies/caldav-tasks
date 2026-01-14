@@ -31,6 +31,7 @@ import {
   useUpdateTask,
 } from '@/hooks/queries';
 import { useConfirmTaskDelete } from '@/hooks/useConfirmTaskDelete';
+import { useDebouncedTaskUpdate } from '@/hooks/useDebouncedTaskUpdate';
 import { useModalEscapeKey } from '@/hooks/useModalEscapeKey';
 import * as taskData from '@/lib/taskData';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -112,6 +113,16 @@ export function TaskEditor({ task }: TaskEditorProps) {
   const [editReminderDate, setEditReminderDate] = useState<Date | undefined>(undefined);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showDueDatePicker, setShowDueDatePicker] = useState(false);
+
+  // Debounced field updates
+  const [pendingTitle, updatePendingTitle] = useDebouncedTaskUpdate(task.id, 'title', task.title);
+  const [pendingDescription, updatePendingDescription] = useDebouncedTaskUpdate(
+    task.id,
+    'description',
+    task.description ?? '',
+  );
+  const [pendingUrl, updatePendingUrl] = useDebouncedTaskUpdate(task.id, 'url', task.url ?? '');
+
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const urlRef = useRef<HTMLInputElement>(null);
@@ -174,7 +185,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
   useModalEscapeKey(() => setEditorOpenMutation.mutate(false), { isPanel: true });
 
   const handleTitleChange = (value: string, cursorPos?: number | null) => {
-    updateTaskMutation.mutate({ id: task.id, updates: { title: value } });
+    updatePendingTitle(value);
     requestAnimationFrame(() => {
       if (titleRef.current && cursorPos !== null && cursorPos !== undefined) {
         titleRef.current.setSelectionRange(cursorPos, cursorPos);
@@ -183,7 +194,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
   };
 
   const handleDescriptionChange = (value: string, cursorPos?: number | null) => {
-    updateTaskMutation.mutate({ id: task.id, updates: { description: value } });
+    updatePendingDescription(value);
     requestAnimationFrame(() => {
       if (descriptionRef.current && cursorPos !== null && cursorPos !== undefined) {
         descriptionRef.current.setSelectionRange(cursorPos, cursorPos);
@@ -192,7 +203,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
   };
 
   const handleUrlChange = (value: string, cursorPos?: number | null) => {
-    updateTaskMutation.mutate({ id: task.id, updates: { url: value || undefined } });
+    updatePendingUrl(value);
     requestAnimationFrame(() => {
       if (urlRef.current && cursorPos !== null && cursorPos !== undefined) {
         urlRef.current.setSelectionRange(cursorPos, cursorPos);
@@ -324,7 +335,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           <ComposedInput
             ref={titleRef}
             type="text"
-            value={task.title}
+            value={pendingTitle}
             onChange={handleTitleChange}
             placeholder="Task title..."
             className="w-full text-xl font-semibold text-surface-800 dark:text-surface-200 placeholder:text-surface-400 border-0 focus:outline-none focus:ring-0 bg-transparent"
@@ -337,7 +348,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           </label>
           <ComposedTextarea
             ref={descriptionRef}
-            value={filterCalDavDescription(task.description)}
+            value={filterCalDavDescription(pendingDescription)}
             onChange={handleDescriptionChange}
             placeholder="Add a description..."
             rows={4}
@@ -354,14 +365,14 @@ export function TaskEditor({ task }: TaskEditorProps) {
             <ComposedInput
               ref={urlRef}
               type="url"
-              value={task.url || ''}
+              value={pendingUrl}
               onChange={handleUrlChange}
               placeholder="https://example.com"
               className="flex-1 px-3 py-2 text-sm text-surface-700 dark:text-surface-300 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50"
             />
-            {task.url && (
+            {pendingUrl && (
               <a
-                href={task.url}
+                href={pendingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
