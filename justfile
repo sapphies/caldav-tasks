@@ -5,6 +5,7 @@ _default:
 alias b := build
 alias c := cargo
 alias d := dev
+alias h := hash
 alias i := install
 alias u := update
 alias v := vite
@@ -19,6 +20,9 @@ build:
 
 dev:
   pnpm tauri dev
+
+hash:
+  ./nix/update-hashes.sh
 
 install:
   pnpm install
