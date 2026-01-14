@@ -22,7 +22,6 @@ import { useTray } from '@/hooks/useTray';
 import { useUpdateChecker } from '@/hooks/useUpdateChecker';
 import { useSettingsStore } from '@/store/settingsStore';
 import { initWebKitDragFix } from './utils/webkit';
-import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   // Initialize WebKit drag-and-drop fix for Safari/Tauri
