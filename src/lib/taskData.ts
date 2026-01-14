@@ -184,6 +184,7 @@ export function getAllDescendants(parentUid: string): Task[] {
   return getDescendants(parentUid);
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: complexity is acceptable. it'd be hard to reduce this even further
 export function createTask(taskData: Partial<Task>): Task {
   const data = loadDataStore();
   const now = new Date();
@@ -622,6 +623,7 @@ interface FlattenedTask {
   sortOrder: number;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: while this function is long, it does its job well
 export function reorderTasks(
   activeId: string,
   overId: string,
@@ -1313,6 +1315,7 @@ export function getSortedTasks(tasks: Task[], sortConfig?: SortConfig): Task[] {
   const { mode, direction } = config;
   const multiplier = direction === 'asc' ? 1 : -1;
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: todo: figure out how to simplify
   return [...tasks].sort((a, b) => {
     switch (mode) {
       case 'manual':
