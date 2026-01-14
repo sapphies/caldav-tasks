@@ -1,6 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -23,5 +23,34 @@ export default defineConfig({
   build: {
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // react and core dependencies
+          vendor: ['react', 'react-dom', 'react/jsx-runtime'],
+
+          // tauri plugins chunk
+          tauri: [
+            '@tauri-apps/api',
+            '@tauri-apps/plugin-sql',
+            '@tauri-apps/plugin-updater',
+            '@tauri-apps/plugin-process',
+            '@tauri-apps/plugin-notification',
+            '@tauri-apps/plugin-log',
+            '@tauri-apps/plugin-opener',
+            '@tauri-apps/plugin-os',
+          ],
+
+          // state management and queries
+          state: ['zustand', '@tanstack/react-query'],
+
+          // dnd for sorting, drag'n'drop and ordering
+          dnd: ['@dnd-kit/core', '@dnd-kit/sortable'],
+
+          // date utilities
+          date: ['date-fns'],
+        },
+      },
+    },
   },
 });
