@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ToastContainer } from 'react-toastify';
 import { DragOverlay } from '@/components/DragOverlay';
 import { Header } from '@/components/Header';
 import { AccountModal } from '@/components/modals/AccountModal';
