@@ -185,7 +185,7 @@ function App() {
           initialCategory={
             menuHandlers.settingsInitialTab.category as 'general' | 'account' | 'about' | undefined
           }
-          initialSubtab={menuHandlers.settingsInitialTab.subtab as string | undefined}
+          initialSubtab={menuHandlers.settingsInitialTab.subtab as SettingsSubtab | undefined}
         />
       )}
 
