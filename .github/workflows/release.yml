@@ -165,6 +165,14 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
+      # for macOS CI builds, temporarily add ad-hoc signing to prevent "damaged" error
+      # we can't add signingIdentity to our config file by default
+      # because our app will just refuse to launch. ☹️
+      - name: Enable ad-hoc signing for macOS CI builds
+        if: matrix.platform == 'macos-latest' || matrix.platform == 'macos-15-intel'
+        run: |
+          jq '.bundle.macOS.signingIdentity = "-"' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
