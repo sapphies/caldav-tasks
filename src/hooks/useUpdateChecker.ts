@@ -1,11 +1,9 @@
+import { isTauri } from '@tauri-apps/api/core';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { useCallback, useEffect, useState } from 'react';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('Updater', '#10b981');
-
-// Check if we're in a Tauri environment
-const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
 
 export interface UpdateInfo {
   version: string;
@@ -34,7 +32,7 @@ export function useUpdateChecker(): UseUpdateCheckerResult {
   const [dismissed, setDismissed] = useState(false);
 
   const checkForUpdates = useCallback(async () => {
-    if (!isTauri) {
+    if (!isTauri()) {
       log.info('Not in Tauri environment, skipping update check');
       return;
     }
@@ -43,14 +41,15 @@ export function useUpdateChecker(): UseUpdateCheckerResult {
     setError(null);
 
     try {
+      log.info('Starting update check...');
       const { check } = await import('@tauri-apps/plugin-updater');
       const { getVersion } = await import('@tauri-apps/api/app');
 
       const currentVersion = await getVersion();
       log.info(`Current version: ${currentVersion}`);
 
+      log.info('Checking for updates from endpoint...');
       const update = await check();
-
       if (update) {
         log.info(`Update available: ${update.version}`);
         setUpdateAvailable({
@@ -73,7 +72,7 @@ export function useUpdateChecker(): UseUpdateCheckerResult {
   }, []);
 
   const downloadAndInstall = useCallback(async () => {
-    if (!isTauri || !updateAvailable) {
+    if (!isTauri() || !updateAvailable) {
       return;
     }
 
@@ -126,15 +125,18 @@ export function useUpdateChecker(): UseUpdateCheckerResult {
     setUpdateAvailable(null);
   }, []);
 
-  // Check for updates on mount (after a short delay to not block startup)
   useEffect(() => {
-    if (!isTauri) return;
+    if (!isTauri()) {
+      return;
+    }
 
     const timer = setTimeout(() => {
       checkForUpdates();
     }, 5000); // Check 5 seconds after app starts
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [checkForUpdates]);
 
   return {

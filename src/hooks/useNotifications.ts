@@ -1,3 +1,4 @@
+import { isTauri } from '@tauri-apps/api/core';
 import { differenceInSeconds, isPast } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { useTasks } from '@/hooks/queries';
@@ -6,9 +7,6 @@ import { useSettingsStore } from '@/store/settingsStore';
 
 const log = createLogger('Notifications', '#f43f5e');
 
-// check if we're in a Tauri environment
-const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
-
 interface NotificationOptions {
   title: string;
   body: string;
@@ -16,7 +14,7 @@ interface NotificationOptions {
 }
 
 async function showNotification(options: NotificationOptions): Promise<void> {
-  if (isTauri) {
+  if (isTauri()) {
     try {
       // dynamic import for Tauri notification plugin
       const notification = await import('@tauri-apps/plugin-notification');
