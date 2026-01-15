@@ -46,7 +46,12 @@
         "useKeyWithClickEvents": "warn"
       },
       "complexity": {
-        "noExcessiveCognitiveComplexity": "warn",
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 30
+          }
+        },
         "noForEach": "off"
       },
       "correctness": {
@@ -59,7 +64,7 @@
         "useTemplate": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "warn",
+        "noExplicitAny": "error",
         "noArrayIndexKey": "warn"
       }
     }
