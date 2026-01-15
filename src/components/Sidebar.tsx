@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import ChevronDown from 'lucide-react/icons/chevron-down';
 import ChevronRight from 'lucide-react/icons/chevron-right';
+import Download from 'lucide-react/icons/download';
 import Edit2 from 'lucide-react/icons/edit-2';
 import FolderKanban from 'lucide-react/icons/folder-kanban';
 import Import from 'lucide-react/icons/import';
@@ -56,6 +57,8 @@ interface SidebarProps {
   width: number;
   onToggleCollapse: () => void;
   onWidthChange: (width: number) => void;
+  updateAvailable?: boolean;
+  onUpdateClick?: () => void;
 }
 
 const MIN_SIDEBAR_WIDTH = 200;
@@ -68,6 +71,8 @@ export function Sidebar({
   width,
   onToggleCollapse,
   onWidthChange,
+  updateAvailable,
+  onUpdateClick,
 }: SidebarProps) {
   const queryClient = useQueryClient();
   const { data: accounts = [] } = useAccounts();
@@ -512,6 +517,16 @@ export function Sidebar({
             </div>
 
             <div className="border-t border-surface-200 dark:border-surface-700 p-2 shrink-0">
+              {updateAvailable && (
+                <button
+                  type="button"
+                  onClick={() => onUpdateClick?.()}
+                  className="w-full flex items-center gap-2 px-3 py-2 mb-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-md transition-colors font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Update available!
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => onOpenSettings?.()}
@@ -635,6 +650,17 @@ export function Sidebar({
 
             {/* Settings at bottom */}
             <div className="mt-auto pt-2 border-t border-surface-200 dark:border-surface-700">
+              {updateAvailable && (
+                <Tooltip content="Update available!" position="right">
+                  <button
+                    type="button"
+                    onClick={() => onUpdateClick?.()}
+                    className="p-2 mb-1 rounded-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
+                </Tooltip>
+              )}
               <Tooltip content="Settings" position="right">
                 <button
                   type="button"

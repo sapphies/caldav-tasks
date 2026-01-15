@@ -7,10 +7,10 @@ import { ExportModal } from '@/components/modals/ExportModal';
 import { ImportModal } from '@/components/modals/ImportModal';
 import { OnboardingModal } from '@/components/modals/OnboardingModal';
 import { SettingsModal, type SettingsSubtab } from '@/components/modals/SettingsModal';
+import { UpdateModal } from '@/components/modals/UpdateModal';
 import { Sidebar } from '@/components/Sidebar';
 import { TaskEditor } from '@/components/TaskEditor';
 import { TaskList } from '@/components/TaskList';
-import { UpdateBanner } from '@/components/UpdateBanner';
 import { useAccounts, useSyncQuery, useTasks, useUIState } from '@/hooks/queries';
 import { useAppMenu } from '@/hooks/useAppMenu';
 import { useFileDrop } from '@/hooks/useFileDrop';
@@ -33,6 +33,7 @@ function App() {
     null,
   );
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { isSyncing, isOffline, lastSyncTime, syncAll } = useSyncQuery();
   const { data: accounts = [] } = useAccounts();
   const {
@@ -132,19 +133,11 @@ function App() {
         width={sidebarWidth}
         onToggleCollapse={toggleSidebarCollapsed}
         onWidthChange={setSidebarWidth}
+        updateAvailable={!!updateAvailable}
+        onUpdateClick={() => setShowUpdateModal(true)}
       />
 
       <main className="flex-1 flex flex-col min-w-0">
-        {updateAvailable && (
-          <UpdateBanner
-            updateInfo={updateAvailable}
-            onDownload={downloadAndInstall}
-            onDismiss={dismissUpdate}
-            isDownloading={isDownloading}
-            downloadProgress={downloadProgress}
-          />
-        )}
-
         {isOffline && (
           <div className="bg-amber-500 text-white text-center py-1 text-sm font-medium">
             You're offline. Changes will sync when you reconnect.
@@ -221,6 +214,20 @@ function App() {
           onAddAccount={() => {
             menuHandlers.setShowAccountModal(true);
           }}
+        />
+      )}
+
+      {showUpdateModal && updateAvailable && (
+        <UpdateModal
+          updateInfo={updateAvailable}
+          onDownload={downloadAndInstall}
+          onDismiss={() => {
+            dismissUpdate();
+            setShowUpdateModal(false);
+          }}
+          onClose={() => setShowUpdateModal(false)}
+          isDownloading={isDownloading}
+          downloadProgress={downloadProgress}
         />
       )}
     </div>
