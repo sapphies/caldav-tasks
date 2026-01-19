@@ -23,14 +23,14 @@ If you do, [file a bug report][header-repo-issues-link] and let me know.
 You can download pre-built binaries of the application for each platform by clicking on one of the following links.
 
 <!-- download badges start -->
-[<img src="./.github/assets/download/windows_msi_x64.png" width="264">][release-windows-msi-x64]
-[<img src="./.github/assets/download/windows_exe_x64.png" width="264">][release-windows-exe-x64]
-[<img src="./.github/assets/download/macos_dmg_applesilicon.png" width="264">][release-macos-dmg-applesilicon]
-[<img src="./.github/assets/download/macos_dmg_intel.png" width="264">][release-macos-dmg-intel]
-[<img src="./.github/assets/download/linux_deb_x86_64.png" width="264">][release-linux-deb-x86_64]
-[<img src="./.github/assets/download/linux_deb_arm.png" width="264">][release-linux-deb-arm]
-[<img src="./.github/assets/download/linux_rpm_x86_64.png" width="264">][release-linux-rpm-x86_64]
-[<img src="./.github/assets/download/linux_rpm_arm.png" width="264">][release-linux-rpm-arm]
+[<img src="./.github/assets/download/windows_msi_x64.png" width="200">][release-windows-msi-x64]
+[<img src="./.github/assets/download/windows_exe_x64.png" width="200">][release-windows-exe-x64]
+[<img src="./.github/assets/download/macos_dmg_applesilicon.png" width="200">][release-macos-dmg-applesilicon]
+[<img src="./.github/assets/download/macos_dmg_intel.png" width="200">][release-macos-dmg-intel]
+[<img src="./.github/assets/download/linux_deb_x86_64.png" width="200">][release-linux-deb-x86_64]
+[<img src="./.github/assets/download/linux_deb_arm.png" width="200">][release-linux-deb-arm]
+[<img src="./.github/assets/download/linux_rpm_x86_64.png" width="200">][release-linux-rpm-x86_64]
+[<img src="./.github/assets/download/linux_rpm_arm.png" width="200">][release-linux-rpm-arm]
 <!-- download badges end -->
 
 ## Nix
@@ -176,14 +176,14 @@ caldav-tasks is licensed under the [<span aria-hidden="true">&nearr;</span> zlib
 [header-repo-issues-link]: https://github.com/sapphies/caldav-tasks/issues
 [header-screenshot]: ./.github/assets/screenshot.png
 
-[release-windows-msi-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64-setup.msi
-[release-windows-exe-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64-setup.exe
-[release-macos-dmg-applesilicon]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_aarch64.dmg
-[release-macos-dmg-intel]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64.dmg
-[release-linux-deb-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_amd64.deb
-[release-linux-deb-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_arm64.deb
-[release-linux-rpm-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks-0.5.3-1.x86_64.rpm
-[release-linux-rpm-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks-0.5.3-1.aarch64.rpm
+[release-windows-msi-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_x64_en-US.msi
+[release-windows-exe-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_x64-setup.exe
+[release-macos-dmg-applesilicon]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_aarch64.dmg
+[release-macos-dmg-intel]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_x64.dmg
+[release-linux-deb-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_amd64.deb
+[release-linux-deb-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks_0.5.31_arm64.deb
+[release-linux-rpm-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks-0.5.31-1.x86_64.rpm
+[release-linux-rpm-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.31/caldav-tasks-0.5.31-1.aarch64.rpm
 
 [repo-license]: https://github.com/sapphies/caldav-tasks/blob/master/LICENSE
 [repo-releases]: https://github.com/sapphies/caldav-tasks/releases
