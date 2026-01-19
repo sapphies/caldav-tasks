@@ -40,7 +40,7 @@ nix run github:sapphies/caldav-tasks
 ```
 
 ### Flakes
-> [!INFO]  
+> [!IMPORTANT]  
 > Until the app is officially published to `nixpkgs`, you'll have to use a flake input for the time being.
 
 Add `caldav-tasks` as an input to your `flake.nix` file.
