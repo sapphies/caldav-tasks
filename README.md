@@ -23,14 +23,14 @@ If you do, [file a bug report][header-repo-issues-link] and let me know.
 You can download pre-built binaries of the application for each platform by clicking on one of the following links.
 
 <!-- download badges start -->
-[<img src="./.github/assets/download/Windows_msi_x64.png" width="264">][release-windows-msi-x64]
-[<img src="./.github/assets/download/Windows_exe_x64.png" width="264">][release-windows-exe-x64]
-[<img src="./.github/assets/download/macOS_dmg_AppleSilicon.png" width="264">][release-macos-dmg-applesilicon]
-[<img src="./.github/assets/download/macOS_dmg_Intel.png" width="264">][release-macos-dmg-intel]
-[<img src="./.github/assets/download/Linux_deb_x86_64.png" width="264">][release-linux-deb-x86_64]
-[<img src="./.github/assets/download/Linux_deb_ARM.png" width="264">][release-linux-deb-arm]
-[<img src="./.github/assets/download/Linux_rpm_x86_64.png" width="264">][release-linux-rpm-x86_64]
-[<img src="./.github/assets/download/Linux_rpm_ARM.png" width="264">][release-linux-rpm-arm]
+[<img src="./.github/assets/download/windows_msi_x64.png" width="264">][release-windows-msi-x64]
+[<img src="./.github/assets/download/windows_exe_x64.png" width="264">][release-windows-exe-x64]
+[<img src="./.github/assets/download/macos_dmg_applesilicon.png" width="264">][release-macos-dmg-applesilicon]
+[<img src="./.github/assets/download/macos_dmg_intel.png" width="264">][release-macos-dmg-intel]
+[<img src="./.github/assets/download/linux_deb_x86_64.png" width="264">][release-linux-deb-x86_64]
+[<img src="./.github/assets/download/linux_deb_arm.png" width="264">][release-linux-deb-arm]
+[<img src="./.github/assets/download/linux_rpm_x86_64.png" width="264">][release-linux-rpm-x86_64]
+[<img src="./.github/assets/download/linux_rpm_arm.png" width="264">][release-linux-rpm-arm]
 <!-- download badges end -->
 
 ## Nix
