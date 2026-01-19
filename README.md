@@ -60,8 +60,7 @@ Add `caldav-tasks` as an input to your `flake.nix` file.
 ### Examples
 <details>
   <summary>NixOS</summary>
-```nix
-# flake.nix
+  <pre><code class="language-nix"># flake.nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -84,25 +83,23 @@ Add `caldav-tasks` as an input to your `flake.nix` file.
     };
   };
 }
-```
+</code></pre>
 </details>
 
 <details>
   <summary>Home Manager</summary>
-```nix
-{ pkgs, inputs, ... }:
+  <pre><code class="language-nix">{ pkgs, inputs, ... }:
 {
   home.packages = [
     inputs.caldav-tasks.packages.${pkgs.system}.default
   ];
 }
-```
+</code></pre>
 </details>
 
 <details>
   <summary>macOS (nix-darwin)</summary>
-```nix
-# flake.nix
+  <pre><code class="language-nix"># flake.nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -128,7 +125,7 @@ Add `caldav-tasks` as an input to your `flake.nix` file.
     };
   };
 }
-```
+</code></pre>
 </details>
 
 # Support
