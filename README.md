@@ -1,14 +1,18 @@
-# caldav-tasks
-🗄️ A (work in progress) cross-platform CalDAV compatible task management app.
+<div align="center">
+  <h1>caldav-tasks</h1>
 
-<!-- header badges start -->
-[![Ko-fi donation link][header-donate-kofi-badge]][donate-kofi]
-[![Liberapay donation link][header-donate-liberapay-badge]][donate-liberapay]
-[![GitHub Repo stars][header-repo-stars-badge]][repo-stars]
-[![GitHub License][header-repo-license-badge]][repo-license]
-<!-- header badges end -->
+  <p>🗄️ A (work in progress) cross-platform CalDAV compatible task management app.</p>
 
-![A screenshot of a CalDAV desktop task management. The sidebar shows accounts for "Lily (fastmail)" and "Chloe (rustical)," with a roadmap folder selected containing 10 tasks. The main window lists several development tasks, including "Clean up Rust backend," "Set up linters, formatters" (with subtasks like "Set up oxlint"), and "Migrate to TailwindCSS v4."][header-screenshot]
+  <!-- header badges start -->
+  [![GitHub Repo stars][header-repo-stars-badge]][repo-stars]
+  &nbsp;[![Total downloads][header-repo-total-downloads-badge]][repo-releases]
+  &nbsp;[![Ko-fi donation link][header-donate-kofi-badge]][donate-kofi]
+  &nbsp;[![Liberapay donation link][header-donate-liberapay-badge]][donate-liberapay]
+  &nbsp;[![GitHub License][header-repo-license-badge]][repo-license]
+  <!-- header badges end -->
+
+  ![A screenshot of a CalDAV desktop task management. The sidebar shows accounts for "Lily (fastmail)" and "Chloe (rustical)," with a roadmap folder selected containing 10 tasks. The main window lists several development tasks, including "Clean up Rust backend," "Set up linters, formatters" (with subtasks like "Set up oxlint"), and "Migrate to TailwindCSS v4."][header-screenshot]
+</div>
 
 ## Disclaimer
 > [!WARNING]  
@@ -163,7 +167,8 @@ caldav-tasks is licensed under the [<span aria-hidden="true">&nearr;</span> zlib
 [header-donate-kofi-badge]: https://img.shields.io/badge/donate-kofi-f5c2e7?style=plastic&logo=kofi&logoColor=f5c2e7&labelColor=18181b
 [header-donate-liberapay-badge]: https://img.shields.io/badge/donate-liberapay-f5c2e7?style=plastic&logo=liberapay&logoColor=f5c2e7&labelColor=18181b
 [header-repo-license-badge]: https://img.shields.io/github/license/sapphies/caldav-tasks?style=plastic&labelColor=18181b&color=f5c2e7
-[header-repo-stars-badge]: https://img.shields.io/github/stars/sapphies/caldav-tasks?style=plastic&logo=github&logoColor=f5c2e7&labelColor=18181b&color=f5c2e7
+[header-repo-stars-badge]: https://img.shields.io/github/stars/sapphies/caldav-tasks?style=plastic&logo=github&logoColor=f5c2e7&labelColor=18181b&color=f5c2e7&cacheSeconds=600
+[header-repo-total-downloads-badge]: https://img.shields.io/github/downloads/sapphies/caldav-tasks/total?style=plastic&logo=hack-the-box&logoColor=f5c2e7&label=downloads&labelColor=18181b&color=f5c2e7&cacheSeconds=600
 
 [header-repo-issues-link]: https://github.com/sapphies/caldav-tasks/issues
 [header-screenshot]: ./.github/assets/screenshot.png
@@ -178,4 +183,5 @@ caldav-tasks is licensed under the [<span aria-hidden="true">&nearr;</span> zlib
 [release-linux-rpm-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks-0.5.3-1.aarch64.rpm
 
 [repo-license]: https://github.com/sapphies/caldav-tasks/blob/master/LICENSE
+[repo-releases]: https://github.com/sapphies/caldav-tasks/releases
 [repo-stars]: https://github.com/sapphies/caldav-tasks/stargazers
