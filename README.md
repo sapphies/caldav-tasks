@@ -60,72 +60,78 @@ Add `caldav-tasks` as an input to your `flake.nix` file.
 ### Examples
 <details>
   <summary>NixOS</summary>
-  <pre><code class="language-nix"># flake.nix
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    caldav-tasks = {
-      url = "github:sapphies/caldav-tasks";
-      inputs.nixpkgs.follows = "nixpkgs";
+
+  ```nix
+  # flake.nix
+  {
+    inputs = {
+      nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      caldav-tasks = {
+        url = "github:sapphies/caldav-tasks";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
     };
-  };
-  outputs = { nixpkgs, caldav-tasks, ... }: {
-    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        {
-          environment.systemPackages = [
-            caldav-tasks.packages.x86_64-linux.default
-          ];
-        }
-        # ... etc
-      ];
+    outputs = { nixpkgs, caldav-tasks, ... }: {
+      nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          {
+            environment.systemPackages = [
+              caldav-tasks.packages.x86_64-linux.default
+            ];
+          }
+          # ... etc
+        ];
+      };
     };
-  };
-}
-</code></pre>
+  }
+  ```
 </details>
 
 <details>
   <summary>Home Manager</summary>
-  <pre><code class="language-nix">{ pkgs, inputs, ... }:
-{
-  home.packages = [
-    inputs.caldav-tasks.packages.${pkgs.system}.default
-  ];
-}
-</code></pre>
+
+  ```nix
+  { pkgs, inputs, ... }:
+  {
+    home.packages = [
+      inputs.caldav-tasks.packages.${pkgs.system}.default
+    ];
+  }
+  ```
 </details>
 
 <details>
   <summary>macOS (nix-darwin)</summary>
-  <pre><code class="language-nix"># flake.nix
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
+  
+  ```nix
+  # flake.nix
+  {
+    inputs = {
+      nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      darwin = {
+        url = "github:LnL7/nix-darwin";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+      caldav-tasks = {
+        url = "github:sapphies/caldav-tasks";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
     };
-    caldav-tasks = {
-      url = "github:sapphies/caldav-tasks";
-      inputs.nixpkgs.follows = "nixpkgs";
+    outputs = { nixpkgs, darwin, caldav-tasks, ... }: {
+      darwinConfigurations.your-macbook = darwin.lib.darwinSystem {
+        system = "aarch64-darwin";  # or "x86_64-darwin"
+        modules = [
+          {
+            environment.systemPackages = [
+              caldav-tasks.packages.aarch64-darwin.default
+            ];
+          }
+        ];
+      };
     };
-  };
-  outputs = { nixpkgs, darwin, caldav-tasks, ... }: {
-    darwinConfigurations.your-macbook = darwin.lib.darwinSystem {
-      system = "aarch64-darwin";  # or "x86_64-darwin"
-      modules = [
-        {
-          environment.systemPackages = [
-            caldav-tasks.packages.aarch64-darwin.default
-          ];
-        }
-      ];
-    };
-  };
-}
-</code></pre>
+  }
+  ```
 </details>
 
 # Support
