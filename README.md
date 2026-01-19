@@ -1,28 +1,181 @@
-# caldav app test
-a work in progress caldav compatible task management client for desktop
+# caldav-tasks
+🗄️ A (work in progress) cross-platform CalDAV compatible task management app.
 
+<!-- header badges start -->
+[![Ko-fi donation link][header-donate-kofi-badge]][donate-kofi]
+[![Liberapay donation link][header-donate-liberapay-badge]][donate-liberapay]
+[![GitHub Repo stars][header-repo-stars-badge]][repo-stars]
+[![GitHub License][header-repo-license-badge]][repo-license]
+<!-- header badges end -->
+
+![A screenshot of a CalDAV desktop task management. The sidebar shows accounts for "Lily (fastmail)" and "Chloe (rustical)," with a roadmap folder selected containing 10 tasks. The main window lists several development tasks, including "Clean up Rust backend," "Set up linters, formatters" (with subtasks like "Set up oxlint"), and "Migrate to TailwindCSS v4."][header-screenshot]
+
+## Disclaimer
 > [!WARNING]  
-> the app is currently in alpha so you might encounter bugs here and there.  
-if you do, [file a bug in the "issues" page](https://github.com/sapphies/caldav-tasks/issues) and let us know
+> The app is currently in alpha so you might encounter bugs here and there.  
+If you do, [file a bug report][header-repo-issues-link] and let me know.
 
-![A screenshot of a CalDAV desktop task management. The sidebar shows accounts for "Lily (fastmail)" and "Chloe (rustical)," with a roadmap folder selected containing 10 tasks. The main window lists several development tasks, including "Clean up Rust backend," "Set up linters, formatters" (with subtasks like "Set up oxlint"), and "Migrate to TailwindCSS v4."](./.github/screenshot.png)
+# Download
+You can download pre-built binaries of the application for each platform by clicking on one of the following links.
 
-# download
-you can download the latest release of the app to your platform in [the "releases" page](https://github.com/sapphies/caldav-tasks/releases/latest)
+<!-- download badges start -->
+[<img src="./.github/assets/download/Windows_msi_x64.png" width="264">][release-windows-msi-x64]
+[<img src="./.github/assets/download/Windows_exe_x64.png" width="264">][release-windows-exe-x64]
+[<img src="./.github/assets/download/macOS_dmg_AppleSilicon.png" width="264">][release-macos-dmg-applesilicon]
+[<img src="./.github/assets/download/macOS_dmg_Intel.png" width="264">][release-macos-dmg-intel]
+[<img src="./.github/assets/download/Linux_deb_x86_64.png" width="264">][release-linux-deb-x86_64]
+[<img src="./.github/assets/download/Linux_deb_ARM.png" width="264">][release-linux-deb-arm]
+[<img src="./.github/assets/download/Linux_rpm_x86_64.png" width="264">][release-linux-rpm-x86_64]
+[<img src="./.github/assets/download/Linux_rpm_ARM.png" width="264">][release-linux-rpm-arm]
+<!-- download badges end -->
 
-# tested against
-## servers
-- nextcloud tasks
-- baikal (briefly)
-- radicale (briefly)
-- rustical
-- fastmail
+## Nix
+To quickly try out the app, you can use the following command:
+```
+nix run github:sapphies/caldav-tasks
+```
 
-## clients, apps
-- davx5
-- apple reminders
-- tasks.org
-- jtx board
+### Flakes
+> [!INFO]  
+> Until the app is officially published to `nixpkgs`, you'll have to use a flake input for the time being.
 
-# license
-[zlib/libpng](LICENSE)
+Add `caldav-tasks` as an input to your `flake.nix` file.
+```nix
+{
+  inputs = {
+    # ... other inputs ...
+    caldav-tasks = {
+      url = "github:sapphies/caldav-tasks";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # ... other inputs ...
+  };
+}
+```
+
+### Examples
+<details>
+  <summary>NixOS</summary>
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    caldav-tasks = {
+      url = "github:sapphies/caldav-tasks";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+  outputs = { nixpkgs, caldav-tasks, ... }: {
+    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        {
+          environment.systemPackages = [
+            caldav-tasks.packages.x86_64-linux.default
+          ];
+        }
+        # ... etc
+      ];
+    };
+  };
+}
+```
+</details>
+
+<details>
+  <summary>Home Manager</summary>
+```nix
+{ pkgs, inputs, ... }:
+{
+  home.packages = [
+    inputs.caldav-tasks.packages.${pkgs.system}.default
+  ];
+}
+```
+</details>
+
+<details>
+  <summary>macOS (nix-darwin)</summary>
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    caldav-tasks = {
+      url = "github:sapphies/caldav-tasks";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+  outputs = { nixpkgs, darwin, caldav-tasks, ... }: {
+    darwinConfigurations.your-macbook = darwin.lib.darwinSystem {
+      system = "aarch64-darwin";  # or "x86_64-darwin"
+      modules = [
+        {
+          environment.systemPackages = [
+            caldav-tasks.packages.aarch64-darwin.default
+          ];
+        }
+      ];
+    };
+  };
+}
+```
+</details>
+
+# Support
+If you found caldav-tasks useful, please consider donating! 
+
+I work on caldav-tasks during my free time as a student, so every amount, however small, helps with rent and food costs. Thank you :)
+
+<!-- donation badges start -->
+[<img src="./.github/assets/donate/ko-fi.png" width="264">][donate-kofi]
+[<img src="./.github/assets/donate/liberapay.png" width="264">][donate-liberapay]
+<!-- donation badges end -->
+
+# Compatibility
+## Servers
+| Server              | Support |
+| ------------------- | ------- |
+| Nextcloud Tasks     | ✅      |
+| Baikal              | ✅      |
+| Radicale            | ✅      |
+| RustiCal            | ✅      |
+| Fastmail            | ✅      |
+## Clients
+| Client              | Support |
+| ------------------- | ------- |
+| DAVx⁵               | ✅      |
+| Apple Reminders     | ✅      |
+| Tasks.org           | ✅      |
+| jtx Board           | ✅      |
+
+# License
+caldav-tasks is licensed under the [<span aria-hidden="true">&nearr;</span> zlib/libpng][repo-license] license.
+
+[donate-kofi]: https://ko-fi.com/solelychloe
+[donate-liberapay]: https://liberapay.com/chloe
+
+[header-donate-kofi-badge]: https://img.shields.io/badge/donate-kofi-f5c2e7?style=plastic&logo=kofi&logoColor=f5c2e7&labelColor=18181b
+[header-donate-liberapay-badge]: https://img.shields.io/badge/donate-liberapay-f5c2e7?style=plastic&logo=liberapay&logoColor=f5c2e7&labelColor=18181b
+[header-repo-license-badge]: https://img.shields.io/github/license/sapphies/caldav-tasks?style=plastic&labelColor=18181b&color=f5c2e7
+[header-repo-stars-badge]: https://img.shields.io/github/stars/sapphies/caldav-tasks?style=plastic&logo=github&logoColor=f5c2e7&labelColor=18181b&color=f5c2e7
+
+[header-repo-issues-link]: https://github.com/sapphies/caldav-tasks/issues
+[header-screenshot]: ./.github/assets/screenshot.png
+
+[release-windows-msi-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64-setup.msi
+[release-windows-exe-x64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64-setup.exe
+[release-macos-dmg-applesilicon]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_aarch64.dmg
+[release-macos-dmg-intel]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_x64.dmg
+[release-linux-deb-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_amd64.deb
+[release-linux-deb-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks_0.5.3_arm64.deb
+[release-linux-rpm-x86_64]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks-0.5.3-1.x86_64.rpm
+[release-linux-rpm-arm]: https://github.com/sapphies/caldav-tasks/releases/download/app-v0.5.3/caldav-tasks-0.5.3-1.aarch64.rpm
+
+[repo-license]: https://github.com/sapphies/caldav-tasks/blob/master/LICENSE
+[repo-stars]: https://github.com/sapphies/caldav-tasks/stargazers
